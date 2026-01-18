@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BD LIVE TV - Optimized</title>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <title>BD LIVE TV - Pro</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.12"></script>
     <style>
         :root { --accent: #00f2fe; --bg: #000; }
         body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; overflow: hidden; }
 
-        /* ভিডিও প্লেয়ার এলাকা - সম্পূর্ণ পরিষ্কার */
-        #videoContainer { width: 100vw; height: 100vh; position: fixed; top: 0; left: 0; z-index: 1; }
+        /* ভিডিও প্লেয়ার */
+        #videoContainer { width: 100vw; height: 100vh; position: fixed; top: 0; left: 0; z-index: 1; background: #000; }
         video { width: 100%; height: 100%; object-fit: contain; }
 
-        /* সাইড টুলবার - কিউআর কোড এবং বাটনগুলো ডান দিকে সাজানো */
+        /* সাইড টুলবার */
         .side-toolbar {
             position: fixed; top: 20px; right: 20px; z-index: 100;
             display: flex; flex-direction: column; gap: 15px; align-items: flex-end;
@@ -24,20 +24,14 @@
             background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px;
             padding: 10px; cursor: pointer; transition: 0.3s; color: #fff;
-            display: flex; align-items: center; gap: 10px; text-decoration: none;
+            display: flex; align-items: center; gap: 10px; text-decoration: none; outline: none;
         }
 
-        .tool-item:focus, .tool-item:hover {
-            background: var(--accent); color: #000; transform: scale(1.1);
-        }
+        .tool-item:focus { background: var(--accent); color: #000; transform: scale(1.1); }
 
-        /* কিউআর কোড যখন দরকার তখন বড় হবে */
-        .qr-section { text-align: center; }
-        .qr-section img { 
-            width: 50px; border-radius: 5px; transition: 0.3s; 
-            border: 2px solid #fff;
-        }
-        .tool-item:focus img { width: 120px; } /* ফোকাস করলে কিউআর বড় হবে */
+        /* কিউআর কোড */
+        .qr-section img { width: 40px; border-radius: 5px; border: 2px solid #fff; }
+        .tool-item:focus img { width: 150px; }
 
         /* নিচের চ্যানেল লিস্ট */
         .bottom-overlay {
@@ -46,30 +40,31 @@
             padding: 20px; transition: opacity 0.5s;
         }
 
-        .channel-tray { display: flex; gap: 15px; overflow-x: auto; padding: 10px; }
+        .channel-tray { display: flex; gap: 15px; overflow-x: auto; padding: 10px; scroll-behavior: smooth; }
         .channel-tray::-webkit-scrollbar { display: none; }
 
         .tv-card {
-            min-width: 150px; height: 80px; background: rgba(255,255,255,0.1);
+            min-width: 160px; height: 90px; background: rgba(255,255,255,0.1);
             border-radius: 12px; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: 0.3s; border: 2px solid transparent; outline: none;
+            cursor: pointer; transition: 0.3s; border: 3px solid transparent; outline: none;
+            font-weight: bold; text-align: center; padding: 5px;
         }
-        .tv-card:focus { border-color: var(--accent); transform: scale(1.1); background: rgba(0, 242, 254, 0.2); }
+        .tv-card:focus { border-color: var(--accent); transform: scale(1.1); background: rgba(0, 242, 254, 0.3); }
 
-        .status-msg { position: fixed; top: 20px; left: 20px; z-index: 100; color: var(--accent); font-weight: bold; }
+        .status-msg { position: fixed; top: 20px; left: 20px; z-index: 100; color: var(--accent); font-size: 14px; }
     </style>
 </head>
 <body>
 
-    <div class="status-msg" id="status">সিস্টেম রেডি...</div>
+    <div class="status-msg" id="status">সিস্টেম লোড হচ্ছে...</div>
 
     <div id="videoContainer">
-        <video id="mainPlayer" controls autoplay></video>
+        <video id="mainPlayer" controls autoplay muted playsinline></video>
     </div>
 
     <div class="side-toolbar" id="sideToolbar">
-        <button class="tool-item" id="multiViewBtn">🔳 মাল্টি-ভিউ</button>
-        <button class="tool-item" onclick="setTimer()">⏰ স্লিপ টাইমার</button>
+        <button class="tool-item" onclick="location.reload()">🔄 রিফ্রেশ</button>
+        <button class="tool-item" onclick="setTimer()">⏰ টাইমার</button>
         <div class="tool-item qr-section" tabindex="0">
             <span>📱 রিমোট</span>
             <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://soheltanver85-a11y.github.io/BD-LIVE-TV/" alt="QR">
@@ -77,7 +72,7 @@
     </div>
 
     <div class="bottom-overlay" id="bottomUI">
-        <div id="playingNow" style="margin-left: 20px; font-size: 1.2rem; margin-bottom: 10px;">চ্যানেল নির্বাচন করুন</div>
+        <div id="playingNow" style="margin-left: 20px; font-size: 1.1rem; margin-bottom: 10px; color: var(--accent);">চ্যানেল লোড হচ্ছে...</div>
         <div class="channel-tray" id="tray"></div>
     </div>
 
@@ -85,37 +80,48 @@
     const m3uUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/refs/heads/main/Live%20tv";
     const video = document.getElementById('mainPlayer');
     const tray = document.getElementById('tray');
-    let channels = [];
+    let hls = null;
     let uiTimer;
 
-    // ইউআই অটো-হাইড লজিক
+    // ইউআই কন্ট্রোল
     function showUI() {
         document.getElementById('sideToolbar').style.opacity = '1';
         document.getElementById('bottomUI').style.opacity = '1';
         clearTimeout(uiTimer);
         uiTimer = setTimeout(() => {
             if (document.activeElement.tagName !== 'BUTTON' && !document.activeElement.classList.contains('tv-card')) {
-                document.getElementById('sideToolbar').style.opacity = '0.2';
+                document.getElementById('sideToolbar').style.opacity = '0.3';
                 document.getElementById('bottomUI').style.opacity = '0';
             }
-        }, 5000);
+        }, 7000);
     }
+
     document.addEventListener('mousemove', showUI);
     document.addEventListener('keydown', showUI);
 
     async function init() {
-        const res = await fetch(m3uUrl);
-        const data = await res.text();
-        const lines = data.split('\n');
-        for (let i = 0; i < lines.length; i++) {
-            if (lines[i].includes('#EXTINF')) {
-                channels.push({ name: lines[i].split(',')[1], url: lines[i+1].trim() });
+        try {
+            const res = await fetch(m3uUrl);
+            const data = await res.text();
+            const lines = data.split('\n');
+            const channels = [];
+            
+            for (let i = 0; i < lines.length; i++) {
+                if (lines[i].includes('#EXTINF')) {
+                    const name = lines[i].split(',')[1] || "Unknown Channel";
+                    const url = lines[i+1] ? lines[i+1].trim() : "";
+                    if(url) channels.push({ name, url });
+                }
             }
+            
+            render(channels);
+            document.getElementById('status').innerText = "অনলাইন";
+        } catch (err) {
+            document.getElementById('status').innerText = "লোড ব্যর্থ হয়েছে!";
         }
-        render();
     }
 
-    function render() {
+    function render(channels) {
         tray.innerHTML = '';
         channels.forEach((ch, i) => {
             const card = document.createElement('div');
@@ -123,24 +129,64 @@
             card.tabIndex = 0;
             card.innerText = ch.name;
             card.onclick = () => play(ch.url, ch.name);
+            // এন্টার কি চাপলে প্লে হবে (টিভির জন্য)
+            card.onkeydown = (e) => { if(e.key === 'Enter') play(ch.url, ch.name); };
             tray.appendChild(card);
         });
-        if(channels.length > 0) play(channels[0].url, channels[0].name);
+
+        if(channels.length > 0) {
+            play(channels[0].url, channels[0].name);
+            // প্রথম চ্যানেলটি ফোকাস করো যেন রিমোট দিয়ে চালানো যায়
+            setTimeout(() => tray.firstChild.focus(), 1000);
+        }
     }
 
     function play(url, name) {
         document.getElementById('playingNow').innerText = "এখন চলছে: " + name;
+        
+        // পুরানো ভিডিও সোর্স থাকলে পরিষ্কার করো
+        if (hls) {
+            hls.destroy();
+        }
+
         if (Hls.isSupported()) {
-            const hls = new Hls();
+            hls = new Hls({
+                capLevelToPlayerSize: true,
+                autoStartLoad: true
+            });
             hls.loadSource(url);
             hls.attachMedia(video);
-            hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+            hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                video.play().catch(() => {
+                    console.log("Auto-play blocked, waiting for user interaction");
+                });
+            });
+            
+            // এরর হ্যান্ডলিং
+            hls.on(Hls.Events.ERROR, function (event, data) {
+                if (data.fatal) {
+                    document.getElementById('status').innerText = "লিঙ্ক কাজ করছে না!";
+                }
+            });
+
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            // সাফারী বা স্মার্ট টিভির নেটিভ প্লেয়ারের জন্য
+            video.src = url;
+            video.addEventListener('loadedmetadata', function() {
+                video.play();
+            });
         }
     }
 
     function setTimer() {
         const mins = prompt("কত মিনিট পর বন্ধ হবে?", "30");
-        if(mins) setTimeout(() => { window.close(); document.body.innerHTML = "<h1>TV Sleeping...</h1>"; }, mins * 60000);
+        if(mins) {
+            alert(mins + " মিনিট পর বন্ধ হবে।");
+            setTimeout(() => { 
+                video.pause();
+                document.body.innerHTML = "<h1 style='color:white; text-align:center; margin-top:20%;'>TV Sleeping...</h1>"; 
+            }, mins * 60000);
+        }
     }
 
     init();
