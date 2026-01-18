@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate AI Smart TV Player</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        :root { --accent: #00f2fe; --bg: #020202; --card: rgba(255,255,255,0.1); }
+        body { background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; height: 100vh; }
+
+        /* মাল্টি-ভিউ গ্রিড লেআউট */
+        #videoGrid {
+            display: grid; width: 100vw; height: 65vh; background: #000;
+            grid-template-columns: 1fr; grid-template-rows: 1fr; gap: 2px;
+        }
+        .multi-mode { grid-template-columns: 1fr 1fr !important; grid-template-rows: 1fr 1fr !important; }
+        video { width: 100%; height: 100%; object-fit: contain; background: #000; }
+
+        /* সাইড প্যানেল ও কিউআর রিমোট */
+        .side-panel {
+            position: fixed; top: 20px; right: 20px; z-index: 100;
+            display: flex; flex-direction: column; gap: 10px; text-align: center;
+        }
+        .glass-btn {
+            background: var(--card); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);
+            color: #fff; padding: 12px; border-radius: 12px; cursor: pointer; font-size: 14px; transition: 0.3s;
+        }
+        .glass-btn:hover { background: var(--accent); color: #000; }
+        .qr-box img { width: 70px; border-radius: 5px; margin-top: 5px; }
+
+        /* অটো-প্রিভিউ উইন্ডো */
+        #previewContainer {
+            position: fixed; bottom: 170px; left: 20px; width: 220px; height: 130px;
+            background: #000; border: 3px solid var(--accent); display: none; z-index: 50; border-radius: 10px;
+        }
+
+        /* চ্যানেল লিস্ট ট্রেই */
+        .overlay { position: fixed; bottom: 0; width: 100%; background: linear-gradient(transparent, #000); padding: 20px; z-index: 10; }
+        .channel-tray { display: flex; gap: 15px; overflow-x: auto; padding: 10px; }
+        .tv-card {
+            min-width: 170px; height: 95px; background: var(--card); border-radius: 15px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            transition: 0.3s; border: 2px solid transparent; outline: none; font-weight: bold;
+        }
+        .tv-card:focus { transform: scale(1.15); border-color: var(--accent); box-shadow: 0 0 20px var(--accent); }
+
+        /* স্ট্যাটাস ইন্ডিকেটর */
+        #status { position: fixed; top: 20px; left: 20px; font-size: 14px; color: var(--accent); z-index: 100; }
+    </style>
+</head>
+<body>
+
+    <div id="status">সিস্টেম রেডি...</div>
+
+    <div class="side-panel">
+        <button class="glass-btn" id="multiBtn">🔳 মাল্টি-ভিউ</button>
+        <button class="glass-btn" onclick="startSleepTimer()">⏰ স্লিপ টাইমার</button>
+        <div class="glass-btn qr-box">
+            📱 রিমোট<br>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://your-website-url.com" alt="QR">
+        </div>
+    </div>
+
+    <div id="videoGrid">
+        <video id="mainVid" autoplay controls></video>
+    </div>
+
+    <div id="previewContainer">
+        <video id="previewVid" autoplay muted></video>
+    </div>
+
+    <div class="overlay">
+        <div id="chNameDisplay" style="margin-left: 20px; font-size: 1.5rem; color: var(--accent);">চ্যানেল নির্বাচন করুন</div>
+        <div class="channel-tray" id="tray">
+            </div>
+    </div>
+
+<script>
+    const m3uUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/refs/heads/main/Live%20tv";
+    let allChannels = [];
+    let isMulti = false;
+    let hlsMain = new Hls();
+    let hlsPreview = new Hls();
+
+    // ১. ডাটা লোডিং
+    async function init() {
+        try {
+            const res = await fetch(m3uUrl);
+            const data = await res.text();
+            parsePlaylist(data);
+        } catch (e) { document.getElementById('status').innerText = "Error: ইন্টারনেট চেক করুন!"; }
+    }
+
+    function parsePlaylist(content) {
+        const lines = content.split('\n');
+        for (let i = 0; i < lines.length; i++) {
+            if (lines[i].includes('#EXTINF')) {
+                const name = lines[i].split(',')[1] || "Channel";
+                const url = lines[i+1]?.trim();
+                if (url && url.startsWith('http')) allChannels.push({ name, url });
+            }
+        }
+        renderChannels();
+    }
+
+    // ২. চ্যানেল লিস্ট রেন্ডারিং ও প্রিভিউ
+    function renderChannels() {
+        const tray = document.getElementById('tray');
+        allChannels.forEach((ch, i) => {
+            const card = document.createElement('div');
+            card.className = 'tv-card';
+            card.tabIndex = 0;
+            card.innerText = ch.name;
+            
+            // ক্লিক বা এন্টার চাপলে প্লে হবে
+            card.onclick = () => playStream(ch.url, ch.name);
+            card.onkeydown = (e) => { if(e.key === 'Enter') playStream(ch.url, ch.name); };
+            
+            // অটো-প্রিভিউ (Hover/Focus)
+            card.onfocus = () => startPreview(ch.url);
+            card.onmouseover = () => startPreview(ch.url);
+            
+            tray.appendChild(card);
+        });
+        if(allChannels.length > 0) playStream(allChannels[0].url, allChannels[0].name);
+    }
+
+    // ৩. ভিডিও প্লেয়ার ফাংশন
+    function playStream(url, name) {
+        document.getElementById('chNameDisplay').innerText = "চলছে: " + name;
+        if (Hls.isSupported()) {
+            hlsMain.destroy();
+            hlsMain = new Hls();
+            hlsMain.loadSource(url);
+            hlsMain.attachMedia(document.getElementById('mainVid'));
+            hlsMain.on(Hls.Events.MANIFEST_PARSED, () => document.getElementById('mainVid').play());
+        }
+    }
+
+    // ৪. অটো-প্রিভিউ লজিক
+    function startPreview(url) {
+        const pBox = document.getElementById('previewContainer');
+        pBox.style.display = 'block';
+        if (Hls.isSupported()) {
+            hlsPreview.destroy();
+            hlsPreview = new Hls();
+            hlsPreview.loadSource(url);
+            hlsPreview.attachMedia(document.getElementById('previewVid'));
+        }
+    }
+
+    // ৫. মাল্টি-ভিউ মোড (৪টি স্ক্রিন)
+    document.getElementById('multiBtn').onclick = function() {
+        const grid = document.getElementById('videoGrid');
+        isMulti = !isMulti;
+        if(isMulti) {
+            grid.classList.add('multi-mode');
+            for(let i=1; i<4; i++) {
+                let v = document.createElement('video');
+                v.id = 'extraVid' + i; v.autoplay = true; v.muted = true;
+                grid.appendChild(v);
+                let extraHls = new Hls();
+                extraHls.loadSource(allChannels[i % allChannels.length].url);
+                extraHls.attachMedia(v);
+            }
+            this.innerText = "❌ মাল্টি বন্ধ করুন";
+        } else {
+            location.reload(); 
+        }
+    };
+
+    // ৬. স্লিপ টাইমার
+    function startSleepTimer() {
+        const time = prompt("কত মিনিট পর বন্ধ হবে?", "30");
+        if(time) {
+            document.getElementById('status').innerText = time + " মিনিট পর বন্ধ হবে...";
+            setTimeout(() => {
+                document.body.innerHTML = "<div style='text-align:center; margin-top:20vh;'><h1>স্লিপ মোড সক্রিয়</h1><p>টিভি বন্ধ করা হয়েছে।</p></div>";
+            }, time * 60000);
+        }
+    }
+
+    init();
+</script>
+</body>
+</html>
