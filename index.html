@@ -1,45 +1,54 @@
+</html>
 <!DOCTYPE html>
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BD TV - Final Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BD LIVE TV - Pro Player</title>
     
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.12"></script>
+    
     <style>
-        :root { --accent: #00f2fe; --bg: #050505; }
-        body { background: var(--bg); color: #fff; font-family: sans-serif; margin: 0; overflow: hidden; }
+        :root { --accent: #00f2fe; --bg: #050505; --card-bg: rgba(255, 255, 255, 0.1); }
+        body { background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; }
 
-        /* ভিডিও প্লেয়ার */
-        #videoContainer { width: 100vw; height: 100vh; background: #000; position: fixed; z-index: 1; }
+        /* মেইন ভিডিও প্লেয়ার */
+        #videoContainer { width: 100vw; height: 100vh; position: fixed; top: 0; left: 0; z-index: 1; background: #000; }
         video { width: 100%; height: 100%; object-fit: contain; }
 
-        /* টিভি ওভারলে (ID & QR) */
-        .tv-overlay {
-            position: fixed; top: 20px; right: 20px; z-index: 100;
-            background: rgba(0,0,0,0.8); padding: 12px; border-radius: 15px;
-            border: 1px solid var(--accent); text-align: center; backdrop-filter: blur(10px);
+        /* উপরের স্ট্যাটাস বার */
+        .top-bar {
+            position: fixed; top: 0; width: 100%; z-index: 100;
+            padding: 20px 40px; display: flex; justify-content: space-between; align-items: center;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            transition: 0.5s;
         }
-        .qr-box img { width: 100px; height: 100px; background: #fff; border-radius: 8px; padding: 5px; }
+        .logo { font-size: 22px; font-weight: bold; color: var(--accent); }
 
-        /* নিচের তথ্য */
-        .bottom-info {
+        /* কিউআর কোড বক্স */
+        .qr-section { background: #fff; padding: 10px; border-radius: 12px; display: none; position: absolute; top: 60px; right: 40px; }
+        .qr-btn:focus + .qr-section, .qr-btn:hover + .qr-section { display: block; }
+
+        /* নিচের চ্যানেল লিস্ট */
+        .bottom-ui {
             position: fixed; bottom: 0; width: 100%; z-index: 50;
-            background: linear-gradient(transparent, rgba(0,0,0,0.9));
-            padding: 40px; transition: 0.5s;
+            background: linear-gradient(to top, rgba(0,0,0,0.95), transparent);
+            padding: 30px 0; transition: transform 0.5s;
         }
-        .channel-name { font-size: 28px; font-weight: bold; margin: 0; color: var(--accent); }
+        .channel-tray { display: flex; gap: 15px; overflow-x: auto; padding: 10px 40px; scroll-behavior: smooth; }
+        .channel-tray::-webkit-scrollbar { display: none; }
 
-        /* মোবাইল রিমোট মোড (শুধুমাত্র মোবাইলের জন্য) */
-        #mobileUI {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #111; z-index: 999; flex-direction: column; align-items: center; justify-content: center;
+        /* চ্যানেল কার্ড ডিজাইন */
+        .tv-card {
+            min-width: 160px; height: 90px; background: var(--card-bg);
+            border-radius: 15px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.3s; border: 2px solid transparent; outline: none;
+            font-weight: bold; text-align: center; backdrop-filter: blur(10px);
         }
-        .remote-btn {
-            width: 200px; padding: 20px; margin: 10px; font-size: 20px;
-            background: var(--accent); border: none; border-radius: 50px; color: #000; font-weight: bold;
-        }
+        .tv-card:focus { border-color: var(--accent); transform: scale(1.1); background: rgba(0, 242, 254, 0.2); }
+
+        /* হাইড করার ক্লাস */
+        .hidden { transform: translateY(100%); opacity: 0; }
     </style>
 </head>
 <body>
@@ -48,107 +57,116 @@
         <video id="mainPlayer" autoplay muted playsinline controls></video>
     </div>
 
-    <div class="tv-overlay" id="tvOverlay">
-        <div class="qr-box"><img id="qrImg" src="" alt="QR"></div>
-        <div style="font-size: 12px; margin-top: 5px;" id="displayID">কানেক্ট করুন</div>
+    <div class="top-bar" id="header">
+        <div class="logo">BD LIVE TV</div>
+        <div style="position: relative;">
+            <button class="qr-btn" style="background: var(--accent); border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; outline: none;">📱 মোবাইল রিমোট</button>
+            <div class="qr-section" id="qrContainer">
+                <img id="qrImg" src="" alt="QR" width="120">
+                <p style="color: #000; font-size: 10px; margin: 5px 0 0; text-align: center;">স্ক্যান করুন</p>
+            </div>
+        </div>
     </div>
 
-    <div class="bottom-info" id="bottomUI">
-        <p id="playingNow" class="channel-name">চ্যানেল লোড হচ্ছে...</p>
-    </div>
-
-    <div id="mobileUI">
-        <h2 style="color:var(--accent)">SMART REMOTE</h2>
-        <button class="remote-btn" onclick="control('next')">পরের চ্যানেল ▶</button>
-        <button class="remote-btn" onclick="control('prev')">◀ আগের চ্যানেল</button>
-        <button class="remote-btn" style="background:#444; color:#fff" onclick="location.reload()">🔄 রিফ্রেশ টিভি</button>
+    <div class="bottom-ui" id="bottomUI">
+        <div id="playingNow" style="margin-left: 45px; font-size: 1.2rem; margin-bottom: 10px; color: var(--accent);">চ্যানেল লোড হচ্ছে...</div>
+        <div class="channel-tray" id="tray"></div>
     </div>
 
 <script>
     const m3uUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/refs/heads/main/Live%20tv";
     const video = document.getElementById('mainPlayer');
-    let channels = [];
-    let currentIdx = 0;
+    const tray = document.getElementById('tray');
     let hls = null;
+    let uiTimer;
 
-    // ১. ডিভাইস ডিটেক্ট করা (এটি কি মোবাইল না টিভি?)
-    const urlParams = new URLSearchParams(window.location.search);
-    const isRemote = urlParams.get('mode') === 'remote';
-
+    // ১. ডাটা লোড করা
     async function init() {
         try {
             const res = await fetch(m3uUrl);
             const data = await res.text();
             const lines = data.split('\n');
+            const channels = [];
+            
             for (let i = 0; i < lines.length; i++) {
                 if (lines[i].includes('#EXTINF')) {
-                    channels.push({ name: lines[i].split(',')[1].trim(), url: lines[i+1].trim() });
+                    const name = lines[i].split(',')[1] || "Unnamed";
+                    const url = lines[i+1]?.trim();
+                    if(url && url.startsWith('http')) channels.push({ name, url });
                 }
             }
-
-            if (isRemote) {
-                // মোবাইল মোড
-                document.getElementById('mobileUI').style.display = 'flex';
-                document.getElementById('videoContainer').style.display = 'none';
-                document.getElementById('tvOverlay').style.display = 'none';
-            } else {
-                // টিভি মোড
-                setupTV();
-                play(0);
-            }
+            render(channels);
+            setupQR();
         } catch (e) {
-            document.getElementById('playingNow').innerText = "চ্যানেল লোড করা যাচ্ছে না!";
+            document.getElementById('playingNow').innerText = "নেটওয়ার্ক এরর! আবার চেষ্টা করুন।";
         }
     }
 
-    function setupTV() {
-        // QR Code তৈরি
-        const currentLink = window.location.href.split('?')[0] + "?mode=remote";
-        document.getElementById('qrImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(currentLink)}`;
-        
-        // রিমোট কন্ট্রোল শোনার জন্য LocalStorage (একই নেটওয়ার্কে থাকলে কাজ করতে পারে)
-        window.addEventListener('storage', (e) => {
-            if (e.key === 'remote_cmd') {
-                if (e.newValue === 'next') changeChannel(1);
-                if (e.newValue === 'prev') changeChannel(-1);
-            }
+    // ২. চ্যানেল লিস্ট তৈরি
+    function render(channels) {
+        tray.innerHTML = '';
+        channels.forEach((ch, index) => {
+            const card = document.createElement('div');
+            card.className = 'tv-card';
+            card.tabIndex = 0;
+            card.innerText = ch.name;
+            
+            card.onclick = () => play(ch.url, ch.name);
+            card.onkeydown = (e) => { if(e.key === 'Enter') play(ch.url, ch.name); };
+            
+            tray.appendChild(card);
         });
+
+        if(channels.length > 0) play(channels[0].url, channels[0].name);
+        setTimeout(() => tray.firstChild.focus(), 1000);
     }
 
-    function control(cmd) {
-        // মোবাইলে চাপ দিলে কমান্ড সেভ হবে
-        localStorage.setItem('remote_cmd', cmd);
-        localStorage.setItem('remote_time', Date.now());
-        alert("কমান্ড পাঠানো হয়েছে: " + cmd + "\n(একই ব্রাউজারে টিভি খোলা থাকলে কাজ করবে)");
-    }
-
-    function play(index) {
-        if (!channels[index]) return;
-        currentIdx = index;
-        document.getElementById('playingNow').innerText = channels[currentIdx].name;
-
+    // ৩. ভিডিও প্লেয়ার লজিক
+    function play(url, name) {
+        document.getElementById('playingNow').innerText = "চলছে: " + name;
         if (hls) hls.destroy();
+
         if (Hls.isSupported()) {
-            hls = new Hls();
-            hls.loadSource(channels[currentIdx].url);
+            hls = new Hls({ maxBufferLength: 10 });
+            hls.loadSource(url);
             hls.attachMedia(video);
-            hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-        } else {
-            video.src = channels[currentIdx].url;
+            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                video.play().catch(() => console.log("Auto-play blocked"));
+            });
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = url;
         }
+        showUI();
     }
 
-    function changeChannel(dir) {
-        currentIdx = (currentIdx + dir + channels.length) % channels.length;
-        play(currentIdx);
+    // ৪. কিউআর কোড সেটআপ
+    function setupQR() {
+        const currentUrl = window.location.href;
+        document.getElementById('qrImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(currentUrl)}`;
     }
 
-    // কিবোর্ড/রিমোট এরো বাটন সাপোর্ট
+    // ৫. ইউআই অটো-হাইড
+    function showUI() {
+        document.getElementById('header').classList.remove('hidden');
+        document.getElementById('bottomUI').classList.remove('hidden');
+        clearTimeout(uiTimer);
+        uiTimer = setTimeout(() => {
+            if (document.activeElement.tagName !== 'DIV' && document.activeElement.tagName !== 'BUTTON') {
+                document.getElementById('header').classList.add('hidden');
+                document.getElementById('bottomUI').classList.add('hidden');
+            }
+        }, 5000);
+    }
+
+    // রিমোট এরো বাটন সাপোর্ট
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowRight') changeChannel(1);
-        if (e.key === 'ArrowLeft') changeChannel(-1);
+        showUI();
+        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+            // কার্ড নেভিগেশন অটোম্যাটিক ব্রাউজার হ্যান্ডেল করবে tabIndex এর কারণে
+        }
     });
 
+    document.addEventListener('mousemove', showUI);
     init();
 </script>
 </body>
