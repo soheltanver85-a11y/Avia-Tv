@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRO TV - Fixed Working (Jan 2026)</title>
+    <title>PRO TV - Ultimate Working Fix (Jan 2026)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
@@ -18,7 +18,7 @@
 <body>
 
     <header class="p-4 bg-black/90 border-b border-gray-800 sticky top-0 z-50 flex justify-between items-center">
-        <h1 class="text-xl font-bold text-blue-500 italic">PRO TV <span class="text-white text-[10px] ml-1 uppercase">Fixed 2026</span></h1>
+        <h1 class="text-xl font-bold text-blue-500 italic">PRO TV <span class="text-white text-[10px] ml-1 uppercase">Working Mode</span></h1>
         <div id="count" class="text-[10px] bg-blue-600 px-2 py-1 rounded font-bold">0 CHANNELS</div>
     </header>
 
@@ -41,77 +41,66 @@
         const grid = document.getElementById('grid');
         const statusMsg = document.getElementById('status-msg');
 
-        // Updated proxy list + new ones
+        // Multiple CORS proxies - যেকোনো একটা কাজ করবে
         const proxyList = [
-            "",  // Direct
+            "",  // Direct first
             "https://corsproxy.io/?",
             "https://api.allorigins.win/raw?url=",
-            "https://api.codetabs.com/v1/proxy?quest=",
-            "https://thingproxy.freeboard.io/fetch/",  // New working proxy
-        ];
-
-        // New working M3U playlists (2026 tested)
-        const m3uUrls = [
-            'https://iptv-org.github.io/iptv/index.m3u',  // Global 8000+ channels
-            'https://lupael.github.io/IPTV/running.m3u',  // Bangladesh focused
-            // 'https://i.mjh.yjyunis.com/api/live.php?lang=bn'  // Add more if needed
+            "https://api.codetabs.com/v1/proxy?url=",
         ];
 
         let hls = null;
         let currentProxyIndex = 0;
-        let channels = [];
 
         async function init() {
-            statusMsg.innerText = "নতুন প্লেলিস্ট লোড হচ্ছে...";
-            for (let url of m3uUrls) {
-                try {
-                    const res = await fetch(url);
-                    if (res.ok) {
-                        const data = await res.text();
-                        const parsed = parseM3U(data);
-                        if (parsed.length > 0) {
-                            channels = parsed.filter(ch => ch.url.includes('.m3u8'));  // Only HLS
-                            break;
-                        }
-                    }
-                } catch (e) {
-                    console.error(`Failed ${url}:`, e);
-                }
-            }
+            try {
+                statusMsg.innerText = "প্লে-লিস্ট লোড হচ্ছে...";
+                // ✅ সঠিক raw লিংক ব্যবহার করো
+                const m3uUrl = 'https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv.m3u';
+                
+                const res = await fetch(m3uUrl);
+                if (!res.ok) throw new Error("Failed to fetch playlist");
+                
+                const data = await res.text();
+                const channels = parseM3U(data);
 
-            if (channels.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center text-red-500 p-4">কোনো চ্যানেল পাওয়া যায়নি! নেট চেক করুন বা পরে চেষ্টা করুন।</div>`;
-                return;
+                document.getElementById('count').innerText = channels.length + " CHANNELS";
+                statusMsg.innerText = channels.length + " টি চ্যানেল পাওয়া গেছে!";
+                render(channels);
+            } catch (e) {
+                console.error("Init error:", e);
+                grid.innerHTML = `<div class="col-span-full text-center text-red-500 p-4">প্লে-লিস্ট লোড হয়নি! Error: ${e.message}</div>`;
+                statusMsg.innerText = "Error: " + e.message;
             }
-
-            document.getElementById('count').innerText = channels.length + " CHANNELS";
-            statusMsg.innerText = channels.length + " টি চ্যানেল লোড হয়েছে!";
-            render(channels);
         }
 
         function parseM3U(data) {
-            const lines = data.split('
-');
+            const lines = data.split('\n');
+            let channels = [];
             let tempCh = {};
-            return lines.filter(line => line.trim()).map(line => {
+
+            lines.forEach(line => {
+                line = line.trim();
                 if (line.startsWith('#EXTINF:')) {
                     const commaIdx = line.lastIndexOf(',');
                     tempCh.name = line.substring(commaIdx + 1).trim();
-                    const logoMatch = /tvg-logo="([^"]+)"/.exec(line);
+                    const logoMatch = line.match(/tvg-logo="([^"]+)"/);
                     tempCh.logo = logoMatch ? logoMatch[1] : "https://via.placeholder.com/150/111/fff?text=TV";
-                } else if (line.startsWith('http') && tempCh.name) {
-                    tempCh.url = line.trim();
-                    const ch = {...tempCh};
+                } else if (line.startsWith('http')) {
+                    tempCh.url = line;
+                    if (tempCh.name && !line.includes('.mpd')) {
+                        channels.push({...tempCh});
+                    }
                     tempCh = {};
-                    return ch;
                 }
-            }).filter(Boolean);
+            });
+
+            return channels;
         }
 
-        // render function same as original
         function render(list) {
             grid.innerHTML = '';
-            list.forEach((c, i) => {
+            list.forEach(c => {
                 const card = document.createElement('div');
                 card.className = 'ch-card p-3 text-center';
                 card.innerHTML = `
@@ -125,32 +114,40 @@
             });
         }
 
-        // playChannel & tryPlayWithProxy same as original but timeout 10s + better error
         async function playChannel(url, name, el) {
             document.querySelectorAll('.ch-card').forEach(c => c.classList.remove('active-ch'));
             el.classList.add('active-ch');
             document.getElementById('current-ch').innerText = name;
+            
             statusMsg.innerText = "লোড হচ্ছে...";
             currentProxyIndex = 0;
-            video.muted = false;
+
+            // autoplay এর জন্য muted রাখতে হবে
+            video.muted = true;
+
             await tryPlayWithProxy(url, name);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         async function tryPlayWithProxy(url, name) {
             if (currentProxyIndex >= proxyList.length) {
-                statusMsg.innerText = "❌ সব প্রক্সি ফেল! চ্যানেল অফলাইন। VLC-তে চেক করুন।";
+                statusMsg.innerText = "❌ সব প্রক্সি ব্যর্থ! চ্যানেলটি অফলাইন বা আপনার নেটওয়ার্ক ব্লক করছে।";
                 return;
             }
 
             const proxy = proxyList[currentProxyIndex];
             const finalUrl = proxy ? proxy + encodeURIComponent(url) : url;
-            const proxyName = currentProxyIndex === 0 ? "Direct" : `Proxy-${currentProxyIndex}`;
-            statusMsg.innerText = `${proxyName} ট্রাই...`;
+            
+            const proxyName = currentProxyIndex === 0 ? "সরাসরি" : `প্রক্সি #${currentProxyIndex}`;
+            statusMsg.innerText = `${proxyName} দিয়ে চেষ্টা করা হচ্ছে...`;
 
             try {
                 if (Hls.isSupported()) {
-                    if (hls) hls.destroy();
+                    if (hls) {
+                        hls.destroy();
+                        hls = null;
+                    }
+                    
                     hls = new Hls({
                         debug: false,
                         enableWorker: true,
@@ -159,42 +156,47 @@
                         maxBufferLength: 30,
                         maxMaxBufferLength: 600,
                         maxBufferSize: 60 * 1000 * 1000,
-                        xhrSetup: (xhr) => { xhr.withCredentials = false; }
+                        xhrSetup: function(xhr, url) {
+                            xhr.withCredentials = false;
+                        }
                     });
 
                     hls.loadSource(finalUrl);
                     hls.attachMedia(video);
 
                     let manifestParsed = false;
+
                     hls.on(Hls.Events.MANIFEST_PARSED, () => {
                         manifestParsed = true;
-                        video.play().catch(() => statusMsg.innerText = `▶️ Play ক্লিক (${proxyName})`);
-                        statusMsg.innerText = `✅ চলছে! (${proxyName})`;
+                        video.play().then(() => {
+                            statusMsg.innerText = `✅ চলছে! (${proxyName})`;
+                        }).catch(e => {
+                            console.log("Auto play blocked", e);
+                            statusMsg.innerText = `▶️ Play বাটনে ক্লিক করুন (${proxyName})`;
+                        });
                     });
 
                     setTimeout(() => {
                         if (!manifestParsed) {
+                            console.log("Timeout, trying next proxy...");
                             currentProxyIndex++;
                             tryPlayWithProxy(url, name);
                         }
-                    }, 10000);  // 10s timeout
+                    }, 5000);
 
                     hls.on(Hls.Events.ERROR, (event, data) => {
+                        console.error("HLS Error:", data.type, data.details);
+                        
                         if (data.fatal) {
+                            console.log(`${proxyName} ফেল, পরের প্রক্সি চেষ্টা...`);
                             currentProxyIndex++;
                             tryPlayWithProxy(url, name);
                         }
                     });
-                } else {
-                    statusMsg.innerText = "❌ HLS support নেই!";
-                }
-            } catch (e) {
-                currentProxyIndex++;
-                tryPlayWithProxy(url, name);
-            }
-        }
-
-        init();
-    </script>
-</body>
-</html>
+                    
+                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                    video.src = finalUrl;
+                    video.play().then(() => {
+                        statusMsg.innerText = `✅ চলছে! (Native - ${proxyName})`;
+                    }).catch(e => {
+                        console.log("Native play failed, trying next proxy");
