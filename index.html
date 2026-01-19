@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRO TV - ULTIMATE FIX</title>
+    <title>PRO TV - Advanced Proxy Fix</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/m3u8-parser@latest"></script>
     <style>
         body { background: #050505; color: white; font-family: sans-serif; }
         .ch-card { background: #111; border: 1px solid #222; border-radius: 12px; cursor: pointer; transition: 0.3s; }
@@ -17,7 +18,7 @@
 <body>
 
     <header class="p-4 bg-black/90 border-b border-gray-800 sticky top-0 z-50 flex justify-between items-center">
-        <h1 class="text-xl font-bold text-blue-500 italic">PRO TV <span class="text-white text-[10px] ml-1 uppercase">Live Stream</span></h1>
+        <h1 class="text-xl font-bold text-blue-500 italic">PRO TV <span class="text-white text-[10px] ml-1 uppercase">Advanced Mode</span></h1>
         <div id="count" class="text-[10px] bg-blue-600 px-2 py-1 rounded font-bold">0 CHANNELS</div>
     </header>
 
@@ -39,19 +40,16 @@
         const video = document.getElementById('video');
         const grid = document.getElementById('grid');
         const statusMsg = document.getElementById('status-msg');
-        
-        // পাবলিক CORS প্রক্সি (Cloudflare Worker বাদ দেওয়া হয়েছে)
-        const myProxy = "https://api.codetabs.com/v1/proxy?quest=";
-        
-        // বিকল্প প্রক্সি (যদি উপরেরটা কাজ না করে তাহলে এগুলো ট্রাই করতে পারো)
-        // const myProxy = "https://corsproxy.io/?";
-        // const myProxy = "https://api.allorigins.win/raw?url=";
 
-        let hls = new Hls({
-            xhrSetup: function(xhr, url) {
-                xhr.withCredentials = false;
-            }
-        });
+        // প্রক্সি লিস্ট (জানুয়ারি ২০২৬ অনুযায়ী কাজ করা সম্ভাব্য)
+        const proxyList = [
+            "https://api.codetabs.com/v1/proxy?quest=",
+            "https://api.allorigins.win/raw?url=",
+            "https://cors.lol/",
+            // আরও যোগ করতে পারো যদি নতুন কোনো পাও
+        ];
+
+        let hls = null;
 
         async function init() {
             try {
@@ -72,7 +70,7 @@
                         tempCh.logo = logoMatch ? logoMatch[1] : "https://via.placeholder.com/150/111/fff?text=TV";
                     } else if (line.startsWith('http')) {
                         tempCh.url = line;
-                        if (tempCh.name && !line.includes('.mpd')) { // শুধু m3u8
+                        if (tempCh.name && !line.includes('.mpd')) {
                             channels.push({...tempCh});
                         }
                         tempCh = {};
@@ -82,7 +80,7 @@
                 document.getElementById('count').innerText = channels.length + " CHANNELS";
                 render(channels);
             } catch (e) {
-                grid.innerHTML = "প্লে-লিস্ট পাওয়া যায়নি! → " + e.message;
+                grid.innerHTML = "প্লে-লিস্ট লোড হয়নি! → " + e.message;
             }
         }
 
@@ -102,51 +100,123 @@
             });
         }
 
-        function playChannel(url, name, el) {
-            document.querySelectorAll('.ch-card').forEach(c => c.classList.remove('active-ch'));
-            el.classList.add('active-ch');
-            document.getElementById('current-ch').innerText = name;
-            statusMsg.innerText = "কানেক্ট করা হচ্ছে... (প্রক্সি মোড)";
+        // Advanced Proxy: m3u8 পার্স করে সব segment প্রক্সি করা
+        async function advancedProxyPlay(originalUrl, name, el) {
+            statusMsg.innerText = "এডভান্সড প্রক্সি: m3u8 পার্স করে সব সেগমেন্ট প্রক্সি করা হচ্ছে...";
 
-            // ফাইনাল URL — প্রক্সি + অরিজিনাল URL
-            let finalUrl = myProxy + encodeURIComponent(url);
+            try {
+                // প্রথম প্রক্সি দিয়ে m3u8 ফেচ
+                const proxyBase = proxyList[0];
+                const proxyM3u8Url = proxyBase + encodeURIComponent(originalUrl);
 
-            // কিছু লিঙ্ক সরাসরি কাজ করে (CORS ফ্রি) — চেক করা যায়
-            if (url.includes("owrcovcrpy.gpcdn.net") || url.includes("116.204.149.16")) {
-                finalUrl = url;
-                statusMsg.innerText = "সরাসরি লিঙ্ক (প্রক্সি ছাড়া) → চেষ্টা করছি...";
+                const response = await fetch(proxyM3u8Url);
+                if (!response.ok) throw new Error("m3u8 fetch failed");
+
+                const playlistText = await response.text();
+
+                // m3u8 পার্স
+                const parser = new m3u8Parser.Parser();
+                parser.push(playlistText);
+                parser.end();
+                const manifest = parser.manifest;
+
+                let modifiedPlaylist = playlistText;
+
+                // সব segment (.ts) প্রক্সি করা
+                if (manifest.segments) {
+                    manifest.segments.forEach(seg => {
+                        if (seg.uri) {
+                            const absoluteUri = new URL(seg.uri, originalUrl).href;
+                            const proxiedUri = proxyBase + encodeURIComponent(absoluteUri);
+                            modifiedPlaylist = modifiedPlaylist.replace(seg.uri, proxiedUri);
+                        }
+                    });
+                }
+
+                // Variant playlists (multi-quality) থাকলে
+                if (manifest.playlists) {
+                    manifest.playlists.forEach(pl => {
+                        if (pl.uri) {
+                            const abs = new URL(pl.uri, originalUrl).href;
+                            const proxied = proxyBase + encodeURIComponent(abs);
+                            modifiedPlaylist = modifiedPlaylist.replace(pl.uri, proxied);
+                        }
+                    });
+                }
+
+                // Blob URL তৈরি করে লোড
+                const blob = new Blob([modifiedPlaylist], { type: 'application/vnd.apple.mpegurl' });
+                const blobUrl = URL.createObjectURL(blob);
+
+                if (Hls.isSupported()) {
+                    if (hls) hls.destroy();
+                    hls = new Hls();
+                    hls.loadSource(blobUrl);
+                    hls.attachMedia(video);
+
+                    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                        video.play().catch(() => {});
+                        statusMsg.innerText = "চলছে! (এডভান্সড প্রক্সি মোড)";
+                    });
+
+                    hls.on(Hls.Events.ERROR, (event, data) => {
+                        if (data.fatal) {
+                            statusMsg.innerText = "এডভান্সড মোড ফেল → নরমাল রোটেশন চেষ্টা করছি...";
+                            fallbackToRotation(originalUrl, name, el);
+                        }
+                    });
+                }
+
+            } catch (err) {
+                console.error(err);
+                statusMsg.innerText = "এডভান্সড প্রক্সি সমস্যা → সাধারণ মোডে যাচ্ছি";
+                fallbackToRotation(originalUrl, name, el);
+            }
+        }
+
+        // ফলব্যাক: মাল্টি প্রক্সি রোটেশন
+        function fallbackToRotation(url, name, el, proxyIndex = 0) {
+            if (proxyIndex >= proxyList.length) {
+                statusMsg.innerText = "সব প্রক্সি চেষ্টা করা হয়েছে → চ্যানেল অফলাইন/ব্লকড হতে পারে";
+                return;
             }
 
+            const proxy = proxyList[proxyIndex];
+            let finalUrl = proxy + encodeURIComponent(url);
+            if (proxy.endsWith('/')) finalUrl = proxy + url; // cors.lol এর জন্য
+
+            statusMsg.innerText = `প্রক্সি \( {proxyIndex + 1}/ \){proxyList.length} চেষ্টা → ${proxy}`;
+
             if (Hls.isSupported()) {
-                hls.destroy();
+                if (hls) hls.destroy();
                 hls = new Hls();
                 hls.loadSource(finalUrl);
                 hls.attachMedia(video);
-                
+
                 hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    video.play().catch(e => {
-                        statusMsg.innerText = "প্লে অটোমেটিক ফেল → ম্যানুয়ালি প্লে করুন";
-                    });
-                    statusMsg.innerText = "Status: Online (Streaming)";
+                    video.play().catch(() => {});
+                    statusMsg.innerText = `চলছে! (প্রক্সি ${proxyIndex + 1})`;
                 });
 
                 hls.on(Hls.Events.ERROR, (event, data) => {
                     if (data.fatal) {
-                        statusMsg.innerText = "Error: লিঙ্ক মেয়াদোত্তীর্ণ / সার্ভার ডাউন / প্রক্সি সমস্যা";
-                        console.error("HLS Error:", data);
+                        setTimeout(() => fallbackToRotation(url, name, el, proxyIndex + 1), 1000);
                     }
                 });
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = finalUrl;
-                video.addEventListener('loadedmetadata', () => {
-                    video.play();
-                });
             }
+        }
+
+        function playChannel(url, name, el) {
+            document.querySelectorAll('.ch-card').forEach(c => c.classList.remove('active-ch'));
+            el.classList.add('active-ch');
+            document.getElementById('current-ch').innerText = name;
+
+            // প্রথমে এডভান্সড মোড চেষ্টা
+            advancedProxyPlay(url, name, el);
 
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // পেজ লোড হলেই চালু করা
         init();
     </script>
 </body>
