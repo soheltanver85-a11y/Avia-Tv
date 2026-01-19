@@ -11,22 +11,21 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;500;700&display=swap');
-        body { background-color: #050505; color: white; font-family: 'Hind Siliguri', sans-serif; }
+        body { background-color: #050505; color: white; font-family: 'Hind Siliguri', sans-serif; overflow-x: hidden; }
         .vjs-theme-city .vjs-big-play-button { background-color: #3b82f6; }
-        .channel-card { background: #111; border: 1px solid #222; transition: 0.3s; position: relative; }
-        .channel-card:hover { border-color: #3b82f6; transform: translateY(-3px); }
-        .fav-btn { position: absolute; top: 8px; right: 8px; z-index: 10; font-size: 1.2rem; transition: 0.3s; }
+        .channel-card { background: #111; border: 1px solid #222; transition: 0.3s; position: relative; border-radius: 12px; overflow: hidden; }
+        .channel-card:hover { border-color: #3b82f6; transform: translateY(-3px); background: #1a1a1a; }
+        .fav-btn { position: absolute; top: 8px; right: 8px; z-index: 10; font-size: 1.1rem; color: #444; }
         .fav-btn.active { color: #ef4444; }
-        #qr-code img { width: 50px; height: 50px; border: 1px solid white; cursor: pointer; }
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
+        #qr-code img { width: 45px; height: 45px; border: 1px solid white; border-radius: 4px; }
+        .playing-status { border-left: 4px solid #3b82f6; padding-left: 10px; }
     </style>
 </head>
 <body>
 
-    <header class="p-3 bg-black/90 sticky top-0 z-50 border-b border-gray-800 flex justify-between items-center">
+    <header class="p-3 bg-black/95 sticky top-0 z-50 border-b border-gray-800 flex justify-between items-center shadow-xl">
         <div class="flex items-center gap-3">
-            <h1 class="text-xl font-black text-blue-500 italic">LIVE<span class="text-white font-normal">TV</span></h1>
+            <h1 class="text-xl font-black text-blue-500 italic">PRO<span class="text-white font-normal">TV</span></h1>
             <div id="qr-code" title="স্ক্যান করে ফোনকে রিমোট বানান">
                 <img id="qr-img" src="" alt="QR">
             </div>
@@ -34,35 +33,33 @@
 
         <div class="flex items-center gap-2">
             <div class="relative">
-                <input type="text" id="search" placeholder="সার্চ করুন..." class="bg-gray-900 text-xs border border-gray-700 px-4 py-2 rounded-full w-32 md:w-60 focus:outline-none focus:border-blue-500">
+                <input type="text" id="search" placeholder="খুঁজুন..." class="bg-gray-900 text-xs border border-gray-700 px-4 py-2 rounded-full w-32 md:w-60 focus:outline-none focus:border-blue-500">
                 <button id="voice-btn" class="absolute right-3 top-2 text-blue-500"><i class="fas fa-microphone"></i></button>
             </div>
-            <span class="bg-blue-600 px-2 py-1 rounded text-[10px] font-bold">LIVE: <span id="count">0</span></span>
+            <span class="bg-blue-600 px-2 py-1 rounded text-[10px] font-bold">মোট: <span id="count">0</span></span>
         </div>
     </header>
 
     <main class="container mx-auto p-4">
-        <div class="rounded-xl overflow-hidden shadow-2xl bg-black mb-6 border border-gray-800">
-            <video id="tv-player" class="video-js vjs-16-9 vjs-big-play-centered" controls preload="auto"></video>
+        <div class="rounded-xl overflow-hidden shadow-2xl bg-black mb-6 border border-gray-800 group relative">
+            <video id="tv-player" class="video-js vjs-16-9 vjs-big-play-centered" controls preload="auto" poster="https://static.vecteezy.com/system/resources/previews/006/795/116/non_2x/abstract-dark-blue-background-with-shining-light-effect-free-vector.jpg"></video>
         </div>
 
-        <div class="flex flex-wrap items-center justify-between mb-6 gap-4">
+        <div class="flex flex-wrap items-center justify-between mb-6 gap-4 playing-status">
             <div>
                 <h2 id="current-title" class="text-lg md:text-2xl font-bold text-blue-400">চ্যানেল সিলেক্ট করুন</h2>
-                <p class="text-gray-500 text-xs mt-1">কিবোর্ড বাটন (← →) দিয়ে চ্যানেল পরিবর্তন করুন</p>
+                <p class="text-gray-500 text-xs mt-1">কিবোর্ড বা রিমোটের (← →) বাটন চাপুন</p>
             </div>
-            <div class="flex gap-2">
-                <button onclick="togglePiP()" class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded text-xs font-medium"><i class="fas fa-external-link-alt mr-1"></i> PiP মোড</button>
-            </div>
+            <button onclick="togglePiP()" class="bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded text-xs"><i class="fas fa-clone mr-1"></i> PiP</button>
         </div>
 
         <div class="flex gap-3 mb-6 overflow-x-auto pb-2 border-b border-gray-900">
-            <button onclick="filterChannels('all')" class="whitespace-nowrap bg-blue-600 px-4 py-1.5 rounded-full text-sm">সব চ্যানেল</button>
-            <button onclick="filterChannels('fav')" class="whitespace-nowrap bg-gray-800 hover:bg-red-700 px-4 py-1.5 rounded-full text-sm">❤️ প্রিয় তালিকা</button>
+            <button onclick="filterChannels('all')" id="btn-all" class="whitespace-nowrap bg-blue-600 px-5 py-1.5 rounded-full text-sm font-medium">সব চ্যানেল</button>
+            <button onclick="filterChannels('fav')" id="btn-fav" class="whitespace-nowrap bg-gray-800 hover:bg-red-700 px-5 py-1.5 rounded-full text-sm font-medium">❤️ প্রিয় তালিকা</button>
         </div>
 
         <div id="channel-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 text-center">
-            <p class="col-span-full py-20 text-gray-600 animate-pulse">চ্যানেল লোড হচ্ছে...</p>
+            <p class="col-span-full py-20 text-gray-600 animate-pulse">চ্যানেল ডাটা লোড হচ্ছে...</p>
         </div>
     </main>
 
@@ -75,45 +72,51 @@
         let currentIndex = -1;
 
         // QR Code Setup
-        document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${window.location.href}`;
+        document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(window.location.href)}`;
 
-        // Load Data
+        // Smart Fetch & Parse
         async function fetchM3U() {
             try {
                 const res = await fetch(githubUrl);
                 const data = await res.text();
-                parseM3U(data);
-            } catch (e) { console.error("Data fetch error"); }
-        }
+                // Smart Split: Splits even if text is continuous
+                const items = data.split(/#EXTINF/);
+                let list = [];
+                
+                items.forEach(item => {
+                    if (item.includes('http')) {
+                        const nameMatch = item.match(/,(.*)\n/) || item.match(/,(.*)/);
+                        const name = nameMatch ? nameMatch[1].trim() : "Unknown Channel";
+                        
+                        const urlMatch = item.match(/https?:\/\/[^\s"']+/);
+                        const url = urlMatch ? urlMatch[0] : null;
+                        
+                        const logoMatch = item.match(/tvg-logo="([^"]+)"/);
+                        const logo = logoMatch ? logoMatch[1] : 'https://via.placeholder.com/150/111/fff?text=TV';
+                        
+                        if(url) list.push({ name, url, logo });
+                    }
+                });
 
-        function parseM3U(content) {
-            const lines = content.split('\n');
-            let list = [];
-            for (let i = 0; i < lines.length; i++) {
-                if (lines[i].includes('#EXTINF')) {
-                    const name = lines[i].split(',')[1]?.trim() || "Unknown";
-                    const url = lines[i+1]?.trim();
-                    const logoMatch = lines[i].match(/tvg-logo="([^"]+)"/);
-                    const logo = logoMatch ? logoMatch[1] : 'https://via.placeholder.com/100/111/fff?text=TV';
-                    if(url && url.startsWith('http')) list.push({ name, url, logo });
-                }
+                allChannels = list;
+                document.getElementById('count').innerText = allChannels.length;
+                render(allChannels);
+            } catch (e) { 
+                document.getElementById('channel-grid').innerHTML = '<p class="text-red-500 col-span-full">লিঙ্ক লোড করতে ব্যর্থ!</p>';
             }
-            allChannels = list;
-            document.getElementById('count').innerText = allChannels.length;
-            render(allChannels);
         }
 
         function render(items) {
             const grid = document.getElementById('channel-grid');
-            grid.innerHTML = items.length ? '' : '<p class="col-span-full text-gray-600">কোনো চ্যানেল পাওয়া যায়নি</p>';
-            items.forEach((c, idx) => {
+            grid.innerHTML = items.length ? '' : '<p class="col-span-full text-gray-600 mt-10 italic">কিছু পাওয়া যায়নি</p>';
+            items.forEach((c) => {
                 const isFav = favorites.includes(c.name);
                 const card = document.createElement('div');
-                card.className = 'channel-card p-4 rounded-xl cursor-pointer';
+                card.className = 'channel-card p-4 cursor-pointer';
                 card.innerHTML = `
-                    <button class="fav-btn ${isFav?'text-red-600 active':'text-gray-600'}" onclick="handleFav(event, '${c.name}')"><i class="fas fa-heart"></i></button>
-                    <img src="${c.logo}" class="h-14 w-full object-contain mb-2" onclick="playTV('${c.url}', '${c.name}')">
-                    <p class="text-xs font-semibold truncate">${c.name}</p>
+                    <button class="fav-btn ${isFav?'active':''}" onclick="handleFav(event, '${c.name}')"><i class="fas fa-heart"></i></button>
+                    <img src="${c.logo}" class="h-14 w-full object-contain mb-3 pointer-events-none" alt="">
+                    <p class="text-[11px] font-bold truncate uppercase tracking-tighter">${c.name}</p>
                 `;
                 card.onclick = () => playTV(c.url, c.name);
                 grid.appendChild(card);
@@ -128,23 +131,9 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Favorites Logic
-        function handleFav(e, name) {
-            e.stopPropagation();
-            if (favorites.includes(name)) favorites = favorites.filter(f => f !== name);
-            else favorites.push(name);
-            localStorage.setItem('my_favs', JSON.stringify(favorites));
-            render(allChannels);
-        }
-
-        function filterChannels(type) {
-            if (type === 'fav') render(allChannels.filter(c => favorites.includes(c.name)));
-            else render(allChannels);
-        }
-
-        // Keyboard / Remote Navigation
+        // Remote/Keyboard Support
         document.addEventListener('keydown', (e) => {
-            if (currentIndex === -1) return;
+            if (currentIndex === -1 || allChannels.length === 0) return;
             if (e.key === "ArrowRight") navigate(1);
             if (e.key === "ArrowLeft") navigate(-1);
         });
@@ -157,35 +146,51 @@
             playTV(target.url, target.name);
         }
 
-        // Mobile Swipe Control
-        let startX = 0;
-        document.addEventListener('touchstart', e => startX = e.touches[0].clientX);
-        document.addEventListener('touchend', e => {
-            let endX = e.changedTouches[0].clientX;
-            if (startX - endX > 100) navigate(1); // Swipe Left = Next
-            if (endX - startX > 100) navigate(-1); // Swipe Right = Prev
-        });
+        // Favorites
+        function handleFav(e, name) {
+            e.stopPropagation();
+            if (favorites.includes(name)) favorites = favorites.filter(f => f !== name);
+            else favorites.push(name);
+            localStorage.setItem('my_favs', JSON.stringify(favorites));
+            render(allChannels);
+        }
+
+        function filterChannels(type) {
+            const btnAll = document.getElementById('btn-all');
+            const btnFav = document.getElementById('btn-fav');
+            if (type === 'fav') {
+                render(allChannels.filter(c => favorites.includes(c.name)));
+                btnFav.classList.replace('bg-gray-800', 'bg-red-600');
+                btnAll.classList.replace('bg-blue-600', 'bg-gray-800');
+            } else {
+                render(allChannels);
+                btnAll.classList.replace('bg-gray-800', 'bg-blue-600');
+                btnFav.classList.replace('bg-red-600', 'bg-gray-800');
+            }
+        }
 
         // Voice Command
         const voiceBtn = document.getElementById('voice-btn');
         const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (Speech) {
             const rec = new Speech();
-            voiceBtn.onclick = () => { rec.start(); voiceBtn.classList.add('animate-ping'); };
+            voiceBtn.onclick = () => { rec.start(); voiceBtn.classList.add('text-red-500', 'animate-pulse'); };
             rec.onresult = (e) => {
                 const txt = e.results[0][0].transcript.toLowerCase();
                 document.getElementById('search').value = txt;
                 render(allChannels.filter(c => c.name.toLowerCase().includes(txt)));
-                voiceBtn.classList.remove('animate-ping');
+                voiceBtn.classList.remove('text-red-500', 'animate-pulse');
             };
         }
 
-        // PiP Mode
-        async function togglePiP() {
-            const v = document.querySelector('video');
-            if (document.pictureInPictureElement) await document.exitPictureInPicture();
-            else await v.requestPictureInPicture();
-        }
+        // Mobile Swipe
+        let startX = 0;
+        document.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+        document.addEventListener('touchend', e => {
+            let endX = e.changedTouches[0].clientX;
+            if (startX - endX > 100) navigate(1);
+            if (endX - startX > 100) navigate(-1);
+        });
 
         // Search
         document.getElementById('search').oninput = (e) => {
@@ -193,8 +198,14 @@
             render(allChannels.filter(c => c.name.toLowerCase().includes(term)));
         };
 
+        async function togglePiP() {
+            const v = document.querySelector('video');
+            if (document.pictureInPictureElement) await document.exitPictureInPicture();
+            else if(v) await v.requestPictureInPicture();
+        }
+
         player.on('error', () => {
-            document.getElementById('current-title').innerHTML = `<span class="text-red-500 underline animate-pulse">চ্যানেলটি অফলাইন</span>`;
+            document.getElementById('current-title').innerHTML = `<span class="text-red-500 italic underline">চ্যানেলটি অফলাইন</span>`;
         });
 
         fetchM3U();
