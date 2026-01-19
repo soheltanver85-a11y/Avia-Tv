@@ -3,116 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRO TV - Cloudflare Powered</title>
-    
+    <title>PRO TV - Live Fix</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;700&display=swap');
-        body { background: #050505; color: white; font-family: 'Hind Siliguri', sans-serif; }
-        .ch-card { background: #111; border: 1px solid #222; border-radius: 12px; cursor: pointer; transition: 0.3s; }
-        .ch-card:hover { border-color: #3b82f6; transform: translateY(-3px); background: #1a1a1a; }
-        .active-ch { border: 2px solid #3b82f6 !important; background: #001f3f !important; }
-        video { width: 100%; aspect-ratio: 16/9; background: black; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
-        .loading-text { animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        body { background: #080808; color: white; font-family: 'Hind Siliguri', sans-serif; }
+        .ch-card { background: #121212; border: 1px solid #222; border-radius: 12px; cursor: pointer; transition: 0.3s; }
+        .active-ch { border: 2px solid #3b82f6 !important; background: #001a33 !important; }
+        video { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; }
     </style>
 </head>
 <body>
 
-    <header class="p-4 bg-black/90 border-b border-gray-800 sticky top-0 z-50 flex justify-between items-center">
-        <h1 class="text-xl font-bold text-blue-500">PRO TV <span class="text-white font-light text-xs ml-1">LIVE</span></h1>
-        <div id="count" class="text-[10px] bg-blue-600 px-2 py-1 rounded font-bold uppercase tracking-widest">0 CHANNELS</div>
+    <header class="p-4 border-b border-gray-800 sticky top-0 bg-black/90 z-50 flex justify-between items-center">
+        <h1 class="text-xl font-bold text-blue-500">PRO TV <span class="text-white font-light text-xs">LIVE</span></h1>
+        <div id="count" class="text-xs bg-blue-600 px-2 py-1 rounded font-bold uppercase">0 CHANNELS</div>
     </header>
 
     <main class="container mx-auto p-4 max-w-5xl">
         <div class="mb-8">
             <video id="video" controls autoplay playsinline></video>
-            <div class="mt-4 p-2">
-                <h2 id="current-ch" class="text-xl font-bold text-blue-400">চ্যানেল সিলেক্ট করুন</h2>
-                <p id="status-msg" class="text-gray-500 text-xs mt-1 italic font-mono"></p>
+            <div class="mt-4">
+                <h2 id="current-ch" class="text-xl font-bold text-blue-400 uppercase tracking-tighter">চ্যানেল সিলেক্ট করুন</h2>
+                <p id="msg" class="text-gray-500 text-xs mt-1 italic"></p>
             </div>
         </div>
 
         <div id="grid" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
-            <p class="col-span-full text-center py-20 text-gray-700 font-bold loading-text uppercase">প্লে-লিস্ট লোড হচ্ছে...</p>
+            <p class="col-span-full text-center py-20 text-gray-700 font-bold animate-pulse">লোড হচ্ছে...</p>
         </div>
     </main>
 
     <script>
         const video = document.getElementById('video');
         const grid = document.getElementById('grid');
-        const statusMsg = document.getElementById('status-msg');
+        const hls = new Hls();
         
-        // আপনার তৈরি করা Cloudflare Worker লিঙ্ক
-        const myProxy = "https://bd-live-tv.soheltanver85.workers.dev/?url="; 
+        // আপনার তৈরি করা ক্লাউডফ্লেয়ার প্রক্সি
+        const myProxy = "https://bd-live-tv.soheltanver85.workers.dev/?url=";
         const m3uUrl = 'https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/refs/heads/main/Live%20tv';
-        
-        let hls = new Hls();
 
         async function init() {
             try {
                 const res = await fetch(m3uUrl);
                 const data = await res.text();
-                const items = data.split('#EXTINF');
-                items.shift();
+                parseM3U(data);
+            } catch (e) { grid.innerHTML = "প্লে-লিস্ট পাওয়া যায়নি।"; }
+        }
 
-                const channels = items.map(p => {
-                    const name = (p.match(/,(.*)\n/) || ["","Unnamed"])[1].trim();
-                    const url = (p.match(/(https?:\/\/[^\s"']+)/) || [""])[0];
-                    const logo = (p.match(/tvg-logo="([^"]+)"/) || ["","https://via.placeholder.com/150/111/fff?text=TV"])[1];
-                    return { name, url, logo };
-                }).filter(c => c.url);
+        function parseM3U(data) {
+            const lines = data.split('\n');
+            let channels = [];
+            let currentCh = {};
 
-                document.getElementById('count').innerText = channels.length + " CHANNELS";
-                render(channels);
-            } catch (e) { grid.innerHTML = "প্লে-লিস্ট পাওয়া যায়নি। লিঙ্ক চেক করুন।"; }
+            lines.forEach(line => {
+                if (line.startsWith('#EXTINF:')) {
+                    // নাম খোঁজা (কমা এর পরের অংশ)
+                    const nameParts = line.split(',');
+                    currentCh.name = nameParts[nameParts.length - 1].trim();
+                    // লোগো খোঁজা
+                    const logoMatch = line.match(/tvg-logo="([^"]+)"/);
+                    currentCh.logo = logoMatch ? logoMatch[1] : "https://via.placeholder.com/150/111/fff?text=TV";
+                } else if (line.startsWith('http')) {
+                    currentCh.url = line.trim();
+                    if (currentCh.name) {
+                        channels.push({ ...currentCh });
+                    }
+                    currentCh = {};
+                }
+            });
+
+            document.getElementById('count').innerText = channels.length + " CHANNELS";
+            render(channels);
         }
 
         function render(list) {
             grid.innerHTML = '';
-            list.forEach((c, idx) => {
-                const card = document.createElement('div');
-                card.className = 'ch-card p-4 text-center';
-                card.innerHTML = `
-                    <img src="${c.logo}" class="h-12 w-full object-contain mb-2 pointer-events-none">
-                    <p class="text-[10px] font-bold truncate uppercase tracking-tighter">${c.name}</p>
+            list.forEach((c, i) => {
+                const div = document.createElement('div');
+                div.className = 'ch-card p-4 text-center';
+                div.innerHTML = `
+                    <img src="${c.logo}" class="h-10 w-full object-contain mb-2">
+                    <p class="text-[10px] font-bold truncate">${c.name}</p>
                 `;
-                card.onclick = () => playChannel(c.url, c.name, card);
-                grid.appendChild(card);
+                div.onclick = () => play(c.url, c.name, div);
+                grid.appendChild(div);
             });
         }
 
-        function playChannel(url, name, el) {
+        function play(url, name, el) {
             document.querySelectorAll('.ch-card').forEach(c => c.classList.remove('active-ch'));
             el.classList.add('active-ch');
-            
             document.getElementById('current-ch').innerText = name;
-            statusMsg.innerText = "প্রক্সির মাধ্যমে সংযোগ করা হচ্ছে...";
+            document.getElementById('msg').innerText = "প্রক্সির মাধ্যমে লোড হচ্ছে...";
 
-            // প্রক্সি লিঙ্ক তৈরি
             const finalUrl = myProxy + encodeURIComponent(url);
 
             if (Hls.isSupported()) {
                 hls.destroy();
-                hls = new Hls();
-                hls.loadSource(finalUrl);
-                hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                const newHls = new Hls();
+                newHls.loadSource(finalUrl);
+                newHls.attachMedia(video);
+                newHls.on(Hls.Events.MANIFEST_PARSED, () => {
                     video.play();
-                    statusMsg.innerText = "Status: Streaming via Cloudflare";
+                    document.getElementById('msg').innerText = "Status: Online";
                 });
-                hls.on(Hls.Events.ERROR, (event, data) => {
-                    if (data.fatal) {
-                        statusMsg.innerText = "Error: এই চ্যানেলটি বর্তমানে অফলাইন।";
-                    }
+                newHls.on(Hls.Events.ERROR, () => {
+                    document.getElementById('msg').innerText = "Error: এই চ্যানেলটি বর্তমানে কাজ করছে না।";
                 });
             } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
                 video.src = finalUrl;
                 video.play();
             }
-            
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
