@@ -3,116 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRO TV - Live Fix</title>
+    <title>PRO TV - Final Fix</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;700&display=swap');
-        body { background: #080808; color: white; font-family: 'Hind Siliguri', sans-serif; }
-        .ch-card { background: #121212; border: 1px solid #222; border-radius: 12px; cursor: pointer; transition: 0.3s; }
+        body { background: #000; color: #fff; font-family: sans-serif; }
+        .ch-card { background: #111; border: 1px solid #222; border-radius: 10px; cursor: pointer; transition: 0.2s; }
         .active-ch { border: 2px solid #3b82f6 !important; background: #001a33 !important; }
         video { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; }
     </style>
 </head>
 <body>
 
-    <header class="p-4 border-b border-gray-800 sticky top-0 bg-black/90 z-50 flex justify-between items-center">
-        <h1 class="text-xl font-bold text-blue-500">PRO TV <span class="text-white font-light text-xs">LIVE</span></h1>
-        <div id="count" class="text-xs bg-blue-600 px-2 py-1 rounded font-bold uppercase">0 CHANNELS</div>
+    <header class="p-4 border-b border-gray-800 sticky top-0 bg-black z-50 flex justify-between">
+        <h1 class="text-xl font-bold text-blue-500">PRO TV</h1>
+        <div id="count" class="text-xs bg-blue-600 px-2 py-1 rounded">0 CHANNELS</div>
     </header>
 
-    <main class="container mx-auto p-4 max-w-5xl">
-        <div class="mb-8">
-            <video id="video" controls autoplay playsinline></video>
-            <div class="mt-4">
-                <h2 id="current-ch" class="text-xl font-bold text-blue-400 uppercase tracking-tighter">চ্যানেল সিলেক্ট করুন</h2>
-                <p id="msg" class="text-gray-500 text-xs mt-1 italic"></p>
-            </div>
-        </div>
+    <div class="max-w-4xl mx-auto p-4">
+        <video id="video" controls autoplay playsinline></video>
+        <h2 id="current-ch" class="mt-4 text-xl font-bold text-blue-400">চ্যানেল সিলেক্ট করুন</h2>
+        <p id="msg" class="text-gray-500 text-xs italic"></p>
 
-        <div id="grid" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
-            <p class="col-span-full text-center py-20 text-gray-700 font-bold animate-pulse">লোড হচ্ছে...</p>
+        <div id="grid" class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3 mt-6">
+            <p class="col-span-full text-center py-10">লোড হচ্ছে...</p>
         </div>
-    </main>
+    </div>
 
     <script>
         const video = document.getElementById('video');
         const grid = document.getElementById('grid');
         const hls = new Hls();
         
-        // আপনার তৈরি করা ক্লাউডফ্লেয়ার প্রক্সি
+        // আপনার সঠিক লিঙ্কগুলো এখানে বসানো হয়েছে
         const myProxy = "https://bd-live-tv.soheltanver85.workers.dev/?url=";
-        const m3uUrl = 'https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/refs/heads/main/Live%20tv';
+        const m3uUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/refs/heads/main/Live%20tv";
 
         async function init() {
             try {
                 const res = await fetch(m3uUrl);
-                const data = await res.text();
-                parseM3U(data);
-            } catch (e) { grid.innerHTML = "প্লে-লিস্ট পাওয়া যায়নি।"; }
-        }
+                const text = await res.text();
+                
+                // উন্নত পার্সিং (এটি সব ধরনের ফরম্যাট সাপোর্ট করবে)
+                const lines = text.split('\n');
+                let channels = [];
+                let tempObj = {};
 
-        function parseM3U(data) {
-            const lines = data.split('\n');
-            let channels = [];
-            let currentCh = {};
-
-            lines.forEach(line => {
-                if (line.startsWith('#EXTINF:')) {
-                    // নাম খোঁজা (কমা এর পরের অংশ)
-                    const nameParts = line.split(',');
-                    currentCh.name = nameParts[nameParts.length - 1].trim();
-                    // লোগো খোঁজা
-                    const logoMatch = line.match(/tvg-logo="([^"]+)"/);
-                    currentCh.logo = logoMatch ? logoMatch[1] : "https://via.placeholder.com/150/111/fff?text=TV";
-                } else if (line.startsWith('http')) {
-                    currentCh.url = line.trim();
-                    if (currentCh.name) {
-                        channels.push({ ...currentCh });
+                lines.forEach(line => {
+                    line = line.trim();
+                    if (line.startsWith('#EXTINF')) {
+                        const nameMatch = line.split(',').pop();
+                        tempObj.name = nameMatch ? nameMatch.trim() : "Unknown Channel";
+                        const logoMatch = line.match(/tvg-logo="([^"]+)"/);
+                        tempObj.logo = logoMatch ? logoMatch[1] : "https://via.placeholder.com/100";
+                    } else if (line.startsWith('http')) {
+                        tempObj.url = line;
+                        channels.push({ ...tempObj });
+                        tempObj = {};
                     }
-                    currentCh = {};
-                }
-            });
+                });
 
-            document.getElementById('count').innerText = channels.length + " CHANNELS";
-            render(channels);
+                document.getElementById('count').innerText = channels.length + " CHANNELS";
+                render(channels);
+            } catch (e) { grid.innerHTML = "লিঙ্ক থেকে ডাটা পাওয়া যাচ্ছে না!"; }
         }
 
         function render(list) {
             grid.innerHTML = '';
             list.forEach((c, i) => {
                 const div = document.createElement('div');
-                div.className = 'ch-card p-4 text-center';
-                div.innerHTML = `
-                    <img src="${c.logo}" class="h-10 w-full object-contain mb-2">
-                    <p class="text-[10px] font-bold truncate">${c.name}</p>
-                `;
-                div.onclick = () => play(c.url, c.name, div);
+                div.className = 'ch-card p-2 text-center';
+                div.innerHTML = `<img src="${c.logo}" class="h-10 mx-auto mb-1"><p class="text-[9px] truncate">${c.name}</p>`;
+                div.onclick = () => {
+                    document.querySelectorAll('.ch-card').forEach(el => el.classList.remove('active-ch'));
+                    div.classList.add('active-ch');
+                    play(c.url, c.name);
+                };
                 grid.appendChild(div);
             });
         }
 
-        function play(url, name, el) {
-            document.querySelectorAll('.ch-card').forEach(c => c.classList.remove('active-ch'));
-            el.classList.add('active-ch');
+        function play(url, name) {
             document.getElementById('current-ch').innerText = name;
             document.getElementById('msg').innerText = "প্রক্সির মাধ্যমে লোড হচ্ছে...";
-
             const finalUrl = myProxy + encodeURIComponent(url);
 
             if (Hls.isSupported()) {
-                hls.destroy();
-                const newHls = new Hls();
-                newHls.loadSource(finalUrl);
-                newHls.attachMedia(video);
-                newHls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    video.play();
-                    document.getElementById('msg').innerText = "Status: Online";
-                });
-                newHls.on(Hls.Events.ERROR, () => {
-                    document.getElementById('msg').innerText = "Error: এই চ্যানেলটি বর্তমানে কাজ করছে না।";
-                });
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                hls.loadSource(finalUrl);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+            } else {
                 video.src = finalUrl;
                 video.play();
             }
