@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Stream TV - All-in-One OTT</title>
+    <title>Pro Stream TV - Advanced OTT</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;500;700&display=swap');
@@ -19,6 +20,8 @@
         .fav-btn.active { color: #ef4444; }
         #qr-code img { width: 45px; height: 45px; border: 1px solid white; border-radius: 4px; }
         .playing-status { border-left: 4px solid #3b82f6; padding-left: 10px; }
+        /* Loading Spinner */
+        .vjs-loading-spinner { border-radius: 50% !important; border: 5px solid rgba(59, 130, 246, 0.2) !important; border-top-color: #3b82f6 !important; }
     </style>
 </head>
 <body>
@@ -26,7 +29,7 @@
     <header class="p-3 bg-black/95 sticky top-0 z-50 border-b border-gray-800 flex justify-between items-center shadow-xl">
         <div class="flex items-center gap-3">
             <h1 class="text-xl font-black text-blue-500 italic">PRO<span class="text-white font-normal">TV</span></h1>
-            <div id="qr-code" title="স্ক্যান করে ফোনকে রিমোট বানান">
+            <div id="qr-code">
                 <img id="qr-img" src="" alt="QR">
             </div>
         </div>
@@ -36,61 +39,62 @@
                 <input type="text" id="search" placeholder="খুঁজুন..." class="bg-gray-900 text-xs border border-gray-700 px-4 py-2 rounded-full w-32 md:w-60 focus:outline-none focus:border-blue-500">
                 <button id="voice-btn" class="absolute right-3 top-2 text-blue-500"><i class="fas fa-microphone"></i></button>
             </div>
-            <span class="bg-blue-600 px-2 py-1 rounded text-[10px] font-bold">মোট: <span id="count">0</span></span>
+            <span class="bg-blue-600 px-2 py-1 rounded text-[10px] font-bold tracking-tighter">চ্যানেল: <span id="count">0</span></span>
         </div>
     </header>
 
     <main class="container mx-auto p-4">
-        <div class="rounded-xl overflow-hidden shadow-2xl bg-black mb-6 border border-gray-800 group relative">
-            <video id="tv-player" class="video-js vjs-16-9 vjs-big-play-centered" controls preload="auto" poster="https://static.vecteezy.com/system/resources/previews/006/795/116/non_2x/abstract-dark-blue-background-with-shining-light-effect-free-vector.jpg"></video>
+        <div class="rounded-xl overflow-hidden shadow-2xl bg-black mb-6 border border-gray-800 relative">
+            <video id="tv-player" class="video-js vjs-16-9 vjs-big-play-centered" controls preload="auto" playsinline></video>
         </div>
 
         <div class="flex flex-wrap items-center justify-between mb-6 gap-4 playing-status">
             <div>
                 <h2 id="current-title" class="text-lg md:text-2xl font-bold text-blue-400">চ্যানেল সিলেক্ট করুন</h2>
-                <p class="text-gray-500 text-xs mt-1">কিবোর্ড বা রিমোটের (← →) বাটন চাপুন</p>
+                <p class="text-gray-500 text-xs mt-1">রিমোট/কিবোর্ড (← →) বা সোয়াইপ ব্যবহার করুন</p>
             </div>
-            <button onclick="togglePiP()" class="bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded text-xs"><i class="fas fa-clone mr-1"></i> PiP</button>
+            <button onclick="togglePiP()" class="bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded text-xs"><i class="fas fa-clone mr-1"></i> PiP মোড</button>
         </div>
 
         <div class="flex gap-3 mb-6 overflow-x-auto pb-2 border-b border-gray-900">
             <button onclick="filterChannels('all')" id="btn-all" class="whitespace-nowrap bg-blue-600 px-5 py-1.5 rounded-full text-sm font-medium">সব চ্যানেল</button>
-            <button onclick="filterChannels('fav')" id="btn-fav" class="whitespace-nowrap bg-gray-800 hover:bg-red-700 px-5 py-1.5 rounded-full text-sm font-medium">❤️ প্রিয় তালিকা</button>
+            <button onclick="filterChannels('fav')" id="btn-fav" class="whitespace-nowrap bg-gray-800 hover:bg-red-700 px-5 py-1.5 rounded-full text-sm font-medium">❤️ প্রিয়</button>
         </div>
 
         <div id="channel-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 text-center">
-            <p class="col-span-full py-20 text-gray-600 animate-pulse">চ্যানেল ডাটা লোড হচ্ছে...</p>
+            <p class="col-span-full py-20 text-gray-600 animate-pulse italic">চ্যানেল লোড হচ্ছে...</p>
         </div>
     </main>
 
     <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
     <script>
-        const player = videojs('tv-player');
+        const player = videojs('tv-player', {
+            autoplay: true,
+            fluid: true,
+            playbackRates: [0.5, 1, 1.5, 2],
+            userActions: { hotkeys: true }
+        });
+
         const githubUrl = 'https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/refs/heads/main/Live%20tv';
         let allChannels = [];
         let favorites = JSON.parse(localStorage.getItem('my_favs')) || [];
         let currentIndex = -1;
 
-        // QR Code Setup
         document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(window.location.href)}`;
 
-        // Smart Fetch & Parse
         async function fetchM3U() {
             try {
                 const res = await fetch(githubUrl);
                 const data = await res.text();
-                // Smart Split: Splits even if text is continuous
                 const items = data.split(/#EXTINF/);
                 let list = [];
                 
                 items.forEach(item => {
                     if (item.includes('http')) {
                         const nameMatch = item.match(/,(.*)\n/) || item.match(/,(.*)/);
-                        const name = nameMatch ? nameMatch[1].trim() : "Unknown Channel";
-                        
+                        const name = nameMatch ? nameMatch[1].trim() : "Unknown";
                         const urlMatch = item.match(/https?:\/\/[^\s"']+/);
                         const url = urlMatch ? urlMatch[0] : null;
-                        
                         const logoMatch = item.match(/tvg-logo="([^"]+)"/);
                         const logo = logoMatch ? logoMatch[1] : 'https://via.placeholder.com/150/111/fff?text=TV';
                         
@@ -115,7 +119,7 @@
                 card.className = 'channel-card p-4 cursor-pointer';
                 card.innerHTML = `
                     <button class="fav-btn ${isFav?'active':''}" onclick="handleFav(event, '${c.name}')"><i class="fas fa-heart"></i></button>
-                    <img src="${c.logo}" class="h-14 w-full object-contain mb-3 pointer-events-none" alt="">
+                    <img src="${c.logo}" class="h-14 w-full object-contain mb-3 pointer-events-none">
                     <p class="text-[11px] font-bold truncate uppercase tracking-tighter">${c.name}</p>
                 `;
                 card.onclick = () => playTV(c.url, c.name);
@@ -124,14 +128,26 @@
         }
 
         function playTV(url, name) {
-            player.src({ src: url, type: 'application/x-mpegURL' });
-            player.play();
+            // Enhanced playback using HLS.js if available
+            if (Hls.isSupported()) {
+                const videoElement = document.querySelector('video');
+                const hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(videoElement);
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    player.play();
+                });
+            } else {
+                player.src({ src: url, type: 'application/x-mpegURL' });
+                player.play();
+            }
+
             document.getElementById('current-title').innerText = name;
             currentIndex = allChannels.findIndex(c => c.url === url);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Remote/Keyboard Support
+        // Navigation (Remote/Keyboard)
         document.addEventListener('keydown', (e) => {
             if (currentIndex === -1 || allChannels.length === 0) return;
             if (e.key === "ArrowRight") navigate(1);
@@ -142,11 +158,38 @@
             currentIndex += step;
             if (currentIndex >= allChannels.length) currentIndex = 0;
             if (currentIndex < 0) currentIndex = allChannels.length - 1;
-            const target = allChannels[currentIndex];
-            playTV(target.url, target.name);
+            playTV(allChannels[currentIndex].url, allChannels[currentIndex].name);
         }
 
-        // Favorites
+        // Mobile Swiping
+        let startX = 0;
+        document.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+        document.addEventListener('touchend', e => {
+            let endX = e.changedTouches[0].clientX;
+            if (startX - endX > 100) navigate(1);
+            if (endX - startX > 100) navigate(-1);
+        });
+
+        // Search & Voice
+        const searchInput = document.getElementById('search');
+        searchInput.oninput = (e) => {
+            const term = e.target.value.toLowerCase();
+            render(allChannels.filter(c => c.name.toLowerCase().includes(term)));
+        };
+
+        const voiceBtn = document.getElementById('voice-btn');
+        const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (Speech) {
+            const rec = new Speech();
+            voiceBtn.onclick = () => { rec.start(); voiceBtn.classList.add('text-red-500', 'animate-pulse'); };
+            rec.onresult = (e) => {
+                const txt = e.results[0][0].transcript.toLowerCase();
+                searchInput.value = txt;
+                render(allChannels.filter(c => c.name.toLowerCase().includes(txt)));
+                voiceBtn.classList.remove('text-red-500', 'animate-pulse');
+            };
+        }
+
         function handleFav(e, name) {
             e.stopPropagation();
             if (favorites.includes(name)) favorites = favorites.filter(f => f !== name);
@@ -156,47 +199,9 @@
         }
 
         function filterChannels(type) {
-            const btnAll = document.getElementById('btn-all');
-            const btnFav = document.getElementById('btn-fav');
-            if (type === 'fav') {
-                render(allChannels.filter(c => favorites.includes(c.name)));
-                btnFav.classList.replace('bg-gray-800', 'bg-red-600');
-                btnAll.classList.replace('bg-blue-600', 'bg-gray-800');
-            } else {
-                render(allChannels);
-                btnAll.classList.replace('bg-gray-800', 'bg-blue-600');
-                btnFav.classList.replace('bg-red-600', 'bg-gray-800');
-            }
+            if (type === 'fav') render(allChannels.filter(c => favorites.includes(c.name)));
+            else render(allChannels);
         }
-
-        // Voice Command
-        const voiceBtn = document.getElementById('voice-btn');
-        const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (Speech) {
-            const rec = new Speech();
-            voiceBtn.onclick = () => { rec.start(); voiceBtn.classList.add('text-red-500', 'animate-pulse'); };
-            rec.onresult = (e) => {
-                const txt = e.results[0][0].transcript.toLowerCase();
-                document.getElementById('search').value = txt;
-                render(allChannels.filter(c => c.name.toLowerCase().includes(txt)));
-                voiceBtn.classList.remove('text-red-500', 'animate-pulse');
-            };
-        }
-
-        // Mobile Swipe
-        let startX = 0;
-        document.addEventListener('touchstart', e => startX = e.touches[0].clientX);
-        document.addEventListener('touchend', e => {
-            let endX = e.changedTouches[0].clientX;
-            if (startX - endX > 100) navigate(1);
-            if (endX - startX > 100) navigate(-1);
-        });
-
-        // Search
-        document.getElementById('search').oninput = (e) => {
-            const term = e.target.value.toLowerCase();
-            render(allChannels.filter(c => c.name.toLowerCase().includes(term)));
-        };
 
         async function togglePiP() {
             const v = document.querySelector('video');
@@ -205,7 +210,7 @@
         }
 
         player.on('error', () => {
-            document.getElementById('current-title').innerHTML = `<span class="text-red-500 italic underline">চ্যানেলটি অফলাইন</span>`;
+            document.getElementById('current-title').innerHTML = `<span class="text-red-500 italic">সার্ভার এরর অথবা অফলাইন</span>`;
         });
 
         fetchM3U();
