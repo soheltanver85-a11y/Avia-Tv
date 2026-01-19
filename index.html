@@ -6,10 +6,10 @@
     <title>PRO TV - Ultimate Working Fix (Jan 2026)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/m3u8-parser@latest"></script>
     <style>
         body { background: #050505; color: white; font-family: sans-serif; }
         .ch-card { background: #111; border: 1px solid #222; border-radius: 12px; cursor: pointer; transition: 0.3s; }
+        .ch-card:hover { border-color: #3b82f6; transform: scale(1.05); }
         .active-ch { border: 2px solid #3b82f6 !important; background: #001f3f !important; }
         video { width: 100%; aspect-ratio: 16/9; background: black; border-radius: 12px; box-shadow: 0 0 20px rgba(0,0,0,0.8); }
         .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
@@ -27,7 +27,7 @@
             <video id="video" controls autoplay playsinline></video>
             <div class="mt-4 bg-[#111] p-4 rounded-xl border border-gray-800">
                 <h2 id="current-ch" class="text-lg font-bold text-blue-400">চ্যানেল বেছে নিন</h2>
-                <p id="status-msg" class="text-gray-500 text-xs mt-1 font-mono italic">Ready to play... (Allorigins + Advanced Proxy)</p>
+                <p id="status-msg" class="text-gray-500 text-xs mt-1 font-mono italic">Ready to play...</p>
             </div>
         </div>
 
@@ -41,45 +41,58 @@
         const grid = document.getElementById('grid');
         const statusMsg = document.getElementById('status-msg');
 
-        // প্রক্সি লিস্ট - allorigins এখনো কাজ করে (Jan 2026)
         const proxyList = [
-            "https://api.allorigins.win/raw?url=",  // প্রাইমারি - কিছু ক্ষেত্রে কাজ করে
-            // যদি না চলে তাহলে Vercel নিজের প্রক্সি যোগ করো
+            "https://api.allorigins.win/raw?url=",
+            "https://corsproxy.io/?",
+            ""  // Direct attempt
         ];
 
         let hls = null;
+        let currentProxyIndex = 0;
 
         async function init() {
             try {
+                statusMsg.innerText = "প্লে-লিস্ট লোড হচ্ছে...";
                 const m3uUrl = 'https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/refs/heads/main/Live%20tv';
-                const res = await fetch(m3uUrl);
-                const data = await res.text();
                 
-                const lines = data.split('\n');
-                let channels = [];
-                let tempCh = {};
-
-                lines.forEach(line => {
-                    line = line.trim();
-                    if (line.startsWith('#EXTINF:')) {
-                        const commaIdx = line.lastIndexOf(',');
-                        tempCh.name = line.substring(commaIdx + 1).trim();
-                        const logoMatch = line.match(/tvg-logo="([^"]+)"/);
-                        tempCh.logo = logoMatch ? logoMatch[1] : "https://via.placeholder.com/150/111/fff?text=TV";
-                    } else if (line.startsWith('http')) {
-                        tempCh.url = line;
-                        if (tempCh.name && !line.includes('.mpd')) {
-                            channels.push({...tempCh});
-                        }
-                        tempCh = {};
-                    }
-                });
+                const res = await fetch(m3uUrl);
+                if (!res.ok) throw new Error("Failed to fetch playlist");
+                
+                const data = await res.text();
+                const channels = parseM3U(data);
 
                 document.getElementById('count').innerText = channels.length + " CHANNELS";
+                statusMsg.innerText = channels.length + " টি চ্যানেল পাওয়া গেছে!";
                 render(channels);
             } catch (e) {
-                grid.innerHTML = "প্লে-লিস্ট লোড হয়নি! → " + e.message;
+                console.error("Init error:", e);
+                grid.innerHTML = `<div class="col-span-full text-center text-red-500 p-4">প্লে-লিস্ট লোড হয়নি! Error: ${e.message}</div>`;
+                statusMsg.innerText = "Error: " + e.message;
             }
+        }
+
+        function parseM3U(data) {
+            const lines = data.split('\n');
+            let channels = [];
+            let tempCh = {};
+
+            lines.forEach(line => {
+                line = line.trim();
+                if (line.startsWith('#EXTINF:')) {
+                    const commaIdx = line.lastIndexOf(',');
+                    tempCh.name = line.substring(commaIdx + 1).trim();
+                    const logoMatch = line.match(/tvg-logo="([^"]+)"/);
+                    tempCh.logo = logoMatch ? logoMatch[1] : "https://via.placeholder.com/150/111/fff?text=TV";
+                } else if (line.startsWith('http')) {
+                    tempCh.url = line;
+                    if (tempCh.name && !line.includes('.mpd')) {
+                        channels.push({...tempCh});
+                    }
+                    tempCh = {};
+                }
+            });
+
+            return channels;
         }
 
         function render(list) {
@@ -89,7 +102,7 @@
                 card.className = 'ch-card p-3 text-center';
                 card.innerHTML = `
                     <div class="h-12 flex items-center justify-center mb-2">
-                        <img src="${c.logo}" class="max-h-full max-w-full object-contain pointer-events-none">
+                        <img src="${c.logo}" class="max-h-full max-w-full object-contain pointer-events-none" onerror="this.src='https://via.placeholder.com/150/111/fff?text=TV'">
                     </div>
                     <p class="text-[10px] font-bold truncate uppercase tracking-tighter text-gray-300">${c.name}</p>
                 `;
@@ -98,106 +111,90 @@
             });
         }
 
-        // Advanced: m3u8 পার্স + সব .ts প্রক্সি
-        async function advancedPlay(originalUrl, name, el) {
-            statusMsg.innerText = "Advanced Mode: m3u8 পার্স করে সব সেগমেন্ট প্রক্সি...";
-
-            try {
-                const proxy = proxyList[0];
-                const proxyM3u8 = proxy + encodeURIComponent(originalUrl);
-
-                const res = await fetch(proxyM3u8);
-                if (!res.ok) throw new Error("m3u8 fetch failed");
-
-                const text = await res.text();
-
-                const parser = new m3u8Parser.Parser();
-                parser.push(text);
-                parser.end();
-                const manifest = parser.manifest;
-
-                let newText = text;
-
-                // Segments প্রক্সি
-                manifest.segments?.forEach(s => {
-                    if (s.uri) {
-                        const abs = new URL(s.uri, originalUrl).href;
-                        const proxied = proxy + encodeURIComponent(abs);
-                        newText = newText.replace(s.uri, proxied);
-                    }
-                });
-
-                // Playlists (quality switch)
-                manifest.playlists?.forEach(p => {
-                    if (p.uri) {
-                        const abs = new URL(p.uri, originalUrl).href;
-                        const proxied = proxy + encodeURIComponent(abs);
-                        newText = newText.replace(p.uri, proxied);
-                    }
-                });
-
-                const blob = new Blob([newText], { type: 'application/vnd.apple.mpegurl' });
-                const blobUrl = URL.createObjectURL(blob);
-
-                if (Hls.isSupported()) {
-                    if (hls) hls.destroy();
-                    hls = new Hls();
-                    hls.loadSource(blobUrl);
-                    hls.attachMedia(video);
-
-                    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                        video.play().catch(e => console.log("Auto play blocked", e));
-                        statusMsg.innerText = "চলছে! (Advanced Proxy)";
-                    });
-
-                    hls.on(Hls.Events.ERROR, (e, data) => {
-                        if (data.fatal) {
-                            statusMsg.innerText = "Advanced ফেল → সরাসরি চেষ্টা...";
-                            simplePlay(originalUrl, name, el);
-                        }
-                    });
-                }
-            } catch (err) {
-                console.error(err);
-                statusMsg.innerText = "Advanced সমস্যা → সরাসরি মোডে...";
-                simplePlay(originalUrl, name, el);
-            }
-        }
-
-        // Simple fallback
-        function simplePlay(url, name, el) {
-            statusMsg.innerText = "সরাসরি চেষ্টা (Allorigins)...";
-
-            const finalUrl = proxyList[0] + encodeURIComponent(url);
-
-            if (Hls.isSupported()) {
-                if (hls) hls.destroy();
-                hls = new Hls();
-                hls.loadSource(finalUrl);
-                hls.attachMedia(video);
-
-                hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    video.play().catch(() => {});
-                    statusMsg.innerText = "চলছে! (Simple Mode)";
-                });
-
-                hls.on(Hls.Events.ERROR, (e, data) => {
-                    if (data.fatal) {
-                        statusMsg.innerText = "দুঃখিত! চ্যানেলটি এখন অফলাইন বা ব্লকড হতে পারে। নতুন লিঙ্ক চেক করুন।";
-                    }
-                });
-            }
-        }
-
-        function playChannel(url, name, el) {
+        async function playChannel(url, name, el) {
             document.querySelectorAll('.ch-card').forEach(c => c.classList.remove('active-ch'));
             el.classList.add('active-ch');
             document.getElementById('current-ch').innerText = name;
+            
+            statusMsg.innerText = "লোড হচ্ছে...";
+            currentProxyIndex = 0;
 
-            // প্রথমে advanced চেষ্টা
-            advancedPlay(url, name, el);
-
+            await tryPlayWithProxy(url, name);
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function tryPlayWithProxy(url, name) {
+            if (currentProxyIndex >= proxyList.length) {
+                statusMsg.innerText = "দুঃখিত! সব প্রক্সি ব্যর্থ হয়েছে। চ্যানেলটি অফলাইন বা ব্লক থাকতে পারে।";
+                return;
+            }
+
+            const proxy = proxyList[currentProxyIndex];
+            const finalUrl = proxy + encodeURIComponent(url);
+            
+            statusMsg.innerText = `প্রক্সি #${currentProxyIndex + 1} চেষ্টা করা হচ্ছে...`;
+
+            try {
+                if (Hls.isSupported()) {
+                    if (hls) {
+                        hls.destroy();
+                    }
+                    
+                    hls = new Hls({
+                        enableWorker: true,
+                        lowLatencyMode: true,
+                        backBufferLength: 90
+                    });
+
+                    hls.loadSource(finalUrl);
+                    hls.attachMedia(video);
+
+                    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                        video.play().then(() => {
+                            statusMsg.innerText = `✓ চলছে! (প্রক্সি #${currentProxyIndex + 1})`;
+                        }).catch(e => {
+                            console.log("Auto play blocked", e);
+                            statusMsg.innerText = "Play বাটনে ক্লিক করুন";
+                        });
+                    });
+
+                    hls.on(Hls.Events.ERROR, (event, data) => {
+                        console.error("HLS Error:", data);
+                        
+                        if (data.fatal) {
+                            switch(data.type) {
+                                case Hls.ErrorTypes.NETWORK_ERROR:
+                                    console.log("Network error, trying next proxy...");
+                                    currentProxyIndex++;
+                                    tryPlayWithProxy(url, name);
+                                    break;
+                                case Hls.ErrorTypes.MEDIA_ERROR:
+                                    console.log("Media error, trying to recover...");
+                                    hls.recoverMediaError();
+                                    break;
+                                default:
+                                    currentProxyIndex++;
+                                    tryPlayWithProxy(url, name);
+                                    break;
+                            }
+                        }
+                    });
+                    
+                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                    // Safari native support
+                    video.src = finalUrl;
+                    video.play().then(() => {
+                        statusMsg.innerText = "✓ চলছে! (Native)";
+                    }).catch(e => {
+                        currentProxyIndex++;
+                        tryPlayWithProxy(url, name);
+                    });
+                }
+            } catch (e) {
+                console.error("Play error:", e);
+                currentProxyIndex++;
+                tryPlayWithProxy(url, name);
+            }
         }
 
         init();
