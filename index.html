@@ -3,21 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Stream TV - IPTV Pro</title>
+    <title>Pro Stream TV - Universal Player</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/shaka-player.compiled.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-    
-    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;500;700&display=swap');
         body { background-color: #050505; color: white; font-family: 'Hind Siliguri', sans-serif; }
-        .channel-card { background: #111; border: 1px solid #222; border-radius: 12px; transition: 0.3s; }
-        .channel-card:hover { border-color: #3b82f6; transform: scale(1.02); }
-        .active-channel { border-color: #3b82f6; background: #1a1a1a; }
+        .channel-card { background: #111; border: 1px solid #222; border-radius: 12px; transition: 0.3s; height: 100%; }
+        .channel-card:hover { border-color: #3b82f6; background: #1a1a1a; }
+        .active-channel { border: 2px solid #3b82f6 !important; background: #1e3a8a !important; }
+        video { width: 100%; aspect-ratio: 16/9; background: black; border-radius: 12px; }
         #qr-code img { width: 45px; height: 45px; border: 1px solid white; border-radius: 4px; }
     </style>
 </head>
@@ -26,54 +24,41 @@
     <header class="p-3 bg-black/95 sticky top-0 z-50 border-b border-gray-800 flex justify-between items-center shadow-xl">
         <div class="flex items-center gap-3">
             <h1 class="text-xl font-black text-blue-500 italic">PRO<span class="text-white font-normal">TV</span></h1>
-            <div id="qr-code">
-                <img id="qr-img" src="" alt="QR">
-            </div>
+            <div id="qr-code"><img id="qr-img" src="" alt="QR"></div>
         </div>
-
         <div class="flex items-center gap-2">
-            <div class="relative">
-                <input type="text" id="search" placeholder="খুঁজুন..." class="bg-gray-900 text-xs border border-gray-700 px-4 py-2 rounded-full w-32 md:w-60 focus:outline-none focus:border-blue-500">
-                <button id="voice-btn" class="absolute right-3 top-2 text-blue-500"><i class="fas fa-microphone"></i></button>
-            </div>
+            <input type="text" id="search" placeholder="খুঁজুন..." class="bg-gray-900 text-xs border border-gray-700 px-4 py-2 rounded-full w-32 md:w-60 focus:outline-none">
             <span class="bg-blue-600 px-2 py-1 rounded text-[10px] font-bold">চ্যানেল: <span id="count">0</span></span>
         </div>
     </header>
 
     <main class="container mx-auto p-4">
-        <div class="rounded-xl overflow-hidden shadow-2xl bg-black mb-6 border border-gray-800">
-            <video id="tv-player" class="video-js vjs-16-9 vjs-big-play-centered" controls preload="auto" playsinline></video>
+        <div class="mb-6 shadow-2xl relative">
+            <video id="video" controls autoplay playsinline></video>
+            <div id="status-msg" class="absolute top-2 left-2 text-[10px] bg-black/50 px-2 py-1 rounded"></div>
         </div>
 
-        <div class="flex items-center justify-between mb-6">
-            <h2 id="current-title" class="text-lg md:text-2xl font-bold text-blue-400">চ্যানেল সিলেক্ট করুন</h2>
-            <button onclick="togglePiP()" class="bg-gray-800 px-3 py-1.5 rounded text-xs">PiP মোড</button>
-        </div>
+        <h2 id="current-title" class="text-lg md:text-2xl font-bold text-blue-400 mb-6">চ্যানেল সিলেক্ট করুন</h2>
 
         <div id="channel-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 text-center">
-            <p class="col-span-full py-20 text-gray-600 italic">লোড হচ্ছে...</p>
+            <p class="col-span-full py-10">লোড হচ্ছে...</p>
         </div>
     </main>
 
     <script>
-        // ভিডিও প্লেয়ার কনফিগারেশন - যা অ্যাপের মতো কাজ করবে
-        const player = videojs('tv-player', {
-            autoplay: true,
-            muted: false,
-            fluid: true,
-            html5: {
-                vhs: {
-                    overrideNative: true,
-                    withCredentials: false // এটি CORS এরর কমাতে সাহায্য করে
-                }
-            }
-        });
-
-        const githubUrl = 'https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/refs/heads/main/Live%20tv';
         let allChannels = [];
         let currentIndex = -1;
+        const video = document.getElementById('video');
+        const githubUrl = 'https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/refs/heads/main/Live%20tv';
+        
+        // Initialize Shaka Player
+        const player = new shaka.Player(video);
+        player.addEventListener('error', (e) => console.error('Error code', e.detail.code, 'object', e.detail));
 
-        document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(window.location.href)}`;
+        async function initApp() {
+            document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(window.location.href)}`;
+            await fetchM3U();
+        }
 
         async function fetchM3U() {
             try {
@@ -84,67 +69,55 @@
                 
                 items.forEach(item => {
                     if (item.includes('http')) {
-                        const name = (item.match(/,(.*)\n/) || item.match(/,(.*)/) || ["","TV"])[1].trim();
-                        const url = (item.match(/https?:\/\/[^\s"']+/))[0];
-                        const logo = (item.match(/tvg-logo="([^"]+)"/) || ["","https://via.placeholder.com/150/111/fff?text=TV"])[1];
-                        list.push({ name, url, logo });
+                        const nameMatch = item.match(/,(.*)\n/) || item.match(/,(.*)/);
+                        const name = nameMatch ? nameMatch[1].trim() : "Unknown Channel";
+                        const urlMatch = item.match(/(https?:\/\/[^\s"']+)/);
+                        const url = urlMatch ? urlMatch[0] : null;
+                        const logoMatch = item.match(/tvg-logo="([^"]+)"/);
+                        const logo = logoMatch ? logoMatch[1] : 'https://via.placeholder.com/150/111/fff?text=TV';
+                        if(url) list.push({ name, url, logo });
                     }
                 });
                 allChannels = list;
                 document.getElementById('count').innerText = allChannels.length;
-                render(allChannels);
-            } catch (e) { console.error("Error fetching list"); }
+                render();
+            } catch (e) { alert("প্লে-লিস্ট পাওয়া যায়নি!"); }
         }
 
-        function render(items) {
+        function render() {
             const grid = document.getElementById('channel-grid');
             grid.innerHTML = '';
-            items.forEach((c, index) => {
+            allChannels.forEach((c, index) => {
                 const card = document.createElement('div');
                 card.className = `channel-card p-4 cursor-pointer ${currentIndex === index ? 'active-channel' : ''}`;
                 card.innerHTML = `
-                    <img src="${c.logo}" class="h-12 w-full object-contain mb-2 pointer-events-none">
-                    <p class="text-[10px] font-bold truncate uppercase">${c.name}</p>
+                    <img src="${c.logo}" class="h-12 w-full object-contain mb-2">
+                    <p class="text-[10px] font-bold truncate">${c.name}</p>
                 `;
-                card.onclick = () => playTV(c.url, c.name, index);
+                card.onclick = () => playTV(index);
                 grid.appendChild(card);
             });
         }
 
-        function playTV(url, name, index) {
+        async function playTV(index) {
             currentIndex = index;
-            document.getElementById('current-title').innerText = name;
-            render(allChannels); // সিলেকশন দেখানোর জন্য আবার রেন্ডার
+            const channel = allChannels[index];
+            document.getElementById('current-title').innerText = channel.name;
+            render();
 
-            // HLS.js ব্যবহার করে স্ট্রিমিং লিঙ্ক চালানো (যা IPTV App এর টেকনোলজি)
-            if (Hls.isSupported()) {
-                const videoElement = document.querySelector('video');
-                const hls = new Hls({
-                    xhrSetup: function (xhr, url) {
-                        // এটি অ্যাপের মতো সিগন্যাল পাঠাতে সাহায্য করে
-                        xhr.withCredentials = false; 
-                    }
-                });
-                hls.loadSource(url);
-                hls.attachMedia(videoElement);
-                hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                    player.play().catch(e => console.log("Auto-play blocked"));
-                });
-                
-                hls.on(Hls.Events.ERROR, function (event, data) {
-                    if (data.fatal) {
-                        console.log("HLS Error - Trying fallback");
-                        player.src({ src: url, type: 'application/x-mpegURL' });
-                    }
-                });
-            } else {
-                player.src({ src: url, type: 'application/x-mpegURL' });
-                player.play();
+            try {
+                // Shaka player handles both M3U8 and MPD automatically
+                await player.load(channel.url);
+                video.play();
+                document.getElementById('status-msg').innerText = "Playing: " + channel.url.split('.').pop().toUpperCase();
+            } catch (error) {
+                console.error("Playback Error", error);
+                document.getElementById('current-title').innerHTML = channel.name + " <span class='text-red-500 text-sm'>(প্লে করা সম্ভব হচ্ছে না)</span>";
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // রিমোট এবং নেভিগেশন
+        // রিমোট কন্ট্রোল (Left/Right)
         document.addEventListener('keydown', (e) => {
             if (e.key === "ArrowRight") navigate(1);
             if (e.key === "ArrowLeft") navigate(-1);
@@ -153,17 +126,27 @@
         function navigate(step) {
             if (allChannels.length === 0) return;
             currentIndex = (currentIndex + step + allChannels.length) % allChannels.length;
-            const target = allChannels[currentIndex];
-            playTV(target.url, target.name, currentIndex);
+            playTV(currentIndex);
         }
 
-        // সোয়াইপ এবং সার্চ আগের মতোই কাজ করবে
-        document.getElementById('search').oninput = (e) => {
+        // সার্চ ফাংশন
+        document.getElementById('search').addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase();
-            render(allChannels.filter(c => c.name.toLowerCase().includes(term)));
-        };
+            const filtered = allChannels.filter(c => c.name.toLowerCase().includes(term));
+            // এখানে সার্চ রেজাল্ট দেখালেও প্লে ইনডেক্স ঠিক রাখতে হবে
+            const grid = document.getElementById('channel-grid');
+            grid.innerHTML = '';
+            filtered.forEach(c => {
+                const realIndex = allChannels.findIndex(ac => ac.url === c.url);
+                const card = document.createElement('div');
+                card.className = `channel-card p-4 cursor-pointer`;
+                card.innerHTML = `<img src="${c.logo}" class="h-12 w-full object-contain mb-2"><p class="text-[10px] font-bold truncate">${c.name}</p>`;
+                card.onclick = () => playTV(realIndex);
+                grid.appendChild(card);
+            });
+        });
 
-        fetchM3U();
+        initApp();
     </script>
 </body>
 </html>
