@@ -3,95 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRO TV - Direct Fix</title>
+    <title>PRO TV - Cloudflare Powered</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
     <style>
-        body { background: #000; color: #fff; font-family: sans-serif; margin: 0; }
-        .video-box { width: 100%; aspect-ratio: 16/9; background: #111; position: sticky; top: 0; z-index: 100; border-bottom: 2px solid #3b82f6; }
-        .ch-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px; }
-        .card { background: #111; border: 1px solid #222; border-radius: 8px; padding: 10px; text-align: center; cursor: pointer; }
-        .card img { height: 40px; margin: 0 auto 5px; object-fit: contain; }
-        .card p { font-size: 10px; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .active { border: 2px solid #3b82f6; background: #001a33; }
-        #error-msg { color: #ff4444; font-size: 12px; padding: 0 10px; }
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;700&display=swap');
+        body { background: #050505; color: white; font-family: 'Hind Siliguri', sans-serif; }
+        .ch-card { background: #111; border: 1px solid #222; border-radius: 12px; cursor: pointer; transition: 0.3s; }
+        .ch-card:hover { border-color: #3b82f6; transform: translateY(-3px); background: #1a1a1a; }
+        .active-ch { border: 2px solid #3b82f6 !important; background: #001f3f !important; }
+        video { width: 100%; aspect-ratio: 16/9; background: black; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+        .loading-text { animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
 </head>
 <body>
 
-    <div class="video-box">
-        <video id="video" controls autoplay playsinline style="width: 100%; height: 100%;"></video>
-    </div>
+    <header class="p-4 bg-black/90 border-b border-gray-800 sticky top-0 z-50 flex justify-between items-center">
+        <h1 class="text-xl font-bold text-blue-500">PRO TV <span class="text-white font-light text-xs ml-1">LIVE</span></h1>
+        <div id="count" class="text-[10px] bg-blue-600 px-2 py-1 rounded font-bold uppercase tracking-widest">0 CHANNELS</div>
+    </header>
 
-    <div class="p-3">
-        <h2 id="title" class="text-blue-400 font-bold">চ্যানেল বেছে নিন</h2>
-        <div id="error-msg"></div>
-    </div>
+    <main class="container mx-auto p-4 max-w-5xl">
+        <div class="mb-8">
+            <video id="video" controls autoplay playsinline></video>
+            <div class="mt-4 p-2">
+                <h2 id="current-ch" class="text-xl font-bold text-blue-400">চ্যানেল সিলেক্ট করুন</h2>
+                <p id="status-msg" class="text-gray-500 text-xs mt-1 italic font-mono"></p>
+            </div>
+        </div>
 
-    <div class="ch-grid" id="grid">
-        <p class="col-span-3 text-center py-10 text-gray-500 italic">লোডিং হচ্ছে...</p>
-    </div>
+        <div id="grid" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+            <p class="col-span-full text-center py-20 text-gray-700 font-bold loading-text uppercase">প্লে-লিস্ট লোড হচ্ছে...</p>
+        </div>
+    </main>
 
     <script>
         const video = document.getElementById('video');
         const grid = document.getElementById('grid');
-        const hls = new Hls({
-            // এই সেটিংসগুলো অনেক ব্লক করা লিঙ্ক খুলতে সাহায্য করবে
-            xhrSetup: function (xhr) {
-                xhr.withCredentials = false;
-            }
-        });
+        const statusMsg = document.getElementById('status-msg');
+        
+        // আপনার তৈরি করা Cloudflare Worker লিঙ্ক
+        const myProxy = "https://bd-live-tv.soheltanver85.workers.dev/?url="; 
+        const m3uUrl = 'https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/refs/heads/main/Live%20tv';
+        
+        let hls = new Hls();
 
-        async function loadChannels() {
+        async function init() {
             try {
-                const response = await fetch('https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/refs/heads/main/Live%20tv');
-                const data = await response.text();
+                const res = await fetch(m3uUrl);
+                const data = await res.text();
                 const items = data.split('#EXTINF');
                 items.shift();
 
-                grid.innerHTML = '';
-                items.forEach((item, index) => {
-                    const name = item.split(',')[1].split('\n')[0].trim();
-                    const url = item.match(/https?:\/\/[^\s]+/)[0];
-                    const logo = item.match(/tvg-logo="([^"]+)"/)?.[1] || "https://via.placeholder.com/50";
+                const channels = items.map(p => {
+                    const name = (p.match(/,(.*)\n/) || ["","Unnamed"])[1].trim();
+                    const url = (p.match(/(https?:\/\/[^\s"']+)/) || [""])[0];
+                    const logo = (p.match(/tvg-logo="([^"]+)"/) || ["","https://via.placeholder.com/150/111/fff?text=TV"])[1];
+                    return { name, url, logo };
+                }).filter(c => c.url);
 
-                    const div = document.createElement('div');
-                    div.className = 'card';
-                    div.innerHTML = `<img src="${logo}"><p>${name}</p>`;
-                    div.onclick = () => play(url, name, div);
-                    grid.appendChild(div);
-                });
-            } catch (e) {
-                grid.innerHTML = "প্লেলিস্ট পাওয়া যায়নি!";
-            }
+                document.getElementById('count').innerText = channels.length + " CHANNELS";
+                render(channels);
+            } catch (e) { grid.innerHTML = "প্লে-লিস্ট পাওয়া যায়নি। লিঙ্ক চেক করুন।"; }
         }
 
-        function play(url, name, el) {
-            document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
-            el.classList.add('active');
-            document.getElementById('title').innerText = name;
-            document.getElementById('error-msg').innerText = "সংযোগ করা হচ্ছে...";
+        function render(list) {
+            grid.innerHTML = '';
+            list.forEach((c, idx) => {
+                const card = document.createElement('div');
+                card.className = 'ch-card p-4 text-center';
+                card.innerHTML = `
+                    <img src="${c.logo}" class="h-12 w-full object-contain mb-2 pointer-events-none">
+                    <p class="text-[10px] font-bold truncate uppercase tracking-tighter">${c.name}</p>
+                `;
+                card.onclick = () => playChannel(c.url, c.name, card);
+                grid.appendChild(card);
+            });
+        }
 
-            // HLS.js সাপোর্ট চেক
+        function playChannel(url, name, el) {
+            document.querySelectorAll('.ch-card').forEach(c => c.classList.remove('active-ch'));
+            el.classList.add('active-ch');
+            
+            document.getElementById('current-ch').innerText = name;
+            statusMsg.innerText = "প্রক্সির মাধ্যমে সংযোগ করা হচ্ছে...";
+
+            // প্রক্সি লিঙ্ক তৈরি
+            const finalUrl = myProxy + encodeURIComponent(url);
+
             if (Hls.isSupported()) {
-                hls.loadSource(url);
+                hls.destroy();
+                hls = new Hls();
+                hls.loadSource(finalUrl);
                 hls.attachMedia(video);
                 hls.on(Hls.Events.MANIFEST_PARSED, () => {
                     video.play();
-                    document.getElementById('error-msg').innerText = "";
+                    statusMsg.innerText = "Status: Streaming via Cloudflare";
                 });
                 hls.on(Hls.Events.ERROR, (event, data) => {
                     if (data.fatal) {
-                        document.getElementById('error-msg').innerText = "এই চ্যানেলটি ব্রাউজারে ব্লক করা আছে।";
+                        statusMsg.innerText = "Error: এই চ্যানেলটি বর্তমানে অফলাইন।";
                     }
                 });
             } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = url;
+                video.src = finalUrl;
                 video.play();
             }
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        loadChannels();
+        init();
     </script>
 </body>
 </html>
