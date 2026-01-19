@@ -103,6 +103,9 @@
   <div id="overlay"></div>
   <div id="spinner"></div>
 
+  <!-- HLS.js লাইব্রেরি -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
   <script>
     let channels = [];
     let currentIndex = 0;
@@ -128,7 +131,7 @@
         }
       });
 
-      // Auto Resume (আগের চ্যানেল চালু হবে)
+      // Auto Resume
       const savedIndex = localStorage.getItem("lastChannelIndex");
       if (savedIndex) {
         currentIndex = parseInt(savedIndex);
@@ -142,9 +145,8 @@
       div.className = "channel";
       div.dataset.category = category;
 
-      // Lazy load image
       const img = document.createElement("img");
-      img.setAttribute("data-src", logo);
+      img.src = logo;
       img.alt = name;
       img.loading = "lazy";
 
@@ -159,16 +161,25 @@
     }
 
     function playChannel(url) {
-      const player = document.getElementById("tvPlayer");
+      const video = document.getElementById("tvPlayer");
       const spinner = document.getElementById("spinner");
       spinner.style.display = "block";
 
-      player.src = url;
-      player.play();
-
-      player.onplaying = () => {
-        spinner.style.display = "none";
-      };
+      if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, function() {
+          video.play();
+          spinner.style.display = "none";
+        });
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = url;
+        video.addEventListener('loadedmetadata', () => {
+          video.play();
+          spinner.style.display = "none";
+        });
+      }
 
       showOverlay(channels[currentIndex].name);
       localStorage.setItem("lastChannelIndex", currentIndex);
