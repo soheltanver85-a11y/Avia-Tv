@@ -1,29 +1,153 @@
-export default {
-  async fetch(request) {
-    const url = new URL(request.url)
-    const target = url.searchParams.get("url")
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRO TV - ULTIMATE FIX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        body { background: #050505; color: white; font-family: sans-serif; }
+        .ch-card { background: #111; border: 1px solid #222; border-radius: 12px; cursor: pointer; transition: 0.3s; }
+        .active-ch { border: 2px solid #3b82f6 !important; background: #001f3f !important; }
+        video { width: 100%; aspect-ratio: 16/9; background: black; border-radius: 12px; box-shadow: 0 0 20px rgba(0,0,0,0.8); }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+    </style>
+</head>
+<body>
 
-    if (!target) {
-      return new Response("No URL", { status: 400 })
-    }
+    <header class="p-4 bg-black/90 border-b border-gray-800 sticky top-0 z-50 flex justify-between items-center">
+        <h1 class="text-xl font-bold text-blue-500 italic">PRO TV <span class="text-white text-[10px] ml-1 uppercase">Live Stream</span></h1>
+        <div id="count" class="text-[10px] bg-blue-600 px-2 py-1 rounded font-bold">0 CHANNELS</div>
+    </header>
 
-    const headers = new Headers(request.headers)
-    headers.set("Origin", "")
+    <main class="container mx-auto p-4 max-w-5xl">
+        <div class="mb-6">
+            <video id="video" controls autoplay playsinline></video>
+            <div class="mt-4 bg-[#111] p-4 rounded-xl border border-gray-800">
+                <h2 id="current-ch" class="text-lg font-bold text-blue-400">চ্যানেল বেছে নিন</h2>
+                <p id="status-msg" class="text-gray-500 text-xs mt-1 font-mono italic">Ready to play...</p>
+            </div>
+        </div>
 
-    const resp = await fetch(target, {
-      headers,
-      method: request.method
-    })
+        <div id="grid" class="grid-container">
+            <div class="col-span-full text-center py-20 text-gray-700 font-bold animate-pulse">চ্যানেল লোড হচ্ছে...</div>
+        </div>
+    </main>
 
-    const newHeaders = new Headers(resp.headers)
-    newHeaders.set("Access-Control-Allow-Origin", "*")
-    newHeaders.set("Access-Control-Allow-Headers", "*")
-    newHeaders.set("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS")
-    newHeaders.set("Content-Type", resp.headers.get("Content-Type") || "application/vnd.apple.mpegurl")
+    <script>
+        const video = document.getElementById('video');
+        const grid = document.getElementById('grid');
+        const statusMsg = document.getElementById('status-msg');
+        
+        // পাবলিক CORS প্রক্সি (Cloudflare Worker বাদ দেওয়া হয়েছে)
+        const myProxy = "https://api.codetabs.com/v1/proxy?quest=";
+        
+        // বিকল্প প্রক্সি (যদি উপরেরটা কাজ না করে তাহলে এগুলো ট্রাই করতে পারো)
+        // const myProxy = "https://corsproxy.io/?";
+        // const myProxy = "https://api.allorigins.win/raw?url=";
 
-    return new Response(resp.body, {
-      status: resp.status,
-      headers: newHeaders
-    })
-  }
-}
+        let hls = new Hls({
+            xhrSetup: function(xhr, url) {
+                xhr.withCredentials = false;
+            }
+        });
+
+        async function init() {
+            try {
+                const m3uUrl = 'https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/refs/heads/main/Live%20tv';
+                const res = await fetch(m3uUrl);
+                const data = await res.text();
+                
+                const lines = data.split('\n');
+                let channels = [];
+                let tempCh = {};
+
+                lines.forEach(line => {
+                    line = line.trim();
+                    if (line.startsWith('#EXTINF:')) {
+                        const commaIdx = line.lastIndexOf(',');
+                        tempCh.name = line.substring(commaIdx + 1).trim();
+                        const logoMatch = line.match(/tvg-logo="([^"]+)"/);
+                        tempCh.logo = logoMatch ? logoMatch[1] : "https://via.placeholder.com/150/111/fff?text=TV";
+                    } else if (line.startsWith('http')) {
+                        tempCh.url = line;
+                        if (tempCh.name && !line.includes('.mpd')) { // শুধু m3u8
+                            channels.push({...tempCh});
+                        }
+                        tempCh = {};
+                    }
+                });
+
+                document.getElementById('count').innerText = channels.length + " CHANNELS";
+                render(channels);
+            } catch (e) {
+                grid.innerHTML = "প্লে-লিস্ট পাওয়া যায়নি! → " + e.message;
+            }
+        }
+
+        function render(list) {
+            grid.innerHTML = '';
+            list.forEach(c => {
+                const card = document.createElement('div');
+                card.className = 'ch-card p-3 text-center';
+                card.innerHTML = `
+                    <div class="h-12 flex items-center justify-center mb-2">
+                        <img src="${c.logo}" class="max-h-full max-w-full object-contain pointer-events-none">
+                    </div>
+                    <p class="text-[10px] font-bold truncate uppercase tracking-tighter text-gray-300">${c.name}</p>
+                `;
+                card.onclick = () => playChannel(c.url, c.name, card);
+                grid.appendChild(card);
+            });
+        }
+
+        function playChannel(url, name, el) {
+            document.querySelectorAll('.ch-card').forEach(c => c.classList.remove('active-ch'));
+            el.classList.add('active-ch');
+            document.getElementById('current-ch').innerText = name;
+            statusMsg.innerText = "কানেক্ট করা হচ্ছে... (প্রক্সি মোড)";
+
+            // ফাইনাল URL — প্রক্সি + অরিজিনাল URL
+            let finalUrl = myProxy + encodeURIComponent(url);
+
+            // কিছু লিঙ্ক সরাসরি কাজ করে (CORS ফ্রি) — চেক করা যায়
+            if (url.includes("owrcovcrpy.gpcdn.net") || url.includes("116.204.149.16")) {
+                finalUrl = url;
+                statusMsg.innerText = "সরাসরি লিঙ্ক (প্রক্সি ছাড়া) → চেষ্টা করছি...";
+            }
+
+            if (Hls.isSupported()) {
+                hls.destroy();
+                hls = new Hls();
+                hls.loadSource(finalUrl);
+                hls.attachMedia(video);
+                
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    video.play().catch(e => {
+                        statusMsg.innerText = "প্লে অটোমেটিক ফেল → ম্যানুয়ালি প্লে করুন";
+                    });
+                    statusMsg.innerText = "Status: Online (Streaming)";
+                });
+
+                hls.on(Hls.Events.ERROR, (event, data) => {
+                    if (data.fatal) {
+                        statusMsg.innerText = "Error: লিঙ্ক মেয়াদোত্তীর্ণ / সার্ভার ডাউন / প্রক্সি সমস্যা";
+                        console.error("HLS Error:", data);
+                    }
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = finalUrl;
+                video.addEventListener('loadedmetadata', () => {
+                    video.play();
+                });
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // পেজ লোড হলেই চালু করা
+        init();
+    </script>
+</body>
+</html>
