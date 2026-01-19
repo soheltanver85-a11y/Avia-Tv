@@ -24,7 +24,7 @@
 
     <main class="container mx-auto p-4 max-w-5xl">
         <div class="mb-6">
-            <video id="video" controls autoplay playsinline></video>
+            <video id="video" controls autoplay playsinline muted></video>
             <div class="mt-4 bg-[#111] p-4 rounded-xl border border-gray-800">
                 <h2 id="current-ch" class="text-lg font-bold text-blue-400">চ্যানেল বেছে নিন</h2>
                 <p id="status-msg" class="text-gray-500 text-xs mt-1 font-mono italic">Ready to play...</p>
@@ -41,10 +41,12 @@
         const grid = document.getElementById('grid');
         const statusMsg = document.getElementById('status-msg');
 
+        // Multiple CORS proxies - যেকোনো একটা কাজ করবে
         const proxyList = [
-            "https://api.allorigins.win/raw?url=",
+            "",  // Direct first (কিছু চ্যানেল সরাসরি চলে)
             "https://corsproxy.io/?",
-            ""  // Direct attempt
+            "https://api.allorigins.win/raw?url=",
+            "https://api.codetabs.com/v1/proxy?quest=",
         ];
 
         let hls = null;
@@ -119,64 +121,76 @@
             statusMsg.innerText = "লোড হচ্ছে...";
             currentProxyIndex = 0;
 
+            // Unmute after user interaction
+            video.muted = false;
+
             await tryPlayWithProxy(url, name);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         async function tryPlayWithProxy(url, name) {
             if (currentProxyIndex >= proxyList.length) {
-                statusMsg.innerText = "দুঃখিত! সব প্রক্সি ব্যর্থ হয়েছে। চ্যানেলটি অফলাইন বা ব্লক থাকতে পারে।";
+                statusMsg.innerText = "❌ সব প্রক্সি ব্যর্থ! চ্যানেলটি অফলাইন বা আপনার নেটওয়ার্ক ব্লক করছে।";
                 return;
             }
 
             const proxy = proxyList[currentProxyIndex];
-            const finalUrl = proxy + encodeURIComponent(url);
+            const finalUrl = proxy ? proxy + encodeURIComponent(url) : url;
             
-            statusMsg.innerText = `প্রক্সি #${currentProxyIndex + 1} চেষ্টা করা হচ্ছে...`;
+            const proxyName = currentProxyIndex === 0 ? "সরাসরি" : `প্রক্সি #${currentProxyIndex}`;
+            statusMsg.innerText = `${proxyName} দিয়ে চেষ্টা করা হচ্ছে...`;
 
             try {
                 if (Hls.isSupported()) {
                     if (hls) {
                         hls.destroy();
+                        hls = null;
                     }
                     
                     hls = new Hls({
+                        debug: false,
                         enableWorker: true,
-                        lowLatencyMode: true,
-                        backBufferLength: 90
+                        lowLatencyMode: false,
+                        backBufferLength: 90,
+                        maxBufferLength: 30,
+                        maxMaxBufferLength: 600,
+                        maxBufferSize: 60 * 1000 * 1000,
+                        xhrSetup: function(xhr, url) {
+                            xhr.withCredentials = false;
+                        }
                     });
 
                     hls.loadSource(finalUrl);
                     hls.attachMedia(video);
 
+                    let manifestParsed = false;
+
                     hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                        manifestParsed = true;
                         video.play().then(() => {
-                            statusMsg.innerText = `✓ চলছে! (প্রক্সি #${currentProxyIndex + 1})`;
+                            statusMsg.innerText = `✅ চলছে! (${proxyName})`;
                         }).catch(e => {
                             console.log("Auto play blocked", e);
-                            statusMsg.innerText = "Play বাটনে ক্লিক করুন";
+                            statusMsg.innerText = `▶️ Play বাটনে ক্লিক করুন (${proxyName})`;
                         });
                     });
 
+                    // Timeout যদি 5 সেকেন্ডে লোড না হয়
+                    setTimeout(() => {
+                        if (!manifestParsed) {
+                            console.log("Timeout, trying next proxy...");
+                            currentProxyIndex++;
+                            tryPlayWithProxy(url, name);
+                        }
+                    }, 5000);
+
                     hls.on(Hls.Events.ERROR, (event, data) => {
-                        console.error("HLS Error:", data);
+                        console.error("HLS Error:", data.type, data.details);
                         
                         if (data.fatal) {
-                            switch(data.type) {
-                                case Hls.ErrorTypes.NETWORK_ERROR:
-                                    console.log("Network error, trying next proxy...");
-                                    currentProxyIndex++;
-                                    tryPlayWithProxy(url, name);
-                                    break;
-                                case Hls.ErrorTypes.MEDIA_ERROR:
-                                    console.log("Media error, trying to recover...");
-                                    hls.recoverMediaError();
-                                    break;
-                                default:
-                                    currentProxyIndex++;
-                                    tryPlayWithProxy(url, name);
-                                    break;
-                            }
+                            console.log(`${proxyName} ফেল, পরের প্রক্সি চেষ্টা...`);
+                            currentProxyIndex++;
+                            tryPlayWithProxy(url, name);
                         }
                     });
                     
@@ -184,11 +198,14 @@
                     // Safari native support
                     video.src = finalUrl;
                     video.play().then(() => {
-                        statusMsg.innerText = "✓ চলছে! (Native)";
+                        statusMsg.innerText = `✅ চলছে! (Native - ${proxyName})`;
                     }).catch(e => {
+                        console.log("Native play failed, trying next proxy");
                         currentProxyIndex++;
                         tryPlayWithProxy(url, name);
                     });
+                } else {
+                    statusMsg.innerText = "❌ আপনার ব্রাউজার HLS সাপোর্ট করে না!";
                 }
             } catch (e) {
                 console.error("Play error:", e);
