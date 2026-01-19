@@ -1,114 +1,29 @@
-<!DOCTYPE html>
-<html lang="bn">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PRO TV – Fixed</title>
+export default {
+  async fetch(request) {
+    const url = new URL(request.url)
+    const target = url.searchParams.get("url")
 
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.8"></script>
-
-<style>
-body { background:#000; color:#fff }
-.ch-card{background:#111;border:1px solid #222;border-radius:10px;cursor:pointer}
-.active{border:2px solid #3b82f6;background:#001a33}
-video{width:100%;aspect-ratio:16/9;background:#000;border-radius:12px}
-</style>
-</head>
-
-<body>
-
-<div class="max-w-5xl mx-auto p-3">
-    <video id="video" controls playsinline></video>
-
-    <h2 id="title" class="mt-2 text-blue-400 font-bold">চ্যানেল সিলেক্ট করুন</h2>
-    <p id="status" class="text-xs text-gray-400">Ready</p>
-
-    <div id="grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 mt-4">
-        <div class="col-span-full text-center text-gray-600">Loading channels…</div>
-    </div>
-</div>
-
-<script>
-const video = document.getElementById('video');
-const grid = document.getElementById('grid');
-const statusText = document.getElementById('status');
-const title = document.getElementById('title');
-
-const PLAYLIST =
-"https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/live.m3u";
-
-let hls;
-
-fetch(PLAYLIST)
-.then(res => res.text())
-.then(data => loadChannels(parseM3U(data)))
-.catch(()=> grid.innerHTML="Playlist load failed");
-
-function parseM3U(data){
-    const lines=data.split('\n');
-    let list=[],temp=null;
-
-    lines.forEach(l=>{
-        l=l.trim();
-        if(l.startsWith('#EXTINF')){
-            temp={};
-            temp.name=l.split(',').pop();
-            const logo=l.match(/tvg-logo="([^"]+)"/);
-            temp.logo=logo?logo[1]:"https://via.placeholder.com/100";
-        }else if(l.startsWith('http')){
-            if(temp){ temp.url=l; list.push(temp); temp=null; }
-        }
-    });
-    return list;
-}
-
-function loadChannels(channels){
-    grid.innerHTML='';
-    channels.forEach(ch=>{
-        const d=document.createElement('div');
-        d.className='ch-card p-2 text-center';
-        d.innerHTML=`
-            <img src="${ch.logo}" class="h-10 mx-auto mb-1">
-            <p class="text-[10px] truncate">${ch.name}</p>
-        `;
-        d.onclick=()=>play(ch.url,ch.name,d);
-        grid.appendChild(d);
-    });
-}
-
-function play(url,name,el){
-    document.querySelectorAll('.ch-card').forEach(e=>e.classList.remove('active'));
-    el.classList.add('active');
-
-    title.innerText=name;
-    statusText.innerText="Connecting…";
-
-    if(hls){ hls.destroy(); }
-
-    if(Hls.isSupported()){
-        hls=new Hls({
-            lowLatencyMode:true,
-            maxBufferLength:30
-        });
-        hls.loadSource(url);
-        hls.attachMedia(video);
-
-        hls.on(Hls.Events.MANIFEST_PARSED,()=>{
-            video.muted=true;
-            video.play();
-            statusText.innerText="Online";
-        });
-
-        hls.on(Hls.Events.ERROR,(e,d)=>{
-            if(d.fatal) statusText.innerText="Stream unavailable";
-        });
-    }else{
-        video.src=url;
-        video.play();
+    if (!target) {
+      return new Response("No URL", { status: 400 })
     }
-}
-</script>
 
-</body>
-</html>
+    const headers = new Headers(request.headers)
+    headers.set("Origin", "")
+
+    const resp = await fetch(target, {
+      headers,
+      method: request.method
+    })
+
+    const newHeaders = new Headers(resp.headers)
+    newHeaders.set("Access-Control-Allow-Origin", "*")
+    newHeaders.set("Access-Control-Allow-Headers", "*")
+    newHeaders.set("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS")
+    newHeaders.set("Content-Type", resp.headers.get("Content-Type") || "application/vnd.apple.mpegurl")
+
+    return new Response(resp.body, {
+      status: resp.status,
+      headers: newHeaders
+    })
+  }
+}
