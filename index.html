@@ -7,46 +7,31 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
-        body { background: #0b0e14; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .ch-card { background: #1a1f29; border: 1px solid #2d3748; border-radius: 15px; cursor: pointer; transition: all 0.3s ease; }
-        .ch-card:hover { border-color: #3b82f6; transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
-        .active-ch { border: 2px solid #3b82f6 !important; background: #1e293b !important; }
-        video { width: 100%; aspect-ratio: 16/9; background: black; border-radius: 15px; box-shadow: 0 0 30px rgba(0,0,0,0.7); }
-        .search-box { background: #1a1f29; border: 1px solid #2d3748; color: white; }
-        .search-box:focus { border-color: #3b82f6; outline: none; }
+        body { background: #0b0e14; color: white; font-family: 'Segoe UI', sans-serif; }
+        .ch-card { background: #1a1f29; border: 1px solid #2d3748; border-radius: 12px; cursor: pointer; transition: 0.3s; }
+        .ch-card:hover { border-color: #3b82f6; transform: scale(1.05); }
+        video { width: 100%; aspect-ratio: 16/9; background: black; border-radius: 12px; }
+        .search-box { background: #1a1f29; border: 1px solid #2d3748; color: white; border-radius: 20px; }
     </style>
 </head>
 <body>
 
-    <header class="p-4 bg-black/80 backdrop-blur-md border-b border-gray-800 sticky top-0 z-50">
+    <header class="p-4 bg-black border-b border-gray-800 sticky top-0 z-50">
         <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-            <h1 class="text-2xl font-bold text-blue-500 italic tracking-tighter">PRO TV <span class="text-white text-[10px] bg-blue-600 px-2 py-1 rounded ml-2">Vercel Proxy</span></h1>
-            
-            <div class="relative w-full md:w-72">
-                <input type="text" id="search" placeholder="চ্যানেল খুঁজুন..." class="search-box w-full px-4 py-2 rounded-full text-sm">
-            </div>
-            
-            <div id="count" class="hidden md:block text-[12px] font-bold text-gray-400">LOADING...</div>
+            <h1 class="text-2xl font-bold text-blue-500">PRO TV</h1>
+            <input type="text" id="search" placeholder="চ্যানেল খুঁজুন..." class="search-box px-4 py-2 w-full md:w-72">
         </div>
     </header>
 
-    <main class="container mx-auto p-4 max-w-6xl">
-        <div class="mb-8">
-            <video id="video" controls autoplay playsinline></video>
-            <div class="mt-4 bg-[#1a1f29] p-5 rounded-2xl border border-gray-800 flex justify-between items-center">
-                <div>
-                    <h2 id="current-ch" class="text-xl font-bold text-blue-400">চ্যানেল বেছে নিন</h2>
-                    <p id="status-msg" class="text-gray-500 text-xs mt-1 italic font-mono">Proxy connected: ✅</p>
-                </div>
-                <div class="animate-pulse flex space-x-2">
-                    <div class="h-2 w-2 bg-red-500 rounded-full"></div>
-                    <span class="text-[10px] text-red-500 font-bold uppercase">Live</span>
-                </div>
-            </div>
+    <main class="container mx-auto p-4 max-w-5xl">
+        <video id="video" controls autoplay playsinline></video>
+        <div class="mt-4 p-4 bg-[#1a1f29] rounded-xl border border-gray-700">
+            <h2 id="current-ch" class="text-lg font-bold text-blue-400">চ্যানেল বেছে নিন</h2>
+            <p id="status-msg" class="text-gray-500 text-xs mt-1">Status: Ready ✅</p>
         </div>
 
-        <div id="grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            <div class="col-span-full text-center py-20 text-gray-600 font-bold uppercase tracking-widest">চ্যানেল লোড হচ্ছে...</div>
+        <div id="grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-8">
+            <div class="col-span-full text-center py-10">লোড হচ্ছে...</div>
         </div>
     </main>
 
@@ -56,22 +41,20 @@
         const statusMsg = document.getElementById('status-msg');
         const searchInput = document.getElementById('search');
 
-        // আপনার নিজস্ব Vercel প্রক্সি লিঙ্ক
         const vercelProxy = "/api/proxy?url=";
         let allChannels = [];
         let hls = null;
 
         async function init() {
             try {
-                const m3uUrl = 'https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/refs/heads/main/Live%20tv';
+                // সচল বাংলাদেশী চ্যানেল প্লে-লিস্ট
+                const m3uUrl = 'https://iptv-org.github.io/iptv/countries/bd.m3u';
                 const res = await fetch(m3uUrl);
                 const data = await res.text();
                 allChannels = parseM3U(data);
-
-                document.getElementById('count').innerText = allChannels.length + " CHANNELS FOUND";
                 render(allChannels);
             } catch (e) {
-                grid.innerHTML = `<div class="col-span-full text-center text-red-500 p-10">Error loading playlist!</div>`;
+                grid.innerHTML = `<div class="col-span-full text-center text-red-500">Error loading channels!</div>`;
             }
         }
 
@@ -81,14 +64,13 @@
             let tempCh = {};
 
             lines.forEach(line => {
-                line = line.trim();
                 if (line.startsWith('#EXTINF:')) {
-                    const commaIdx = line.lastIndexOf(',');
-                    tempCh.name = line.substring(commaIdx + 1).trim();
+                    const name = line.split(',')[1];
+                    tempCh.name = name ? name.trim() : "Unknown";
                     const logoMatch = line.match(/tvg-logo="([^"]+)"/);
                     tempCh.logo = logoMatch ? logoMatch[1] : "https://via.placeholder.com/150/1a1f29/fff?text=TV";
                 } else if (line.startsWith('http')) {
-                    tempCh.url = line;
+                    tempCh.url = line.trim();
                     if (tempCh.name) channels.push({...tempCh});
                     tempCh = {};
                 }
@@ -98,37 +80,24 @@
 
         function render(list) {
             grid.innerHTML = '';
-            if (list.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500">কোনো চ্যানেল পাওয়া যায়নি!</div>`;
-                return;
-            }
             list.forEach(c => {
                 const card = document.createElement('div');
-                card.className = 'ch-card p-4 text-center flex flex-col items-center';
-                card.innerHTML = `
-                    <div class="h-16 w-full flex items-center justify-center mb-3">
-                        <img src="${c.logo}" class="max-h-full max-w-full object-contain pointer-events-none rounded-lg" onerror="this.src='https://via.placeholder.com/150/1a1f29/fff?text=TV'">
-                    </div>
-                    <p class="text-[12px] font-bold truncate w-full uppercase tracking-tighter text-gray-200">${c.name}</p>
-                `;
-                card.onclick = () => playChannel(c.url, c.name, card);
+                card.className = 'ch-card p-4 text-center';
+                card.innerHTML = `<img src="${c.logo}" class="h-12 mx-auto mb-2"><p class="text-xs font-bold truncate">${c.name}</p>`;
+                card.onclick = () => playChannel(c.url, c.name);
                 grid.appendChild(card);
             });
         }
 
-        // সার্চ ফাংশন
         searchInput.oninput = (e) => {
             const term = e.target.value.toLowerCase();
             const filtered = allChannels.filter(c => c.name.toLowerCase().includes(term));
             render(filtered);
         };
 
-        async function playChannel(url, name, el) {
-            document.querySelectorAll('.ch-card').forEach(c => c.classList.remove('active-ch'));
-            el.classList.add('active-ch');
+        function playChannel(url, name) {
             document.getElementById('current-ch').innerText = name;
-            statusMsg.innerText = "Loading through Vercel Proxy...";
-            
+            statusMsg.innerText = "Loading stream...";
             const finalUrl = vercelProxy + encodeURIComponent(url);
 
             if (Hls.isSupported()) {
@@ -137,20 +106,12 @@
                 hls.loadSource(finalUrl);
                 hls.attachMedia(video);
                 hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    video.play().then(() => {
-                        statusMsg.innerText = "✅ Streaming Live";
-                    }).catch(() => {
-                        statusMsg.innerText = "▶️ Tap to play";
-                    });
+                    video.play();
+                    statusMsg.innerText = "✅ Playing Live";
                 });
-                hls.on(Hls.Events.ERROR, (event, data) => {
-                    if (data.fatal) statusMsg.innerText = "❌ Stream Offline";
-                });
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            } else {
                 video.src = finalUrl;
-                video.play();
             }
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         init();
