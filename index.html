@@ -73,8 +73,11 @@
             lines.forEach(line => {
                 line = line.trim();
                 if (line.startsWith('#EXTINF:')) {
-                    const nameParts = line.split(',');
-                    current.name = nameParts[nameParts.length - 1].trim();
+                    // নাম সবসময় কমার পরের অংশ থেকে নাও
+                    const nameMatch = line.match(/,(.+)$/);
+                    current.name = nameMatch ? nameMatch[1].trim() : "UNKNOWN";
+
+                    // লোগো বের করো
                     const logoMatch = line.match(/tvg-logo="([^"]+)"/i);
                     current.logo = logoMatch ? logoMatch[1] : "https://via.placeholder.com/150/1a1f29/fff?text=TV";
                 } else if (line.startsWith('http')) {
@@ -123,7 +126,7 @@
 
             if (Hls.isSupported()) {
                 if (hls) hls.destroy();
-                hls = new Hls({ enableWorker: false }); // worker issue fix
+                hls = new Hls({ enableWorker: false });
                 hls.loadSource(finalUrl);
                 hls.attachMedia(video);
 
