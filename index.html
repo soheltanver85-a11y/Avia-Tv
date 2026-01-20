@@ -69,16 +69,17 @@ let channels=[],currentIndex=0;
 
 async function loadPlaylist(){
   const res=await fetch(playlistUrl); const text=await res.text();
-  const lines=text.split("\n"); let list=[],currentName="",currentGroup="";
+  const lines=text.split("\n"); let list=[],currentName="",currentGroup="",currentLogo="";
   for(let line of lines){
     if(line.startsWith("#EXTINF")){
-      let parts=line.split(","); currentName=parts[1];
+      let parts=line.split(",");
+      currentName=parts[1];
       let groupMatch=line.match(/group-title="([^"]+)"/);
       currentGroup=groupMatch?groupMatch[1]:"Others";
+      let logoMatch=line.match(/tvg-logo="([^"]+)"/);
+      currentLogo=logoMatch?logoMatch[1]:"default.png"; // fallback logo
     } else if(line.startsWith("http")){
-      // logo path convention: logos/<channelname>.png
-      let logo="logos/"+currentName.replace(/\s+/g,"").toLowerCase()+".png";
-      list.push({name:currentName,url:line,group:currentGroup,logo:logo});
+      list.push({ name: currentName, url: line, group: currentGroup, logo: currentLogo });
     }
   }
   return list;
