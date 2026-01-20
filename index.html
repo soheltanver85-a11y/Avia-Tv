@@ -4,46 +4,26 @@
   <meta charset="UTF-8">
   <title>PRO TV LIVE</title>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <style>
-    body {
-      margin:0; font-family:'Segoe UI',sans-serif;
-      background:#111; color:#fff;
-      display:flex; flex-direction:column; height:100vh;
-    }
-    header {
-      background:rgba(20,20,20,0.9); backdrop-filter:blur(10px);
-      padding:10px 20px; display:flex; justify-content:space-between; align-items:center;
-      border-bottom:1px solid #333;
-    }
+    body { margin:0; font-family:'Segoe UI',sans-serif; background:#111; color:#fff; display:flex; flex-direction:column; height:100vh; }
+    header { background:rgba(20,20,20,0.9); backdrop-filter:blur(10px); padding:10px 20px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #333; }
     header h1 { margin:0; font-size:20px; }
     #player { flex:0 0 220px; position:relative; background:black; display:flex; justify-content:center; align-items:center; }
     video { width:100%; height:100%; object-fit:contain; }
-    #overlay {
-      position:absolute; bottom:10px; left:50%; transform:translateX(-50%);
-      background:rgba(0,0,0,0.6); backdrop-filter:blur(5px);
-      padding:6px 12px; border-radius:6px; font-size:16px; display:none;
-      animation:fadeInOut 2s ease;
-    }
+    #overlay { position:absolute; bottom:10px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.6); backdrop-filter:blur(5px); padding:6px 12px; border-radius:6px; font-size:16px; display:none; animation:fadeInOut 2s ease; }
     @keyframes fadeInOut { 0%{opacity:0;}20%{opacity:1;}80%{opacity:1;}100%{opacity:0;} }
-    #searchBar {
-      padding:10px; border:none; width:90%; margin:10px auto; border-radius:5px;
-      display:block; font-size:14px;
-    }
-    #channelGrid {
-      flex:1; overflow-y:auto;
-      display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
-      gap:12px; padding:10px;
-    }
-    .channel-card {
-      background:#222; border-radius:8px; padding:10px;
-      text-align:center; transition:transform 0.3s ease; cursor:pointer;
-    }
+    #searchBar { padding:10px; border:none; width:90%; margin:10px auto; border-radius:5px; display:block; font-size:14px; }
+    #channelGrid { flex:1; overflow-y:auto; display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:12px; padding:10px; }
+    .channel-card { background:#222; border-radius:8px; padding:10px; text-align:center; transition:transform 0.3s ease; cursor:pointer; }
     .channel-card:hover { transform:scale(1.05); background:#333; }
     .channel-logo { width:100%; height:80px; object-fit:contain; margin-bottom:8px; }
     .channel-name { font-size:14px; color:#fff; }
-    footer {
-      background:#111; text-align:center; padding:8px; font-size:12px; border-top:1px solid #333;
-    }
+    #pipBtn,#micBtn { position:absolute; top:10px; right:10px; background:#444; color:#fff; border:none; padding:6px 10px; border-radius:5px; cursor:pointer; font-size:12px; margin-left:5px; }
+    #qr { margin:10px auto; }
+    #multiWindow { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:10px; }
+    #multiWindow video { width:100%; height:200px; background:black; }
+    footer { background:#111; text-align:center; padding:8px; font-size:12px; border-top:1px solid #333; }
   </style>
 </head>
 <body>
@@ -54,12 +34,20 @@
 
   <div id="player">
     <video id="video" controls autoplay></video>
+    <button id="pipBtn">PiP</button>
+    <button id="micBtn">🎤</button>
     <div id="overlay"></div>
   </div>
 
   <input type="text" id="searchBar" placeholder="চ্যানেল খুঁজুন...">
-
   <div id="channelGrid"></div>
+
+  <div id="qr"></div>
+
+  <div id="multiWindow">
+    <video id="video1" controls></video>
+    <video id="video2" controls></video>
+  </div>
 
   <footer>© 2026 PRO TV | Developed by Sohel</footer>
 
@@ -77,7 +65,7 @@ async function loadPlaylist(){
       let groupMatch=line.match(/group-title="([^"]+)"/);
       currentGroup=groupMatch?groupMatch[1]:"Others";
       let logoMatch=line.match(/tvg-logo="([^"]+)"/);
-      currentLogo=logoMatch?logoMatch[1]:"default.png"; // fallback logo
+      currentLogo=logoMatch?logoMatch[1]:"default.png";
     } else if(line.startsWith("http")){
       list.push({ name: currentName, url: line, group: currentGroup, logo: currentLogo });
     }
@@ -87,11 +75,8 @@ async function loadPlaylist(){
 
 function playChannel(url,name){
   const video=document.getElementById("video");
-  if(Hls.isSupported()){
-    const hls=new Hls(); hls.loadSource(url); hls.attachMedia(video);
-  } else if(video.canPlayType("application/vnd.apple.mpegurl")){
-    video.src=url;
-  }
+  if(Hls.isSupported()){ const hls=new Hls(); hls.loadSource(url); hls.attachMedia(video); }
+  else if(video.canPlayType("application/vnd.apple.mpegurl")){ video.src=url; }
   showOverlay(name);
   localStorage.setItem("lastChannel",url);
   localStorage.setItem("lastName",name);
@@ -127,12 +112,46 @@ document.addEventListener("keydown",(e)=>{
   else if(e.key==="ArrowLeft"){currentIndex=(currentIndex-1+channels.length)%channels.length;playChannel(channels[currentIndex].url,channels[currentIndex].name);}
 });
 
+// Picture-in-Picture
+document.getElementById("pipBtn").addEventListener("click", async ()=>{
+  const video=document.getElementById("video");
+  if(document.pictureInPictureElement){ await document.exitPictureInPicture(); }
+  else if(video.requestPictureInPicture){ await video.requestPictureInPicture(); }
+});
+
+// Voice Control
+document.getElementById("micBtn").addEventListener("click", ()=>{
+  const recognition = new(window.SpeechRecognition || window.webkitSpeechRecognition)();
+  recognition.lang = "bn-BD";
+  recognition.onresult = (event)=>{
+    const command = event.results[0][0].transcript.toLowerCase();
+    if(command.includes("next")){ currentIndex=(currentIndex+1)%channels.length; playChannel(channels[currentIndex].url,channels[currentIndex].name); }
+    if(command.includes("previous")){ currentIndex=(currentIndex-1+channels.length)%channels.length; playChannel(channels[currentIndex].url,channels[currentIndex].name); }
+  };
+  recognition.start();
+});
+
+// QR Code Remote
+QRCode.toCanvas(document.getElementById('qr'), window.location.href, function (error) {
+  if (error) console.error(error);
+});
+
+// Multi Window Example
+function playMulti(){
+  if(channels.length>1){
+    const v1=document.getElementById("video1");
+    const v2=document.getElementById("video2");
+    v1.src=channels[0].url;
+    v2.src=channels[1].url;
+  }
+}
+
 async function init(){
   channels=await loadPlaylist(); renderChannels(channels);
   let last=localStorage.getItem("lastChannel"); let lastName=localStorage.getItem("lastName");
   if(last){playChannel(last,lastName);} else if(channels.length>0){playChannel(channels[0].url,channels[0].name);}
+  playMulti();
 }
 init();
 </script>
-</body>
-</html>
+</body
