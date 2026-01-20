@@ -52,11 +52,10 @@
 
         async function init() {
             try {
-                // আপনার গিটহাবের প্লে-লিস্ট লিঙ্ক
                 const m3uUrl = 'https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/refs/heads/main/Live%20tv';
                 const res = await fetch(m3uUrl);
                 const data = await res.text();
-                
+
                 allChannels = parseM3U(data);
                 document.getElementById('count').innerText = allChannels.length + " CHANNELS";
                 render(allChannels);
@@ -74,7 +73,6 @@
             lines.forEach(line => {
                 line = line.trim();
                 if (line.startsWith('#EXTINF:')) {
-                    // নাম এবং লোগো বের করা
                     const nameParts = line.split(',');
                     current.name = nameParts[nameParts.length - 1].trim();
                     const logoMatch = line.match(/tvg-logo="([^"]+)"/i);
@@ -99,7 +97,8 @@
                 card.className = 'ch-card p-3 flex flex-col items-center justify-between text-center';
                 card.innerHTML = `
                     <div class="h-16 w-full flex items-center justify-center mb-2">
-                        <img src="${c.logo}" class="max-h-full max-w-full object-contain rounded" onerror="this.src='https://via.placeholder.com/150/1a1f29/fff?text=LOGO'">
+                        <img src="${c.logo}" class="max-h-full max-w-full object-contain rounded" 
+                             onerror="this.src='https://via.placeholder.com/150/1a1f29/fff?text=LOGO'">
                     </div>
                     <p class="text-[11px] font-bold truncate w-full uppercase">${c.name}</p>
                 `;
@@ -111,3 +110,40 @@
         searchInput.oninput = (e) => {
             const term = e.target.value.toLowerCase();
             const filtered = allChannels.filter(c => c.name.toLowerCase().includes(term));
+            render(filtered);
+        };
+
+        function playChannel(url, name, el) {
+            document.querySelectorAll('.ch-card').forEach(c => c.classList.remove('active-ch'));
+            el.classList.add('active-ch');
+            document.getElementById('current-ch').innerText = name;
+            statusMsg.innerText = "Connecting Proxy...";
+
+            const finalUrl = vercelProxy + encodeURIComponent(url);
+
+            if (Hls.isSupported()) {
+                if (hls) hls.destroy();
+                hls = new Hls({ enableWorker: false }); // worker issue fix
+                hls.loadSource(finalUrl);
+                hls.attachMedia(video);
+
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    video.play();
+                    statusMsg.innerText = "STREAMING LIVE ✅";
+                });
+
+                hls.on(Hls.Events.ERROR, (event, data) => {
+                    console.error("HLS error:", data);
+                    statusMsg.innerText = "Error: " + data.type + " - " + data.details;
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = finalUrl;
+                video.play();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        init();
+    </script>
+</body>
+</html>
