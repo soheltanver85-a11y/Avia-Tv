@@ -8,7 +8,7 @@
     body { margin:0; font-family:'Segoe UI',sans-serif; background:#111; color:#fff; }
     header { background:#222; padding:10px 20px; display:flex; justify-content:space-between; align-items:center; }
     header h1 { margin:0; font-size:20px; color:#0ff; }
-    #player { width:100%; height:220px; background:black; position:relative; }
+    #player { width:100%; height:320px; background:black; position:relative; } /* স্কিন বড় করা হয়েছে */
     video { width:100%; height:100%; object-fit:contain; }
     #liveLabel { position:absolute; top:10px; left:10px; background:red; padding:4px 8px; border-radius:4px; font-size:12px; }
     #info { padding:10px; background:#1a1a1a; }
@@ -18,9 +18,12 @@
     .cat { padding:6px 12px; background:#333; border-radius:6px; cursor:pointer; }
     .cat.active { background:#ff4081; }
     #channelList { display:flex; flex-wrap:wrap; gap:12px; padding:10px; }
-    .channel-card { width:100px; background:#222; border-radius:8px; padding:10px; text-align:center; }
-    .channel-logo { width:100%; height:60px; object-fit:contain; margin-bottom:8px; }
+    .channel-card { width:110px; background:#222; border-radius:8px; padding:10px; text-align:center; }
+    .channel-logo { width:100%; height:70px; object-fit:contain; margin-bottom:8px; }
     .channel-name { font-size:12px; margin-bottom:6px; }
+    .watchBtn, .favBtn { background:#ff4081; border:none; padding:4px 8px; border-radius:5px; color:#fff; cursor:pointer; margin:2px; font-size:11px; }
+    #controls { display:flex; gap:8px; align-items:center; padding:8px; background:#1a1a1a; }
+    #searchBar { flex:1; padding:5px; border-radius:5px; border:none; }
     footer { background:#111; text-align:center; padding:8px; font-size:12px; border-top:1px solid #333; }
     nav { position:fixed; bottom:0; width:100%; background:#222; display:flex; justify-content:space-around; padding:8px 0; }
     nav div { color:#fff; font-size:12px; text-align:center; }
@@ -42,6 +45,14 @@
     <p>Genres: Live Action</p>
   </div>
 
+  <!-- নতুন কন্ট্রোল বার -->
+  <div id="controls">
+    <input id="searchBar" placeholder="Search channels...">
+    <button onclick="startVoiceControl()">🎤 Voice</button>
+    <button onclick="togglePiP()">PiP</button>
+    <button onclick="showFavorites()">⭐ Favorites</button>
+  </div>
+
   <div id="categories"></div>
   <div id="channelList"></div>
 
@@ -58,6 +69,7 @@
 <script>
 const playlistUrl="https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/refs/heads/main/Live%20tv";
 let channels=[],currentIndex=0;
+let favorites=JSON.parse(localStorage.getItem("favorites"))||[];
 
 async function loadPlaylist(){
   const res=await fetch(playlistUrl); const text=await res.text();
@@ -99,8 +111,11 @@ function renderChannels(list){
   list.forEach((ch,i)=>{
     const card=document.createElement("div"); card.className="channel-card";
     card.innerHTML=`<img src="${ch.logo}" class="channel-logo">
-                    <div class="channel-name">${ch.name}</div>`;
-    card.onclick=()=>{currentIndex=i;playChannel(ch);};
+                    <div class="channel-name">${ch.name}</div>
+                    <button class="watchBtn">Watch</button>
+                    <button class="favBtn">⭐</button>`;
+    card.querySelector(".watchBtn").onclick=()=>{currentIndex=i;playChannel(ch);};
+    card.querySelector(".favBtn").onclick=()=>toggleFavorite(ch);
     grid.appendChild(card);
   });
   document.getElementById("channelCount").textContent=list.length+" CHANNELS";
@@ -114,6 +129,42 @@ function filterByGroup(group){
   else if(group==="হিন্দি চ্যানেল"){ renderChannels(channels.filter(ch=>ch.group.toLowerCase().includes("hindi"))); }
   else if(group==="Sports Channel"){ renderChannels(channels.filter(ch=>ch.group.toLowerCase().includes("sports"))); }
 }
+
+function toggleFavorite(ch){
+  if(favorites.find(f=>f.url===ch.url)){
+    favorites=favorites.filter(f=>f.url!==ch.url);
+  } else {
+    favorites.push(ch);
+  }
+  localStorage.setItem("favorites",JSON.stringify(favorites));
+}
+
+function showFavorites(){
+  renderChannels(favorites);
+}
+
+function togglePiP(){
+  const video=document.getElementById("video");
+  if(document.pictureInPictureElement){ document.exitPictureInPicture(); }
+  else { video.requestPictureInPicture(); }
+}
+
+function startVoiceControl(){
+  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SpeechRecognition){ alert("Voice not supported"); return; }
+  const recognition=new SpeechRecognition();
+  recognition.onresult=(event)=>{
+    const command=event.results[0][0].transcript.toLowerCase();
+    const match=channels.find(ch=>ch.name.toLowerCase().includes(command));
+    if(match){ playChannel(match); }
+  };
+  recognition.start();
+}
+
+document.getElementById("searchBar").oninput=(e)=>{
+  const q=e.target.value.toLowerCase();
+  renderChannels(channels.filter(ch=>ch.name.toLowerCase().includes(q)));
+};
 
 async function init(){
   channels=await loadPlaylist(); 
