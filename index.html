@@ -20,7 +20,7 @@
     .channel-logo { width:100%; height:80px; object-fit:contain; margin-bottom:8px; }
     .channel-name { font-size:14px; color:#fff; }
     #pipBtn,#micBtn { position:absolute; top:10px; right:10px; background:#444; color:#fff; border:none; padding:6px 10px; border-radius:5px; cursor:pointer; font-size:12px; margin-left:5px; }
-    #qr { margin:10px auto; text-align:center; }
+    #qr { margin:10px auto; }
     #multiWindow { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:10px; }
     #multiWindow video { width:100%; height:200px; background:black; }
     footer { background:#111; text-align:center; padding:8px; font-size:12px; border-top:1px solid #333; }
@@ -42,7 +42,7 @@
   <input type="text" id="searchBar" placeholder="চ্যানেল খুঁজুন...">
   <div id="channelGrid"></div>
 
-  <div id="qr"><canvas id="qrCanvas"></canvas><p>📱 মোবাইল দিয়ে স্ক্যান করুন</p></div>
+  <div id="qr"></div>
 
   <div id="multiWindow">
     <video id="video1" controls></video>
@@ -131,8 +131,8 @@ document.getElementById("micBtn").addEventListener("click", ()=>{
   recognition.start();
 });
 
-// QR Code Remote (Generate QR of site URL)
-QRCode.toCanvas(document.getElementById('qrCanvas'), window.location.href, function (error) {
+// QR Code Remote
+QRCode.toCanvas(document.getElementById('qr'), window.location.href, function (error) {
   if (error) console.error(error);
 });
 
@@ -148,4 +148,10 @@ function playMulti(){
 
 async function init(){
   channels=await loadPlaylist(); renderChannels(channels);
-  let last=localStorage.getItem("lastChannel"); let lastName=localStorage.getItem
+  let last=localStorage.getItem("lastChannel"); let lastName=localStorage.getItem("lastName");
+  if(last){playChannel(last,lastName);} else if(channels.length>0){playChannel(channels[0].url,channels[0].name);}
+  playMulti();
+}
+init();
+</script>
+</body
