@@ -17,11 +17,12 @@
     .cat { padding:6px 12px; background:#333; border-radius:6px; cursor:pointer; }
     .cat.active { background:#ff4081; }
     #channelList { display:flex; flex-wrap:wrap; gap:12px; padding:10px; }
-    .channel-card { width:160px; background:#222; border-radius:8px; padding:10px; text-align:center; }
-    .preview { width:100%; height:100px; object-fit:cover; border-radius:6px; margin-bottom:6px; background:#000; }
+    .channel-card { width:160px; background:#222; border-radius:8px; padding:10px; text-align:center; position:relative; }
+    .preview { width:100%; height:100px; object-fit:contain; border-radius:6px; margin-bottom:6px; background:#000; }
     .channel-name { font-size:14px; margin-bottom:6px; }
     .watchBtn, .favBtn { background:#444; border:none; padding:6px 10px; border-radius:5px; color:#fff; cursor:pointer; margin:3px; font-size:12px; }
     .watchBtn { background:#ff4081; }
+    .live-badge { position:absolute; top:6px; right:6px; background:red; color:#fff; font-size:10px; padding:2px 6px; border-radius:4px; }
   </style>
 </head>
 <body>
@@ -42,7 +43,7 @@
 
 <script>
 const playlistUrl="https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/refs/heads/main/Live%20tv";
-let channels=[],currentIndex=0,favorites=JSON.parse(localStorage.getItem("favorites")||"[]");
+let channels=[],currentIndex=0,favorites=JSON.parse(localStorage.getItem("favorites")||"[]"),liveChannels=[];
 
 async function loadPlaylist(){
   const res=await fetch(playlistUrl); const text=await res.text();
@@ -76,12 +77,18 @@ async function showLiveMatch(channelName){
     const match=matches.find(m=>m.channel===channelName && m.status==="Live");
     const infoDiv=document.getElementById("matchInfo");
 
+    liveChannels = matches.filter(m=>m.status==="Live").map(m=>m.channel);
+
     if(match){
       infoDiv.innerHTML=`<div class="live-banner">
         🏏 ${match.league}: ${match.team1} vs ${match.team2} — ${match.status}<br>
         <strong>${match.score.team1}</strong> | <strong>${match.score.team2}</strong>
       </div>`;
     } else { infoDiv.innerHTML=""; }
+
+    // রি-রেন্ডার করে LIVE badge বসানো
+    renderChannels(channels);
+
   }catch(e){ console.log("No matches.json found"); }
 }
 
@@ -105,6 +112,13 @@ function renderChannels(list){
       <button class="watchBtn">Watch Now</button>
       <button class="favBtn">${isFav?"★ Remove":"☆ Favorite"}</button>`;
     
+    if(liveChannels.includes(ch.name)){
+      const badge=document.createElement("div");
+      badge.className="live-badge";
+      badge.textContent="LIVE";
+      card.appendChild(badge);
+    }
+
     card.querySelector(".watchBtn").onclick=()=>{currentIndex=i;playChannel(ch.url,ch.name);};
     card.querySelector(".favBtn").onclick=()=>{
       if(favorites.includes(ch.name)){ favorites=favorites.filter(f=>f!==ch.name); }
@@ -162,9 +176,3 @@ async function init(){
   renderChannels(channels);
   const groups=[...new Set(channels.map(ch=>ch.group))];
   renderCategories(groups);
-  if(channels.length>0){ playChannel(channels[0].url,channels[0].name); }
-}
-init();
-</script>
-</body>
-</html>
