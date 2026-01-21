@@ -36,11 +36,9 @@
     .channel-card { background:#222; border-radius:8px; padding:10px; text-align:center; }
     .channel-logo { width:100%; height:100px; object-fit:contain; margin-bottom:8px; }
     .channel-name { font-size:14px; margin-bottom:6px; }
-    .watchBtn, .favBtn { background:#ff4081; border:none; padding:4px 8px; border-radius:5px; color:#fff; cursor:pointer; margin:2px; font-size:11px; }
+    .favBtn { background:#ff4081; border:none; padding:4px 8px; border-radius:5px; color:#fff; cursor:pointer; margin:2px; font-size:11px; }
 
-    footer { background:#111; text-align:center; padding:8px; font-size:12px; border-top:1px solid #333; }
-    nav { position:fixed; bottom:0; width:100%; background:#222; display:flex; justify-content:space-around; padding:8px 0; }
-    nav div { color:#fff; font-size:12px; text-align:center; }
+    footer { background:#111; text-align:center; padding:12px; font-size:14px; border-top:1px solid #333; color:#0ff; font-weight:bold; letter-spacing:1px; }
   </style>
 </head>
 <body>
@@ -69,15 +67,7 @@
   <div id="categories"></div>
   <div id="channelList"></div>
 
-  <nav>
-    <div>🏠 Home</div>
-    <div>📡 Live</div>
-    <div>💎 Premium</div>
-    <div>🎬 Movies</div>
-    <div>⚽ Sports</div>
-  </nav>
-
-  <footer>© 2026 Live TV Pro | Developed by Sohel</footer>
+  <footer>🌐 Developer by Sohel Tanvir</footer>
 
 <script>
 const playlistUrl="https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/refs/heads/main/Live%20tv";
@@ -125,9 +115,7 @@ function renderChannels(list){
     const card=document.createElement("div"); card.className="channel-card";
     card.innerHTML=`<img src="${ch.logo}" class="channel-logo">
                     <div class="channel-name">${ch.name}</div>
-                    <button class="watchBtn">Watch</button>
-                    <button class="favBtn">⭐</button>`;
-    card.querySelector(".watchBtn").onclick=()=>{currentIndex=i;playChannel(ch);};
+                    <button class="favBtn">⭐ Favorite</button>`;
     card.querySelector(".favBtn").onclick=()=>toggleFavorite(ch);
     grid.appendChild(card);
   });
