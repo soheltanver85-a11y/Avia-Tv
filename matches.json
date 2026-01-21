@@ -5,14 +5,11 @@
     "team2": "Sylhet Titans",
     "date": "2026-01-20",
     "status": "Live",
-    "channel": "Nagorik TV"
+    "channel": "Nagorik TV",
+    "score": {
+      "team1": "RR 145/4 (17.2 ov)",
+      "team2": "ST 138/6 (20 ov)"
+    }
   },
   {
-    "league": "Ashes Series",
-    "team1": "Australia",
-    "team2": "England",
-    "date": "2026-01-07",
-    "status": "Live",
-    "channel": "Ekattor TV"
-  }
-]
+    "league": "Ash
