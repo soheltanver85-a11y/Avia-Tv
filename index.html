@@ -33,7 +33,7 @@
     .cat.active { background:#ff4081; }
 
     #channelList { display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; padding:10px; }
-    .channel-card { background:#222; border-radius:8px; padding:10px; text-align:center; }
+    .channel-card { background:#222; border-radius:8px; padding:10px; text-align:center; cursor:pointer; }
     .channel-logo { width:100%; height:100px; object-fit:contain; margin-bottom:8px; }
     .channel-name { font-size:14px; margin-bottom:6px; }
     .favBtn { background:#ff4081; border:none; padding:4px 8px; border-radius:5px; color:#fff; cursor:pointer; margin:2px; font-size:11px; }
@@ -116,7 +116,16 @@ function renderChannels(list){
     card.innerHTML=`<img src="${ch.logo}" class="channel-logo">
                     <div class="channel-name">${ch.name}</div>
                     <button class="favBtn">⭐ Favorite</button>`;
-    card.querySelector(".favBtn").onclick=()=>toggleFavorite(ch);
+    
+    // পুরো কার্ডে ক্লিক করলে প্লে হবে
+    card.onclick=()=>{ currentIndex=i; playChannel(ch); };
+    
+    // ফেভারিট বাটন আলাদা কাজ করবে
+    card.querySelector(".favBtn").onclick=(e)=>{
+      e.stopPropagation(); // যাতে প্লে না হয়
+      toggleFavorite(ch);
+    };
+    
     grid.appendChild(card);
   });
   document.getElementById("channelCount").textContent=list.length+" CHANNELS";
