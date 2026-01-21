@@ -17,13 +17,21 @@
     .channel-card { min-width:140px; background:#222; border-radius:8px; padding:10px; text-align:center; }
     .channel-logo { width:100%; height:80px; object-fit:contain; margin-bottom:8px; }
     .channel-name { font-size:14px; margin-bottom:6px; }
-    .watchBtn { background:#ff4081; border:none; padding:6px 10px; border-radius:5px; color:#fff; cursor:pointer; }
+    .watchBtn, .favBtn { background:#ff4081; border:none; padding:6px 10px; border-radius:5px; color:#fff; cursor:pointer; margin:2px; }
     footer { background:#111; text-align:center; padding:8px; font-size:12px; border-top:1px solid #333; }
+    #searchBar { width:200px; padding:5px; border-radius:5px; border:none; }
+    #controls { display:flex; gap:10px; align-items:center; }
   </style>
 </head>
 <body>
   <header>
     <h1>📺 Live TV Pro</h1>
+    <div id="controls">
+      <input id="searchBar" placeholder="Search channels...">
+      <button onclick="startVoiceControl()">🎤 Voice</button>
+      <button onclick="togglePiP()">PiP</button>
+      <button onclick="showFavorites()">⭐ Favorites</button>
+    </div>
     <span id="channelCount"></span>
   </header>
 
@@ -39,6 +47,7 @@
 <script>
 const playlistUrl="https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/refs/heads/main/Live%20tv";
 let channels=[],currentIndex=0;
+let favorites=JSON.parse(localStorage.getItem("favorites"))||[];
 
 async function loadPlaylist(){
   const res=await fetch(playlistUrl); const text=await res.text();
@@ -66,7 +75,7 @@ function playChannel(url){
 
 function renderCategories(groups){
   const catDiv=document.getElementById("categories"); catDiv.innerHTML="";
-  ["All",...groups].forEach(g=>{
+  ["All","Favorites",...groups].forEach(g=>{
     const btn=document.createElement("div"); btn.className="cat"; btn.textContent=g;
     btn.onclick=()=>filterByGroup(g);
     catDiv.appendChild(btn);
@@ -79,8 +88,10 @@ function renderChannels(list){
     const card=document.createElement("div"); card.className="channel-card";
     card.innerHTML=`<img src="${ch.logo}" class="channel-logo">
                     <div class="channel-name">${ch.name}</div>
-                    <button class="watchBtn">Watch Now</button>`;
+                    <button class="watchBtn">Watch</button>
+                    <button class="favBtn">⭐</button>`;
     card.querySelector(".watchBtn").onclick=()=>{currentIndex=i;playChannel(ch.url);};
+    card.querySelector(".favBtn").onclick=()=>toggleFavorite(ch);
     grid.appendChild(card);
   });
   document.getElementById("channelCount").textContent=list.length+" CHANNELS";
@@ -90,8 +101,45 @@ function filterByGroup(group){
   document.querySelectorAll(".cat").forEach(c=>c.classList.remove("active"));
   [...document.querySelectorAll(".cat")].find(c=>c.textContent===group).classList.add("active");
   if(group==="All"){ renderChannels(channels); }
+  else if(group==="Favorites"){ renderChannels(favorites); }
   else { renderChannels(channels.filter(ch=>ch.group===group)); }
 }
+
+function toggleFavorite(ch){
+  if(favorites.find(f=>f.url===ch.url)){
+    favorites=favorites.filter(f=>f.url!==ch.url);
+  } else {
+    favorites.push(ch);
+  }
+  localStorage.setItem("favorites",JSON.stringify(favorites));
+}
+
+function showFavorites(){
+  renderChannels(favorites);
+}
+
+function togglePiP(){
+  const video=document.getElementById("video");
+  if(document.pictureInPictureElement){ document.exitPictureInPicture(); }
+  else { video.requestPictureInPicture(); }
+}
+
+function startVoiceControl(){
+  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SpeechRecognition){ alert("Voice not supported"); return; }
+  const recognition=new SpeechRecognition();
+  recognition.onresult=(event)=>{
+    const command=event.results[0][0].transcript.toLowerCase();
+    const match=channels.find(ch=>ch.name.toLowerCase().includes(command));
+    if(match){ playChannel(match.url); }
+  };
+  recognition.start();
+}
+
+document.getElementById("searchBar").oninput=(e)=>{
+  const q=e.target.value.toLowerCase();
+  renderChannels(channels.filter(ch=>ch.name.toLowerCase().includes(q)));
+};
 
 async function init(){
   channels=await loadPlaylist(); 
