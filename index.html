@@ -10,11 +10,15 @@
     header h1 { margin:0; font-size:20px; color:#0ff; }
     #player { width:100%; height:220px; background:black; }
     video { width:100%; height:100%; object-fit:contain; }
-    #channelList { display:flex; flex-wrap:wrap; gap:12px; padding:10px; }
-    .channel-card { width:160px; background:#222; border-radius:8px; padding:10px; text-align:center; }
-    .preview { width:100%; height:100px; object-fit:cover; border-radius:6px; margin-bottom:6px; background:#000; }
+    #categories { display:flex; gap:10px; overflow-x:auto; padding:10px; background:#1a1a1a; }
+    .cat { padding:6px 12px; background:#333; border-radius:6px; cursor:pointer; }
+    .cat.active { background:#ff4081; }
+    #channelList { display:flex; overflow-x:auto; gap:12px; padding:10px; }
+    .channel-card { min-width:140px; background:#222; border-radius:8px; padding:10px; text-align:center; }
+    .channel-logo { width:100%; height:80px; object-fit:contain; margin-bottom:8px; }
     .channel-name { font-size:14px; margin-bottom:6px; }
     .watchBtn { background:#ff4081; border:none; padding:6px 10px; border-radius:5px; color:#fff; cursor:pointer; }
+    footer { background:#111; text-align:center; padding:8px; font-size:12px; border-top:1px solid #333; }
   </style>
 </head>
 <body>
@@ -27,7 +31,10 @@
     <video id="video" controls autoplay></video>
   </div>
 
+  <div id="categories"></div>
   <div id="channelList"></div>
+
+  <footer>© 2026 Live TV Pro | Developed by Sohel</footer>
 
 <script>
 const playlistUrl="https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/refs/heads/main/Live%20tv";
@@ -51,51 +58,47 @@ async function loadPlaylist(){
   return list;
 }
 
-function playChannel(url,name){
+function playChannel(url){
   const video=document.getElementById("video");
   if(Hls.isSupported()){ const hls=new Hls(); hls.loadSource(url); hls.attachMedia(video); }
   else if(video.canPlayType("application/vnd.apple.mpegurl")){ video.src=url; }
+}
+
+function renderCategories(groups){
+  const catDiv=document.getElementById("categories"); catDiv.innerHTML="";
+  ["All",...groups].forEach(g=>{
+    const btn=document.createElement("div"); btn.className="cat"; btn.textContent=g;
+    btn.onclick=()=>filterByGroup(g);
+    catDiv.appendChild(btn);
+  });
 }
 
 function renderChannels(list){
   const grid=document.getElementById("channelList"); grid.innerHTML="";
   list.forEach((ch,i)=>{
     const card=document.createElement("div"); card.className="channel-card";
-    card.innerHTML=`
-      <video class="preview" poster="${ch.logo}" muted playsinline></video>
-      <div class="channel-name">${ch.name}</div>
-      <button class="watchBtn">Watch Now</button>`;
-    
-    // Watch Now → মূল প্লেয়ারে চালানো
-    card.querySelector(".watchBtn").onclick=()=>{currentIndex=i;playChannel(ch.url,ch.name);};
-    
-    // Lazy Loading → যখন কার্ড স্ক্রিনে আসবে তখন প্রিভিউ চালু হবে
-    const observer=new IntersectionObserver(entries=>{
-      entries.forEach(entry=>{
-        if(entry.isIntersecting){
-          const preview=card.querySelector(".preview");
-          preview.src=ch.url; // প্রিভিউ লোড হবে
-          preview.autoplay=true;
-          preview.loop=true;
-          observer.unobserve(card);
-        }
-      });
-    });
-    observer.observe(card);
-
-    // যদি ভিডিও লোড না হয় → fallback লোগো
-    const preview=card.querySelector(".preview");
-    preview.onerror=()=>{ preview.replaceWith(`<img src="${ch.logo}" class="preview">`); };
-
+    card.innerHTML=`<img src="${ch.logo}" class="channel-logo">
+                    <div class="channel-name">${ch.name}</div>
+                    <button class="watchBtn">Watch Now</button>`;
+    card.querySelector(".watchBtn").onclick=()=>{currentIndex=i;playChannel(ch.url);};
     grid.appendChild(card);
   });
   document.getElementById("channelCount").textContent=list.length+" CHANNELS";
 }
 
+function filterByGroup(group){
+  document.querySelectorAll(".cat").forEach(c=>c.classList.remove("active"));
+  [...document.querySelectorAll(".cat")].find(c=>c.textContent===group).classList.add("active");
+  if(group==="All"){ renderChannels(channels); }
+  else { renderChannels(channels.filter(ch=>ch.group===group)); }
+}
+
 async function init(){
   channels=await loadPlaylist(); 
   renderChannels(channels);
-  if(channels.length>0){ playChannel(channels[0].url,channels[0].name); }
+  const groups=[...new Set(channels.map(ch=>ch.group))];
+  renderCategories(groups);
+  if(channels.length>0){ playChannel(channels[0].url); }
 }
 init();
 </script>
