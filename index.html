@@ -8,22 +8,36 @@
     body { margin:0; font-family:'Segoe UI',sans-serif; background:#111; color:#fff; }
     header { background:#222; padding:10px 20px; display:flex; justify-content:space-between; align-items:center; }
     header h1 { margin:0; font-size:20px; color:#0ff; }
-    #player { width:100%; height:50vh; background:black; position:relative; }
+
+    /* Sticky Player */
+    #player { 
+      width:100%; 
+      height:50vh; 
+      background:black; 
+      position:sticky; 
+      top:0; 
+      z-index:999; 
+    }
     video { width:100%; height:100%; object-fit:contain; }
     #liveLabel { position:absolute; top:10px; left:10px; background:red; padding:4px 8px; border-radius:4px; font-size:12px; }
+
     #info { padding:10px; background:#1a1a1a; }
     #info h2 { margin:0; font-size:16px; color:#ff4081; }
     #info p { margin:4px 0; font-size:12px; color:#aaa; }
+
     #controls { display:flex; gap:8px; align-items:center; padding:8px; background:#1a1a1a; }
     #searchBar { flex:1; padding:5px; border-radius:5px; border:none; }
+
     #categories { display:flex; gap:10px; overflow-x:auto; padding:10px; background:#1a1a1a; }
     .cat { padding:6px 12px; background:#333; border-radius:6px; cursor:pointer; }
     .cat.active { background:#ff4081; }
+
     #channelList { display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; padding:10px; }
     .channel-card { background:#222; border-radius:8px; padding:10px; text-align:center; }
     .channel-logo { width:100%; height:100px; object-fit:contain; margin-bottom:8px; }
     .channel-name { font-size:14px; margin-bottom:6px; }
     .watchBtn, .favBtn { background:#ff4081; border:none; padding:4px 8px; border-radius:5px; color:#fff; cursor:pointer; margin:2px; font-size:11px; }
+
     footer { background:#111; text-align:center; padding:8px; font-size:12px; border-top:1px solid #333; }
     nav { position:fixed; bottom:0; width:100%; background:#222; display:flex; justify-content:space-around; padding:8px 0; }
     nav div { color:#fff; font-size:12px; text-align:center; }
