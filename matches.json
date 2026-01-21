@@ -1,0 +1,18 @@
+[
+  {
+    "league": "Bangladesh Premier League",
+    "team1": "Rangpur Riders",
+    "team2": "Sylhet Titans",
+    "date": "2026-01-20",
+    "status": "Live",
+    "channel": "Nagorik TV"
+  },
+  {
+    "league": "Ashes Series",
+    "team1": "Australia",
+    "team2": "England",
+    "date": "2026-01-07",
+    "status": "Live",
+    "channel": "Ekattor TV"
+  }
+]
