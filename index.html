@@ -8,7 +8,7 @@
     body { margin:0; font-family:'Segoe UI',sans-serif; background:#111; color:#fff; }
     header { background:#222; padding:10px 20px; display:flex; justify-content:space-between; align-items:center; }
     header h1 { margin:0; font-size:20px; color:#0ff; }
-    #player { width:100%; height:70vh; background:black; position:relative; }
+    #player { width:100%; height:50vh; background:black; position:relative; }
     video { width:100%; height:100%; object-fit:contain; }
     #liveLabel { position:absolute; top:10px; left:10px; background:red; padding:4px 8px; border-radius:4px; font-size:12px; }
     #info { padding:10px; background:#1a1a1a; }
@@ -160,4 +160,18 @@ function startVoiceControl(){
   recognition.start();
 }
 
-document.getElementById("searchBar
+document.getElementById("searchBar").oninput=(e)=>{
+  const q=e.target.value.toLowerCase();
+  renderChannels(channels.filter(ch=>ch.name.toLowerCase().includes(q)));
+};
+
+async function init(){
+  channels=await loadPlaylist(); 
+  renderChannels(channels);
+  renderCategories();
+  if(channels.length>0){ playChannel(channels[0]); }
+}
+init();
+</script>
+</body>
+</html>
