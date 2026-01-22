@@ -3,18 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Live TV Pro - Full Perfect</title>
+  <title>Live TV Pro</title>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
     :root { --primary: #ff4081; --bg: #0a0a0a; --card: #1a1a1a; --focus: #00e5ff; --star: #ffd700; }
     
-    /* Pull-to-refresh সক্রিয় করার জন্য মোবাইলে overflow auto রাখা হয়েছে */
-    body { 
-      margin:0; font-family: sans-serif; background: var(--bg); color: #eee; 
-      display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; overflow-y: auto; 
-    }
+    /* পুরো বডি স্ক্রল হবে না, শুধু লিস্ট সেকশন স্ক্রল হবে */
+    body { margin:0; font-family: sans-serif; background: var(--bg); color: #eee; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
     
-    #player { width:100%; aspect-ratio: 16/9; background:black; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+    #player { width:100%; aspect-ratio: 16/9; background:black; position: relative; z-index:1000; }
     video { width:100%; height:100%; outline: none; }
 
     header { padding: 10px; background: #111; border-bottom: 1px solid #222; }
@@ -22,16 +19,22 @@
     .controls { display: flex; gap: 8px; }
     input { background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 5px; flex: 1; outline: none; }
     
-    .btn { padding: 8px 12px; border-radius: 5px; cursor: pointer; border: none; background: #333; color: white; font-weight: bold; }
+    .btn { padding: 8px 12px; border-radius: 5px; cursor: pointer; border: none; background: #333; color: white; }
     .btn.active { background: var(--primary); }
 
-    /* লিস্ট এরিয়া */
-    #content-area { flex: 1; padding: 10px; }
+    /* লিস্ট সেকশন - এখানে স্ক্রল ঠিক করা হয়েছে */
+    #content-area { 
+      flex: 1; 
+      overflow-y: scroll; /* স্ক্রল সবসময় সচল থাকবে */
+      padding: 10px; 
+      -webkit-overflow-scrolling: touch; /* মোবাইলে স্মুথ স্ক্রল */
+    }
+    
     #channelList { 
       display: grid; 
       grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); 
       gap: 12px; 
-      padding-bottom: 30px;
+      padding-bottom: 20px;
     }
     
     .channel-card { 
@@ -39,32 +42,31 @@
       text-align: center; cursor: pointer; border: 2px solid transparent; 
       position: relative; transition: 0.2s;
     }
-    .channel-card:focus { border-color: var(--focus); outline: none; background: #252525; transform: scale(1.05); }
-
-    /* ফেভারিট হলে স্টার এবং বর্ডার */
-    .is-fav { border-color: rgba(255, 215, 0, 0.2); background: linear-gradient(145deg, #1a1a1a, #201e10); }
-    .star-icon { position: absolute; top: 5px; right: 5px; font-size: 14px; color: var(--star); display: none; }
-    .is-fav .star-icon { display: block; text-shadow: 0 0 5px var(--star); }
+    .channel-card:focus { border-color: var(--focus); outline: none; transform: scale(1.05); background: #252525; }
 
     .channel-logo { width: 100%; height: 50px; object-fit: contain; pointer-events: none; }
+    
+    /* স্টার আইকন শুধু ফেভারিটের জন্য */
+    .star-icon { position: absolute; top: 5px; right: 5px; font-size: 14px; color: var(--star); display: none; }
+    .is-fav .star-icon { display: block; }
+    .is-fav { border-color: rgba(255, 215, 0, 0.2); }
+
     .channel-name { font-size: 12px; margin-top: 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
-    /* Yes/No পপ-আপ */
+    /* পপ-আপ বক্স */
     #confirm-box {
       position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      background: #181818; border: 2px solid var(--focus); padding: 20px;
-      border-radius: 12px; text-align: center; display: none; z-index: 20000; width: 260px;
-      box-shadow: 0 0 30px rgba(0,0,0,0.9);
+      background: #222; border: 2px solid var(--focus); padding: 20px;
+      border-radius: 10px; text-align: center; display: none; z-index: 20000; width: 260px;
     }
     .confirm-btns { display: flex; justify-content: space-around; margin-top: 15px; }
-    .c-btn { padding: 8px 22px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; }
+    .c-btn { padding: 8px 20px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; }
 
-    /* টিভি মোড (অটোমেটিক) */
+    /* টিভি সাইডবার মোড */
     @media (min-width: 900px) {
-      body { flex-direction: row; height: 100vh; overflow: hidden; }
-      #player { flex: 1.6; height: 100vh; order: 2; position: relative; box-shadow: none; }
-      #side-nav { flex: 0.4; order: 1; display: flex; flex-direction: column; border-right: 1px solid #222; height: 100vh; }
-      #content-area { overflow-y: auto; }
+      body { flex-direction: row; }
+      #player { flex: 1.6; height: 100vh; order: 2; }
+      #side-nav { flex: 0.4; order: 1; display: flex; flex-direction: column; border-right: 1px solid #222; }
       #channelList { grid-template-columns: 1fr; }
       .channel-card { display: flex; align-items: center; text-align: left; gap: 12px; }
       .channel-logo { width: 50px; height: 30px; }
@@ -77,15 +79,15 @@
   <video id="video" controls autoplay playsinline></video>
 </div>
 
-<div id="side-nav" style="flex: 1; display: flex; flex-direction: column;">
+<div id="side-nav" style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
   <header>
     <div class="top-bar">
       <h2 style="margin:0; font-size:16px; color:var(--focus)">📺 Live TV Pro</h2>
       <span id="count" style="font-size: 11px; color:#888;">0 CH</span>
     </div>
     <div class="controls">
-      <input type="text" id="search" placeholder="সার্চ..." tabindex="1">
-      <button class="btn" id="favFilterBtn" onclick="toggleFavFilter()" tabindex="2">★ ফেভারিট</button>
+      <input type="text" id="search" placeholder="সার্চ করুন..." tabindex="1">
+      <button class="btn" id="favFilterBtn" onclick="toggleFavFilter()" tabindex="2">♥ ফেভারিট</button>
     </div>
   </header>
   
@@ -206,8 +208,8 @@ document.addEventListener('keydown', (e) => {
     pressTimer = setTimeout(() => {
       const activeCard = document.activeElement;
       if (activeCard.classList.contains('channel-card')) {
-        const id = allChannels.find(c => btoa(unescape(encodeURIComponent(c.name))) === activeCard.querySelector('.channel-name').innerText) || allChannels[activeCard.tabIndex - 3];
-        askFav(id.id);
+        const id = allChannels[activeCard.tabIndex - 3].id;
+        askFav(id);
       }
     }, 800);
   }
