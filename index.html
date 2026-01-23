@@ -5,11 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Live TV Pro - Full Perfect</title>
   
-  <script type="text/javascript" src="https://pl28543701.effectivegatecpm.com/e6/4e/69/e64e696f8534324fddc71554f749e867.js"></script>
-
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
-    :root { --primary: #00e5ff; --bg: #0a0a0a; --card: #1a1a1a; --focus: #00e5ff; --star: #ffd700; }
+    :root { --primary: #00e5ff; --bg: #0a0a0a; --card: #1a1a1a; --focus: #00e5ff; --star: #ffd700; --accent: #ff4081; }
     
     body { 
       margin:0; font-family: sans-serif; background: var(--bg); color: #eee; 
@@ -26,7 +24,7 @@
     .brand-area h2 { margin:0; font-size:18px; color:var(--focus); letter-spacing: 1px; }
     .download-link { 
       font-size: 10px; 
-      color: #ff4081; 
+      color: var(--accent); 
       text-decoration: none; 
       font-weight: bold; 
       margin-top: 3px; 
@@ -38,7 +36,7 @@
     input { background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 5px; flex: 1; outline: none; font-size: 14px; }
     
     .btn { padding: 8px 12px; border-radius: 5px; cursor: pointer; border: none; background: #333; color: white; font-weight: bold; }
-    .btn.active { background: #ff4081; }
+    .btn.active { background: var(--accent); }
 
     #content-area { flex: 1; padding: 10px; }
     #channelList { 
@@ -61,6 +59,46 @@
 
     .channel-logo { width: 100%; height: 50px; object-fit: contain; pointer-events: none; }
     .channel-name { font-size: 12px; margin-top: 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+    /* --- Developed By Branding --- */
+    .dev-footer {
+      padding: 20px 10px;
+      background: #0f0f0f;
+      border-top: 1px solid #222;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .dev-logo {
+      width: 45px;
+      height: 45px;
+      background: linear-gradient(135deg, #00e5ff 0%, #ff4081 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      color: #fff;
+      font-size: 20px;
+      margin-bottom: 8px;
+      box-shadow: 0 4px 15px rgba(0, 229, 255, 0.2);
+      transform: rotate(-5deg);
+    }
+    .dev-text {
+      font-size: 10px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 2px;
+    }
+    .dev-name {
+      color: #fff;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 1px;
+      text-shadow: 0 0 10px rgba(255,255,255,0.1);
+    }
 
     #confirm-box {
       position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -108,12 +146,18 @@
   <div id="content-area">
     <div id="channelList"></div>
   </div>
+
+  <div class="dev-footer">
+    <div class="dev-logo">ST</div>
+    <div class="dev-text">Developed By</div>
+    <div class="dev-name">SOHEL TANVER</div>
+  </div>
 </div>
 
 <div id="confirm-box">
   <p id="confirm-text" style="font-size:14px; margin:0;">ফেভারিট লিস্টে যোগ করবেন?</p>
   <div class="confirm-btns">
-    <button class="c-btn" style="background:#ff4081; color:white" id="btn-yes">হ্যাঁ</button>
+    <button class="c-btn" style="background:var(--accent); color:white" id="btn-yes">হ্যাঁ</button>
     <button class="c-btn" style="background:#555; color:white" onclick="closeConfirm()">না</button>
   </div>
 </div>
