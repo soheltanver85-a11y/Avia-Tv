@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Live TV Pro - Adsterra Optimized</title>
+  <title>Live TV Pro - Final Edition</title>
   
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
@@ -19,8 +19,23 @@
     video { width:100%; height:100%; outline: none; }
 
     header { padding: 10px; background: #111; border-bottom: 1px solid #222; }
-    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
     .brand-area h2 { margin:0; font-size:18px; color:var(--focus); }
+
+    /* ডাউনলোড বাটন স্টাইল */
+    .download-link {
+      display: inline-block;
+      background: #222;
+      color: #00e5ff;
+      text-decoration: none;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid #333;
+      margin-top: 4px;
+      font-weight: bold;
+    }
+    .download-link:hover { background: #333; }
 
     .tabs { display: flex; gap: 8px; overflow-x: auto; padding: 5px 0 10px 0; scrollbar-width: none; }
     .tabs::-webkit-scrollbar { display: none; }
@@ -48,26 +63,28 @@
     .channel-logo { width: 100%; height: 50px; object-fit: contain; pointer-events: none; }
     .channel-name { font-size: 12px; margin-top: 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; pointer-events: none; }
 
-    /* Branding Footer */
+    /* ক্ষুদ্র ডেভেলপড বাই সেকশন */
     .dev-footer {
-      padding: 30px 10px 140px 10px; /* সোশ্যাল বারের জন্য গ্যাপ */
-      background: #0f0f0f; border-top: 1px solid #222;
-      text-align: center; display: flex; flex-direction: column; align-items: center;
+      padding: 10px 10px 140px 10px;
+      background: #0f0f0f;
+      text-align: center;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      opacity: 0.6;
     }
     .dev-logo {
-      width: 45px; height: 45px; background: linear-gradient(135deg, #00e5ff 0%, #ff4081 100%);
-      border-radius: 12px; display: flex; align-items: center; justify-content: center;
-      font-weight: 900; color: #fff; font-size: 20px; margin-bottom: 8px;
+      width: 20px; height: 20px;
+      background: linear-gradient(135deg, #00e5ff 0%, #ff4081 100%);
+      border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: bold; color: #fff; font-size: 10px;
     }
-    .dev-name { color: #fff; font-weight: 700; font-size: 15px; letter-spacing: 1px; }
+    .dev-text { font-size: 9px; color: #888; text-transform: uppercase; }
+    .dev-name { color: #ccc; font-weight: 600; font-size: 10px; }
 
-    /* Adsterra Social Bar Wrapper */
-    #social-bar-wrapper { 
-      position: fixed; bottom: 0; left: 0; width: 100%; z-index: 10000; 
-      min-height: 50px; text-align: center;
-    }
-
-    /* Confirm Box */
     #confirm-box {
       position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
       background: #181818; border: 2px solid var(--focus); padding: 25px;
@@ -75,6 +92,8 @@
     }
     .confirm-btns { display: flex; justify-content: space-around; margin-top: 20px; }
     .c-btn { padding: 10px 25px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; }
+
+    #social-bar-wrapper { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 10000; min-height: 50px; text-align: center; }
 
     @media (min-width: 900px) {
       body { flex-direction: row; height: 100vh; overflow: hidden; }
@@ -95,7 +114,10 @@
 <div id="side-nav">
   <header>
     <div class="top-bar">
-      <div class="brand-area"><h2>📺 LIVE TV PRO</h2></div>
+      <div class="brand-area">
+        <h2>📺 LIVE TV PRO</h2>
+        <a href="https://github.com/soheltanver85-a11y/My-app/releases/download/my-app-1/_BD_LIVE_TV_19452117.apk" class="download-link">⬇ ডাউনলোড অ্যাপ</a>
+      </div>
       <span id="count" style="font-size: 11px; color:#888;">...</span>
     </div>
     <div class="tabs">
@@ -111,13 +133,11 @@
     </div>
   </header>
 
-  <div id="content-area">
-    <div id="channelList"></div>
-  </div>
+  <div id="content-area"><div id="channelList"></div></div>
 
   <div class="dev-footer">
     <div class="dev-logo">ST</div>
-    <div class="dev-text" style="font-size: 10px; color: #666; text-transform: uppercase;">Developed By</div>
+    <div class="dev-text">Dev by</div>
     <div class="dev-name">SOHEL TANVER</div>
   </div>
 </div>
@@ -131,7 +151,6 @@
 </div>
 
 <script src="https://pl28543701.effectivegatecpm.com/e6/4e/69/e64e696f8534324fddc71554f749e867.js"></script>
-
 <div id="social-bar-wrapper">
   <script src="https://pl28548409.effectivegatecpm.com/88/59/b8/8859b87f27788aaf3cb337acab2ad812.js"></script>
 </div>
@@ -217,10 +236,7 @@ document.getElementById("btn-yes").onclick = function() {
 
 document.getElementById("search").addEventListener('input', (e) => {
   const query = e.target.value.toLowerCase().trim();
-  if (query === "") {
-    filterCat(currentCategory, document.querySelector('.tab-btn.active'));
-    return;
-  }
+  if (query === "") { filterCat(currentCategory, document.querySelector('.tab-btn.active')); return; }
   const filtered = allChannels.filter(ch => ch.name.toLowerCase().includes(query));
   filtered.sort((a, b) => {
     const aStart = a.name.toLowerCase().startsWith(query);
@@ -236,10 +252,7 @@ function filterCat(cat, btn) {
   currentCategory = cat;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  let filtered = [];
-  if(cat === 'all') filtered = allChannels;
-  else if(cat === 'fav') filtered = allChannels.filter(ch => favorites.includes(ch.id));
-  else filtered = allChannels.filter(ch => ch.name.toLowerCase().includes(cat) || ch.cat.includes(cat));
+  let filtered = (cat === 'all') ? allChannels : (cat === 'fav' ? allChannels.filter(ch => favorites.includes(ch.id)) : allChannels.filter(ch => ch.name.toLowerCase().includes(cat) || ch.cat.includes(cat)));
   render(filtered);
 }
 
