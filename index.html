@@ -42,15 +42,16 @@
       user-select: none; -webkit-user-select: none;
     }
     
+    /* ফেভারিট হলে উজ্জ্বল বর্ডার থাকবে না, শুধু তারা থাকবে */
     .star-icon { position: absolute; top: 5px; right: 5px; font-size: 14px; color: var(--star); display: none; text-shadow: 0 0 5px black; }
     .is-fav .star-icon { display: block; }
 
     .channel-logo { width: 100%; height: 50px; object-fit: contain; pointer-events: none; }
-    .channel-name { font-size: 12px; margin-top: 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .channel-name { font-size: 12px; margin-top: 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; pointer-events: none; }
 
     /* Branding Footer */
     .dev-footer {
-      padding: 30px 10px 100px 10px; /* সোশ্যাল বারের জন্য গ্যাপ বাড়ানো হয়েছে */
+      padding: 30px 10px 100px 10px;
       background: #0f0f0f;
       border-top: 1px solid #222;
       text-align: center;
@@ -76,15 +77,10 @@
     .confirm-btns { display: flex; justify-content: space-around; margin-top: 20px; }
     .c-btn { padding: 10px 25px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; }
 
-    /* Social Bar Wrapper - Fixed Bottom */
+    /* Social Bar Wrapper - স্ক্রিনের একদম নিচে থাকবে */
     #social-bar-wrapper { 
-      position: fixed; 
-      bottom: 0; 
-      left: 0; 
-      width: 100%; 
-      z-index: 9999; 
-      background: rgba(0,0,0,0.7); /* হালকা ব্যাকগ্রাউন্ড */
-      min-height: 50px;
+      position: fixed; bottom: 0; left: 0; width: 100%; z-index: 9999; 
+      min-height: 50px; background: rgba(0,0,0,0.5);
     }
 
     @media (min-width: 900px) {
@@ -115,8 +111,11 @@
       <button class="tab-btn" onclick="filterCat('bangla', this)">Bangla</button>
       <button class="tab-btn" onclick="filterCat('hindi', this)">Hindi</button>
       <button class="tab-btn" onclick="filterCat('sports', this)">Sports</button>
+      <button class="tab-btn" onclick="filterCat('movie', this)">Movie</button>
     </div>
-    <div style="padding: 0 5px;"><input type="text" id="search" placeholder="সার্চ করুন..." style="width:100%; background:#222; border:1px solid #444; color:white; padding:10px; border-radius:5px;"></div>
+    <div style="padding: 0 5px;">
+      <input type="text" id="search" placeholder="সার্চ করুন..." style="width:100%; background:#222; border:1px solid #444; color:white; padding:12px; border-radius:8px; outline:none;">
+    </div>
   </header>
 
   <div id="content-area">
@@ -138,14 +137,13 @@
   </div>
 </div>
 
-<script src="https://pl28543701.effectivegatecpm.com/e6/4e/69/e64e696f8534324fddc71554f749e867.js"></script>
-
 <div id="social-bar-wrapper">
   <script src="https://pl28548409.effectivegatecpm.com/88/59/b8/8859b87f27788aaf3cb337acab2ad812.js"></script>
 </div>
 
+<script src="https://pl28543701.effectivegatecpm.com/e6/4e/69/e64e696f8534324fddc71554f749e867.js"></script>
+
 <script>
-// (আগের সব জাভাস্ক্রিপ্ট লজিক এখানে থাকবে)
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let currentCategory = 'all', hls = null, selectedId = null;
@@ -189,7 +187,7 @@ function render(list) {
            onmousedown="startHold('${ch.id}')" onmouseup="endHold('${ch.url}')" onmouseleave="clearHold()"
            ontouchstart="startHold('${ch.id}')" ontouchend="endHold('${ch.url}')">
         <span class="star-icon">★</span>
-        <img src="${ch.logo}" class="channel-logo">
+        <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://via.placeholder.com/100x60?text=TV'">
         <div class="channel-name">${ch.name}</div>
       </div>
     `;
@@ -197,6 +195,7 @@ function render(list) {
   document.getElementById("count").textContent = list.length + " CH";
 }
 
+// Long Press Logic
 let holdTimer, isLongPress = false;
 function startHold(id) {
   isLongPress = false; selectedId = id;
@@ -224,11 +223,32 @@ document.getElementById("btn-yes").onclick = function() {
   filterCat(currentCategory, document.querySelector('.tab-btn.active'));
 };
 
+// Advanced Search Logic
+document.getElementById("search").addEventListener('input', (e) => {
+  const query = e.target.value.toLowerCase().trim();
+  if (query === "") {
+    filterCat(currentCategory, document.querySelector('.tab-btn.active'));
+    return;
+  }
+  const filtered = allChannels.filter(ch => ch.name.toLowerCase().includes(query));
+  filtered.sort((a, b) => {
+    const aStart = a.name.toLowerCase().startsWith(query);
+    const bStart = b.name.toLowerCase().startsWith(query);
+    if (aStart && !bStart) return -1;
+    if (!aStart && bStart) return 1;
+    return 0;
+  });
+  render(filtered);
+});
+
 function filterCat(cat, btn) {
   currentCategory = cat;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  let filtered = (cat === 'all') ? allChannels : (cat === 'fav' ? allChannels.filter(ch => favorites.includes(ch.id)) : allChannels.filter(ch => ch.name.toLowerCase().includes(cat) || ch.cat.includes(cat)));
+  let filtered = [];
+  if(cat === 'all') filtered = allChannels;
+  else if(cat === 'fav') filtered = allChannels.filter(ch => favorites.includes(ch.id));
+  else filtered = allChannels.filter(ch => ch.name.toLowerCase().includes(cat) || ch.cat.includes(cat));
   render(filtered);
 }
 
