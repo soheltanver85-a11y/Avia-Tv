@@ -4,24 +4,59 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Live TV Pro - Premium Mobile</title>
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  
   <script type='text/javascript' src='//pl25553227.highperformanceformat.com/55/53/22/5553227.js'></script>
   
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
-    /* আপনার আগের সব স্টাইল এখানে থাকবে... */
-    :root { --primary: #00e5ff; --bg: #0a0a0a; --card: #151515; --star: #00e5ff; --text: #e0e0e0; }
-    body { margin:0; font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; overflow-y: auto; }
+    :root { 
+      --primary: #00e5ff; 
+      --bg: #0a0a0a; 
+      --card: #151515; 
+      --star: #00e5ff; 
+      --text: #e0e0e0;
+    }
+    
+    body { 
+      margin:0; font-family: 'Segoe UI', Roboto, sans-serif; 
+      background: var(--bg); color: var(--text); 
+      display: flex; flex-direction: column; min-height: 100vh; 
+      overflow-x: hidden; 
+    }
+    
     #player { width:100%; aspect-ratio: 16/9; background:black; position: sticky; top: 0; z-index: 1000; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
     video { width:100%; height:100%; outline: none; background: #000; }
+
     header { padding: 15px; background: #111; border-bottom: 1px solid #222; }
     .top-bar { display: flex; justify-content: space-between; align-items: center; }
     .controls { display: flex; gap: 8px; margin-top: 10px; }
     input { background: #1a1a1a; border: 1px solid #333; color: white; padding: 12px; border-radius: 8px; flex: 1; outline: none; font-size: 15px; }
+    
     .btn { padding: 10px 15px; border-radius: 8px; cursor: pointer; border: none; background: #222; color: white; font-weight: bold; }
-    #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 15px; padding: 12px; }
-    .channel-card { background: var(--card); border-radius: 12px; padding: 12px; text-align: center; border: 1.5px solid #222; transition: all 0.3s; }
-    .channel-logo { width: 100%; height: 55px; object-fit: contain; }
-    footer { text-align: center; padding: 25px; background: #0a0a0a; font-size: 12px; color: #555; }
+    .btn.active { background: var(--primary); color: #000; }
+
+    #content-area { flex: 1; padding: 12px; }
+    #channelList { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); 
+      gap: 15px; 
+    }
+    
+    .channel-card { 
+      background: var(--card); border-radius: 12px; padding: 12px; 
+      text-align: center; cursor: pointer; position: relative; border: 1.5px solid #222;
+    }
+
+    .channel-logo { width: 100%; height: 55px; object-fit: contain; border-radius: 4px; }
+    .channel-name { font-size: 12px; margin-top: 10px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+    footer { text-align: center; padding: 25px; background: #0a0a0a; font-size: 12px; color: #555; border-top: 1px solid #1a1a1a; }
+    
+    .download-btn {
+      display: inline-block; background-color: #e74c3c; color: white; padding: 15px 30px; 
+      text-decoration: none; border-radius: 50px; font-weight: bold; margin: 20px 0;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
   </style>
 </head>
 <body>
@@ -32,29 +67,90 @@
 
 <header>
   <div class="top-bar">
-    <h2>📺 LIVE <span style="color:var(--primary)">TV PRO</span></h2>
+    <h2 style="margin:0; font-size:18px;">📺 LIVE <span style="color:var(--primary)">TV PRO</span></h2>
+    <span id="count" style="font-size:11px; color:#666;">Loading...</span>
   </div>
   <div class="controls">
-    <input type="text" id="search" placeholder="সার্চ করুন...">
-    <button class="btn" onclick="toggleFavFilter()">★ প্রিয়</button>
+    <input type="text" id="search" placeholder="সার্চ করুন আপনার চ্যানেল...">
   </div>
 </header>
 
 <div id="content-area">
   <div id="channelList"></div>
-</div>
-
-<div style="text-align: center; margin-top: 30px;">
-    <a href="আপনার-অ্যাপ-লিঙ্ক" style="background-color: #e74c3c; color: white; padding: 12px 25px; text-decoration: none; border-radius: 50px; font-weight: bold;">
-       🚀 DOWNLOAD APP
-    </a>
+  
+  <div style="text-align: center;">
+    <a href="#" class="download-btn">🚀 DOWNLOAD BD LIVE TV APP</a>
+  </div>
 </div>
 
 <footer> Developed By <b>Sohel Tanvir</b> </footer>
 
 <script>
-    // আপনার আগের সব জাভাস্ক্রিপ্ট (init, play, render) এখানে থাকবে...
-    console.log("Ad ID: 5553227 Linked");
+// ফাইলপাথ আপডেট করা হয়েছে যাতে স্পেস সমস্যা না হয়
+const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
+let allChannels = [];
+const video = document.getElementById("video");
+let hls = null;
+
+async function init() {
+  try {
+    const res = await fetch(playlistUrl);
+    const data = await res.text();
+    allChannels = parseM3U(data);
+    render(allChannels);
+    if(allChannels.length > 0) play(0);
+  } catch (e) { 
+    document.getElementById("count").innerText = "Error!";
+    console.error(e);
+  }
+}
+
+function parseM3U(data) {
+  const lines = data.split("\n"), list = [];
+  let cur = {};
+  lines.forEach(l => {
+    l = l.trim();
+    if (l.startsWith("#EXTINF")) {
+      cur.name = l.split(",")[1]?.trim() || "চ্যানেল";
+      cur.logo = l.match(/tvg-logo="([^"]+)"/)?.[1] || "";
+    } else if (l.startsWith("http")) {
+      cur.url = l;
+      list.push({...cur});
+      cur = {};
+    }
+  });
+  return list;
+}
+
+function render(list) {
+  const grid = document.getElementById("channelList");
+  grid.innerHTML = list.map((ch, i) => `
+    <div class="channel-card" onclick="play(${i})">
+      <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://via.placeholder.com/100x60?text=TV'">
+      <div class="channel-name">${ch.name}</div>
+    </div>
+  `).join('');
+  document.getElementById("count").textContent = list.length + " CH";
+}
+
+function play(index) {
+  const ch = allChannels[index];
+  if (!ch) return;
+  if (hls) hls.destroy();
+  if (Hls.isSupported()) {
+    hls = new Hls(); hls.loadSource(ch.url); hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED, function() { video.play(); });
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    video.src = ch.url;
+  }
+}
+
+document.getElementById("search").addEventListener('input', (e) => {
+  const q = e.target.value.toLowerCase();
+  render(allChannels.filter(c => c.name.toLowerCase().includes(q)));
+});
+
+init();
 </script>
 
 </body>
