@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Live TV Pro - Final Fixed</title>
+  <title>Live TV Pro - Final Fixed with Branding</title>
   
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
@@ -12,7 +12,7 @@
     body { 
       margin:0; font-family: sans-serif; background: var(--bg); color: #eee; 
       display: flex; flex-direction: column; min-height: 100vh;
-      overflow-x: hidden; overflow-y: auto; /* স্ক্রল ফিক্স */
+      overflow-x: hidden; overflow-y: auto;
     }
 
     #player { width:100%; aspect-ratio: 16/9; background:black; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
@@ -33,13 +33,13 @@
     #content-area { padding: 10px; flex: 1; }
     #channelList { 
       display: grid; grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); 
-      gap: 12px; padding-bottom: 140px; /* নিচের অ্যাড বারের জন্য জায়গা */
+      gap: 12px; padding-bottom: 20px; 
     }
 
     .channel-card { 
       background: var(--card); border-radius: 12px; padding: 12px; 
       text-align: center; cursor: pointer; transition: 0.2s; border: 2px solid transparent; position: relative;
-      user-select: none; -webkit-user-select: none; /* টেক্সট সিলেকশন বন্ধ */
+      user-select: none; -webkit-user-select: none;
     }
     .is-fav { border-color: var(--star); }
     .star-icon { position: absolute; top: 5px; right: 5px; font-size: 12px; color: var(--star); display: none; }
@@ -47,6 +47,27 @@
 
     .channel-logo { width: 100%; height: 50px; object-fit: contain; pointer-events: none; }
     .channel-name { font-size: 12px; margin-top: 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+    /* --- Developed By Branding --- */
+    .dev-footer {
+      padding: 20px 10px 140px 10px; /* নিচের অ্যাডের জন্য অতিরিক্ত জায়গা */
+      background: #0f0f0f;
+      border-top: 1px solid #222;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .dev-logo {
+      width: 45px; height: 45px;
+      background: linear-gradient(135deg, #00e5ff 0%, #ff4081 100%);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; color: #fff; font-size: 20px; margin-bottom: 8px;
+      box-shadow: 0 4px 15px rgba(0, 229, 255, 0.2); transform: rotate(-5deg);
+    }
+    .dev-text { font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 2px; }
+    .dev-name { color: #fff; font-weight: 700; font-size: 15px; letter-spacing: 1px; }
 
     /* Confirm Box */
     #confirm-box {
@@ -65,6 +86,7 @@
       #side-nav { flex: 0.4; display: flex; flex-direction: column; border-right: 1px solid #222; height: 100vh; overflow-y: auto; }
       #channelList { grid-template-columns: 1fr; }
       .channel-card { display: flex; align-items: center; text-align: left; gap: 15px; }
+      .dev-footer { padding-bottom: 100px; }
     }
   </style>
 </head>
@@ -89,7 +111,16 @@
     </div>
     <div style="padding: 0 5px;"><input type="text" id="search" placeholder="সার্চ করুন..." style="width:100%; background:#222; border:1px solid #444; color:white; padding:10px; border-radius:5px;"></div>
   </header>
-  <div id="content-area"><div id="channelList"></div></div>
+
+  <div id="content-area">
+    <div id="channelList"></div>
+  </div>
+
+  <div class="dev-footer">
+    <div class="dev-logo">ST</div>
+    <div class="dev-text">Developed By</div>
+    <div class="dev-name">SOHEL TANVER</div>
+  </div>
 </div>
 
 <div id="confirm-box">
@@ -157,20 +188,12 @@ function render(list) {
   document.getElementById("count").textContent = list.length + " CH";
 }
 
-// Long Press Logic
 let holdTimer, isLongPress = false;
 function startHold(id) {
-  isLongPress = false;
-  selectedId = id;
-  holdTimer = setTimeout(() => {
-    isLongPress = true;
-    askFav(id);
-  }, 700); // ৭০০ মিলিসেকেন্ড চাপলে ফেভারিট অপশন আসবে
+  isLongPress = false; selectedId = id;
+  holdTimer = setTimeout(() => { isLongPress = true; askFav(id); }, 700);
 }
-function endHold(url) {
-  clearTimeout(holdTimer);
-  if (!isLongPress) playFromUrl(url); // যদি দ্রুত ক্লিক করে তবে প্লে হবে
-}
+function endHold(url) { clearTimeout(holdTimer); if (!isLongPress) playFromUrl(url); }
 function clearHold() { clearTimeout(holdTimer); }
 
 function askFav(id) {
@@ -189,7 +212,8 @@ document.getElementById("btn-yes").onclick = function() {
   }
   localStorage.setItem('myFavs', JSON.stringify(favorites));
   closeConfirm();
-  filterCat(currentCategory, document.querySelector('.tab-btn.active'));
+  const activeTab = document.querySelector('.tab-btn.active');
+  filterCat(currentCategory, activeTab);
 };
 
 function filterCat(cat, btn) {
@@ -205,9 +229,7 @@ function playFromUrl(url) {
   if (Hls.isSupported()) {
     hls = new Hls(); hls.loadSource(url); hls.attachMedia(video);
     hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    video.src = url;
-  }
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) { video.src = url; }
 }
 
 function play(index) { if (allChannels[index]) playFromUrl(allChannels[index].url); }
