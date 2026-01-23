@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Live TV Pro - Final Edition</title>
+  <title>Live TV Pro - Adsterra Optimized</title>
   
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
@@ -42,7 +42,6 @@
       user-select: none; -webkit-user-select: none;
     }
     
-    /* ফেভারিট হলে উজ্জ্বল বর্ডার থাকবে না, শুধু তারা থাকবে */
     .star-icon { position: absolute; top: 5px; right: 5px; font-size: 14px; color: var(--star); display: none; text-shadow: 0 0 5px black; }
     .is-fav .star-icon { display: block; }
 
@@ -51,22 +50,22 @@
 
     /* Branding Footer */
     .dev-footer {
-      padding: 30px 10px 100px 10px;
-      background: #0f0f0f;
-      border-top: 1px solid #222;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      padding: 30px 10px 140px 10px; /* সোশ্যাল বারের জন্য গ্যাপ */
+      background: #0f0f0f; border-top: 1px solid #222;
+      text-align: center; display: flex; flex-direction: column; align-items: center;
     }
     .dev-logo {
-      width: 45px; height: 45px;
-      background: linear-gradient(135deg, #00e5ff 0%, #ff4081 100%);
-      border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
+      width: 45px; height: 45px; background: linear-gradient(135deg, #00e5ff 0%, #ff4081 100%);
+      border-radius: 12px; display: flex; align-items: center; justify-content: center;
       font-weight: 900; color: #fff; font-size: 20px; margin-bottom: 8px;
     }
     .dev-name { color: #fff; font-weight: 700; font-size: 15px; letter-spacing: 1px; }
+
+    /* Adsterra Social Bar Wrapper */
+    #social-bar-wrapper { 
+      position: fixed; bottom: 0; left: 0; width: 100%; z-index: 10000; 
+      min-height: 50px; text-align: center;
+    }
 
     /* Confirm Box */
     #confirm-box {
@@ -76,12 +75,6 @@
     }
     .confirm-btns { display: flex; justify-content: space-around; margin-top: 20px; }
     .c-btn { padding: 10px 25px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; }
-
-    /* Social Bar Wrapper - স্ক্রিনের একদম নিচে থাকবে */
-    #social-bar-wrapper { 
-      position: fixed; bottom: 0; left: 0; width: 100%; z-index: 9999; 
-      min-height: 50px; background: rgba(0,0,0,0.5);
-    }
 
     @media (min-width: 900px) {
       body { flex-direction: row; height: 100vh; overflow: hidden; }
@@ -137,11 +130,11 @@
   </div>
 </div>
 
+<script src="https://pl28543701.effectivegatecpm.com/e6/4e/69/e64e696f8534324fddc71554f749e867.js"></script>
+
 <div id="social-bar-wrapper">
   <script src="https://pl28548409.effectivegatecpm.com/88/59/b8/8859b87f27788aaf3cb337acab2ad812.js"></script>
 </div>
-
-<script src="https://pl28543701.effectivegatecpm.com/e6/4e/69/e64e696f8534324fddc71554f749e867.js"></script>
 
 <script>
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
@@ -195,7 +188,6 @@ function render(list) {
   document.getElementById("count").textContent = list.length + " CH";
 }
 
-// Long Press Logic
 let holdTimer, isLongPress = false;
 function startHold(id) {
   isLongPress = false; selectedId = id;
@@ -223,7 +215,6 @@ document.getElementById("btn-yes").onclick = function() {
   filterCat(currentCategory, document.querySelector('.tab-btn.active'));
 };
 
-// Advanced Search Logic
 document.getElementById("search").addEventListener('input', (e) => {
   const query = e.target.value.toLowerCase().trim();
   if (query === "") {
