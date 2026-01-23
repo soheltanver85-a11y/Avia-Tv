@@ -3,59 +3,78 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Live TV Pro - Categories & Ads</title>
+  <title>Live TV Pro - Scroll Fixed</title>
   
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
     :root { --primary: #00e5ff; --bg: #0a0a0a; --card: #1a1a1a; --focus: #00e5ff; --star: #ffd700; --accent: #ff4081; }
 
+    /* বডি স্ক্রল ফিক্স করা হয়েছে */
     body { 
       margin:0; font-family: sans-serif; background: var(--bg); color: #eee; 
-      display: flex; flex-direction: column; min-height: 100vh; overflow: hidden; 
+      display: flex; flex-direction: column; min-height: 100vh; 
+      overflow-x: hidden; 
+      overflow-y: auto; /* এখানে স্ক্রল ইনেবল করা হয়েছে */
     }
 
-    #player { width:100%; aspect-ratio: 16/9; background:black; position: sticky; top: 0; z-index: 1000; }
+    #player { width:100%; aspect-ratio: 16/9; background:black; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
     video { width:100%; height:100%; outline: none; }
 
     header { padding: 10px; background: #111; border-bottom: 1px solid #222; }
     .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
     .brand-area h2 { margin:0; font-size:18px; color:var(--focus); }
 
-    /* Category Tabs */
-    .tabs { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
+    .tabs { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
     .tabs::-webkit-scrollbar { display: none; }
     .tab-btn { 
-      padding: 6px 12px; background: #222; border: 1px solid #333; color: #ccc; 
-      border-radius: 20px; font-size: 11px; cursor: pointer; white-space: nowrap; flex-shrink: 0;
+      padding: 8px 15px; background: #222; border: 1px solid #333; color: #ccc; 
+      border-radius: 20px; font-size: 12px; cursor: pointer; white-space: nowrap; flex-shrink: 0;
     }
-    .tab-btn.active { background: var(--primary); color: #000; border-color: var(--primary); font-weight: bold; }
+    .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); font-weight: bold; }
 
     .controls { display: flex; gap: 8px; margin: 8px 0; }
-    input { background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 5px; flex: 1; outline: none; font-size: 14px; }
+    input { background: #222; border: 1px solid #444; color: white; padding: 12px; border-radius: 8px; flex: 1; outline: none; font-size: 14px; }
 
-    #content-area { flex: 1; padding: 10px; overflow-y: auto; }
+    /* কন্টেন্ট এরিয়া ফিক্স */
+    #content-area { padding: 10px; }
     #channelList { 
       display: grid; grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); 
-      gap: 12px; padding-bottom: 80px; 
+      gap: 12px; padding-bottom: 120px; /* সোশ্যাল বারের জন্য স্পেস */
     }
 
     .channel-card { 
-      background: var(--card); border-radius: 10px; padding: 10px; 
-      text-align: center; cursor: pointer; transition: 0.2s; border: 2px solid transparent;
+      background: var(--card); border-radius: 12px; padding: 12px; 
+      text-align: center; cursor: pointer; transition: 0.2s; border: 2px solid transparent; position: relative;
     }
     .channel-card:active { transform: scale(0.95); }
-    .channel-logo { width: 100%; height: 45px; object-fit: contain; pointer-events: none; }
-    .channel-name { font-size: 11px; margin-top: 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .is-fav { border-color: rgba(255, 215, 0, 0.4); }
+    .star-icon { position: absolute; top: 5px; right: 5px; font-size: 12px; color: var(--star); display: none; }
+    .is-fav .star-icon { display: block; }
 
-    #social-bar-wrapper { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 9999; }
+    .channel-logo { width: 100%; height: 50px; object-fit: contain; pointer-events: none; }
+    .channel-name { font-size: 12px; margin-top: 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
+    #confirm-box {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background: #181818; border: 2px solid var(--focus); padding: 25px;
+      border-radius: 15px; text-align: center; display: none; z-index: 20000; width: 280px;
+    }
+    .confirm-btns { display: flex; justify-content: space-around; margin-top: 20px; }
+    .c-btn { padding: 10px 25px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; }
+
+    #social-bar-wrapper { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 9999; background: rgba(10,10,10,0.8); }
+
+    /* ডেস্কটপ ভিউ ফিক্স */
     @media (min-width: 900px) {
-      body { flex-direction: row; }
-      #player { flex: 1.6; height: 100vh; }
-      #side-nav { flex: 0.4; display: flex; flex-direction: column; border-right: 1px solid #222; height: 100vh; }
+      body { flex-direction: row; height: 100vh; overflow: hidden; }
+      #player { flex: 1.6; height: 100vh; position: relative; }
+      #side-nav { 
+        flex: 0.4; display: flex; flex-direction: column; 
+        border-right: 1px solid #222; height: 100vh; overflow-y: auto; 
+      }
       #channelList { grid-template-columns: 1fr; }
-      .channel-card { display: flex; align-items: center; text-align: left; gap: 12px; }
-      .channel-logo { width: 50px; height: 30px; }
+      .channel-card { display: flex; align-items: center; text-align: left; gap: 15px; }
+      .channel-logo { width: 60px; height: 40px; }
     }
   </style>
 </head>
@@ -74,6 +93,7 @@
 
     <div class="tabs">
       <button class="tab-btn active" onclick="filterCat('all', this)">All</button>
+      <button class="tab-btn" style="color:var(--star); border-color:var(--star)" onclick="filterCat('fav', this)">★ Favorite</button>
       <button class="tab-btn" onclick="filterCat('bangla', this)">Bangla</button>
       <button class="tab-btn" onclick="filterCat('hindi', this)">Hindi</button>
       <button class="tab-btn" onclick="filterCat('sports', this)">Sports</button>
@@ -81,12 +101,20 @@
     </div>
 
     <div class="controls">
-      <input type="text" id="search" placeholder="সার্চ করুন...">
+      <input type="text" id="search" placeholder="চ্যানেল খুঁজুন...">
     </div>
   </header>
   
   <div id="content-area">
     <div id="channelList"></div>
+  </div>
+</div>
+
+<div id="confirm-box">
+  <p id="confirm-text">ফেভারিট লিস্টে যোগ করবেন?</p>
+  <div class="confirm-btns">
+    <button class="c-btn" style="background:var(--accent); color:white" id="btn-yes">হ্যাঁ</button>
+    <button class="c-btn" style="background:#555; color:white" onclick="closeConfirm()">না</button>
   </div>
 </div>
 
@@ -98,7 +126,8 @@
 
 <script>
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
-let allChannels = [], currentList = [], hls = null;
+let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
+let currentList = [], hls = null, selectedId = null, currentCategory = 'all';
 const video = document.getElementById("video");
 
 async function init() {
@@ -120,9 +149,8 @@ function parseM3U(data) {
     if (l.startsWith("#EXTINF")) {
       cur.name = l.split(",")[1]?.trim() || "Unknown";
       cur.logo = l.match(/tvg-logo="([^"]+)"/)?.[1] || "";
-      // অটো ক্যাটাগরি ডিটেকশন (নামের ওপর ভিত্তি করে)
-      let group = l.match(/group-title="([^"]+)"/)?.[1] || "";
-      cur.cat = group.toLowerCase();
+      cur.cat = (l.match(/group-title="([^"]+)"/)?.[1] || "").toLowerCase();
+      cur.id = btoa(unescape(encodeURIComponent(cur.name)));
     } else if (l.startsWith("http")) {
       cur.url = l;
       list.push({...cur});
@@ -134,24 +162,31 @@ function parseM3U(data) {
 
 function render(list) {
   const grid = document.getElementById("channelList");
-  grid.innerHTML = list.map((ch, i) => `
-    <div class="channel-card" onclick="playFromList('${ch.url}')">
-      <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://via.placeholder.com/100x60?text=TV'">
-      <div class="channel-name">${ch.name}</div>
-    </div>
-  `).join('');
+  grid.innerHTML = list.map((ch, i) => {
+    const isFav = favorites.includes(ch.id);
+    return `
+      <div class="channel-card ${isFav ? 'is-fav' : ''}" 
+           onclick="playFromUrl('${ch.url}')" 
+           oncontextmenu="event.preventDefault(); askFav('${ch.id}')">
+        <span class="star-icon">★</span>
+        <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://via.placeholder.com/100x60?text=TV'">
+        <div class="channel-name">${ch.name}</div>
+      </div>
+    `;
+  }).join('');
   document.getElementById("count").textContent = list.length + " CH";
 }
 
 function filterCat(cat, btn) {
-  // বাটন কালার পরিবর্তন
+  currentCategory = cat;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
 
   if(cat === 'all') {
     currentList = allChannels;
+  } else if(cat === 'fav') {
+    currentList = allChannels.filter(ch => favorites.includes(ch.id));
   } else {
-    // চ্যানেলের নাম বা গ্রুপে কীওয়ার্ড খুঁজবে
     currentList = allChannels.filter(ch => 
       ch.name.toLowerCase().includes(cat) || ch.cat.includes(cat)
     );
@@ -159,7 +194,7 @@ function filterCat(cat, btn) {
   render(currentList);
 }
 
-function playFromList(url) {
+function playFromUrl(url) {
   if (hls) hls.destroy();
   if (Hls.isSupported()) {
     hls = new Hls();
@@ -172,13 +207,32 @@ function playFromList(url) {
 }
 
 function play(index) {
-  if (allChannels[index]) playFromList(allChannels[index].url);
+  if (allChannels[index]) playFromUrl(allChannels[index].url);
 }
+
+function askFav(id) {
+  selectedId = id;
+  const isFav = favorites.includes(id);
+  document.getElementById("confirm-text").innerText = isFav ? "ফেভারিট থেকে বাদ দিবেন?" : "ফেভারিট লিস্টে যোগ করবেন?";
+  document.getElementById("confirm-box").style.display = "block";
+}
+
+function closeConfirm() { document.getElementById("confirm-box").style.display = "none"; }
+
+document.getElementById("btn-yes").onclick = function() {
+  if (favorites.includes(selectedId)) {
+    favorites = favorites.filter(f => f !== selectedId);
+  } else {
+    favorites.push(selectedId);
+  }
+  localStorage.setItem('myFavs', JSON.stringify(favorites));
+  closeConfirm();
+  filterCat(currentCategory, document.querySelector('.tab-btn.active'));
+};
 
 document.getElementById("search").addEventListener('input', (e) => {
   const q = e.target.value.toLowerCase();
-  const filtered = currentList.filter(c => c.name.toLowerCase().includes(q));
-  render(filtered);
+  render(currentList.filter(c => c.name.toLowerCase().includes(q)));
 });
 
 init();
