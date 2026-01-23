@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Live TV Pro - Full Perfect</title>
   
-  <script src="https://pl28543701.effectivegatecpm.com/e6/4e/69/e64e696f8534324fddc71554f749e867.js"></script>
+  <script type="text/javascript" src="https://pl28543701.effectivegatecpm.com/e6/4e/69/e64e696f8534324fddc71554f749e867.js"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
@@ -13,7 +13,7 @@
     
     body { 
       margin:0; font-family: sans-serif; background: var(--bg); color: #eee; 
-      display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; 
+      display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; overflow-y: auto; 
     }
     
     #player { width:100%; aspect-ratio: 16/9; background:black; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
@@ -31,12 +31,16 @@
       font-weight: bold; 
       margin-top: 3px; 
       letter-spacing: 0.5px;
+      display: inline-block;
     }
 
     .controls { display: flex; gap: 8px; margin-top: 5px; }
     input { background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 5px; flex: 1; outline: none; font-size: 14px; }
     
-    #content-area { flex: 1; padding: 10px; overflow-y: auto; }
+    .btn { padding: 8px 12px; border-radius: 5px; cursor: pointer; border: none; background: #333; color: white; font-weight: bold; }
+    .btn.active { background: #ff4081; }
+
+    #content-area { flex: 1; padding: 10px; }
     #channelList { 
       display: grid; 
       grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); 
@@ -47,17 +51,31 @@
     .channel-card { 
       background: var(--card); border-radius: 10px; padding: 10px; 
       text-align: center; cursor: pointer; border: 2px solid transparent; 
-      transition: 0.2s;
+      position: relative; transition: 0.2s;
     }
-    .channel-card:active { transform: scale(0.95); background: #252525; }
+    .channel-card:focus { border-color: var(--focus); outline: none; background: #252525; transform: scale(1.05); }
+
+    .is-fav { border-color: rgba(255, 215, 0, 0.2); background: linear-gradient(145deg, #1a1a1a, #201e10); }
+    .star-icon { position: absolute; top: 5px; right: 5px; font-size: 14px; color: var(--star); display: none; }
+    .is-fav .star-icon { display: block; text-shadow: 0 0 5px var(--star); }
 
     .channel-logo { width: 100%; height: 50px; object-fit: contain; pointer-events: none; }
     .channel-name { font-size: 12px; margin-top: 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
+    #confirm-box {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background: #181818; border: 2px solid var(--focus); padding: 20px;
+      border-radius: 12px; text-align: center; display: none; z-index: 20000; width: 260px;
+      box-shadow: 0 0 30px rgba(0,0,0,0.9);
+    }
+    .confirm-btns { display: flex; justify-content: space-around; margin-top: 15px; }
+    .c-btn { padding: 8px 22px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; }
+
     @media (min-width: 900px) {
       body { flex-direction: row; height: 100vh; overflow: hidden; }
-      #player { flex: 1.6; height: 100vh; order: 2; position: relative; }
+      #player { flex: 1.6; height: 100vh; order: 2; position: relative; box-shadow: none; }
       #side-nav { flex: 0.4; order: 1; display: flex; flex-direction: column; border-right: 1px solid #222; height: 100vh; }
+      #content-area { overflow-y: auto; }
       #channelList { grid-template-columns: 1fr; }
       .channel-card { display: flex; align-items: center; text-align: left; gap: 12px; }
       .channel-logo { width: 50px; height: 30px; }
@@ -79,10 +97,11 @@
           Download App 📥
         </a>
       </div>
-      <span id="count" style="font-size: 11px; color:#888;">0 CH</span>
+      <span id="count" style="font-size: 11px; color:#888;">Loading...</span>
     </div>
     <div class="controls">
-      <input type="text" id="search" placeholder="সার্চ করুন আপনার চ্যানেল...">
+      <input type="text" id="search" placeholder="সার্চ করুন..." tabindex="1">
+      <button class="btn" id="favFilterBtn" onclick="toggleFavFilter()" tabindex="2">★</button>
     </div>
   </header>
   
@@ -91,9 +110,18 @@
   </div>
 </div>
 
+<div id="confirm-box">
+  <p id="confirm-text" style="font-size:14px; margin:0;">ফেভারিট লিস্টে যোগ করবেন?</p>
+  <div class="confirm-btns">
+    <button class="c-btn" style="background:#ff4081; color:white" id="btn-yes">হ্যাঁ</button>
+    <button class="c-btn" style="background:#555; color:white" onclick="closeConfirm()">না</button>
+  </div>
+</div>
+
 <script>
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
-let allChannels = [], hls = null;
+let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
+let currentIdx = 0, showOnlyFavs = false, hls = null, selectedId = null;
 const video = document.getElementById("video");
 
 async function init() {
@@ -116,6 +144,7 @@ function parseM3U(data) {
     if (l.startsWith("#EXTINF")) {
       cur.name = l.split(",")[1]?.trim() || "Unknown";
       cur.logo = l.match(/tvg-logo="([^"]+)"/)?.[1] || "";
+      cur.id = btoa(unescape(encodeURIComponent(cur.name))); 
     } else if (l.startsWith("http")) {
       cur.url = l;
       list.push({...cur});
@@ -127,36 +156,71 @@ function parseM3U(data) {
 
 function render(list) {
   const grid = document.getElementById("channelList");
-  grid.innerHTML = list.map((ch, i) => `
-      <div class="channel-card" onclick="handlePlay('${ch.url}')">
+  grid.innerHTML = list.map((ch, i) => {
+    const isFav = favorites.includes(ch.id);
+    return `
+      <div class="channel-card ${isFav ? 'is-fav' : ''}" 
+           tabindex="${i + 3}" 
+           onclick="handlePlay('${ch.id}')" 
+           oncontextmenu="event.preventDefault(); askFav('${ch.id}')">
+        <span class="star-icon">★</span>
         <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://via.placeholder.com/100x60?text=TV'">
         <div class="channel-name">${ch.name}</div>
       </div>
-    `).join('');
+    `;
+  }).join('');
   document.getElementById("count").textContent = list.length + " CH";
 }
 
-function handlePlay(url) {
+function play(index) {
+  currentIdx = index;
+  const ch = allChannels[index];
+  if (!ch) return;
   if (hls) { hls.destroy(); }
   if (Hls.isSupported()) {
     hls = new Hls();
-    hls.loadSource(url);
+    hls.loadSource(ch.url);
     hls.attachMedia(video);
     hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
   } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    video.src = url;
+    video.src = ch.url;
   }
 }
 
-function play(index) {
-  const ch = allChannels[index];
-  if (ch) handlePlay(ch.url);
+function handlePlay(id) {
+  const idx = allChannels.findIndex(c => c.id === id);
+  if (idx !== -1) play(idx);
+}
+
+function askFav(id) {
+  selectedId = id;
+  const isFav = favorites.includes(id);
+  document.getElementById("confirm-text").innerText = isFav ? "ফেভারিট থেকে বাদ দিবেন?" : "ফেভারিট লিস্টে যোগ করবেন?";
+  document.getElementById("confirm-box").style.display = "block";
+}
+
+function closeConfirm() { document.getElementById("confirm-box").style.display = "none"; }
+
+document.getElementById("btn-yes").onclick = function() {
+  if (favorites.includes(selectedId)) {
+    favorites = favorites.filter(f => f !== selectedId);
+  } else {
+    favorites.push(selectedId);
+  }
+  localStorage.setItem('myFavs', JSON.stringify(favorites));
+  render(showOnlyFavs ? allChannels.filter(c => favorites.includes(c.id)) : allChannels);
+  closeConfirm();
+};
+
+function toggleFavFilter() {
+  showOnlyFavs = !showOnlyFavs;
+  document.getElementById("favFilterBtn").classList.toggle('active');
+  render(showOnlyFavs ? allChannels.filter(c => favorites.includes(c.id)) : allChannels);
 }
 
 document.getElementById("search").addEventListener('input', (e) => {
   const q = e.target.value.toLowerCase();
-  const filtered = allChannels.filter(c => c.name.toLowerCase().includes(q));
-  render(filtered);
+  render(allChannels.filter(c => c.name.toLowerCase().includes(q)));
 });
 
 init();
