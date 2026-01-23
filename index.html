@@ -2,65 +2,73 @@
 <html lang="bn">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Live TV Pro - Smart Ad System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Live TV Pro - Fixed Layout</title>
   
   <script src="https://pl28543701.effectivegatecpm.com/e6/4e/69/e64e696f8534324fddc71554f749e867.js"></script>
-
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
   <style>
-    :root { --primary: #00e5ff; --bg: #0a0a0a; --card: #1a1a1a; --focus: #00e5ff; --star: #ffd700; --accent: #ff4081; }
+    :root { --primary: #00e5ff; --bg: #0a0a0a; --card: #1a1a1a; --accent: #ff4081; }
     
-    body { margin:0; font-family: sans-serif; background: var(--bg); color: #eee; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
-    
-    #player { width:100%; aspect-ratio: 16/9; background:black; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-    video { width:100%; height:100%; outline: none; }
-
-    /* Native Banner Slot Style */
-    .ad-slot { width: 100%; display: flex; justify-content: center; margin: 10px 0; background: #000; min-height: 50px; overflow: hidden; }
-
-    header { padding: 10px; background: #111; border-bottom: 1px solid #222; }
-    .brand-area h2 { margin:0; font-size:18px; color:var(--focus); letter-spacing: 1px; }
-    
-    .controls { display: flex; gap: 8px; margin-top: 5px; }
-    input { background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 5px; flex: 1; outline: none; }
-
-    #content-area { flex: 1; padding: 10px; }
-    #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); gap: 12px; }
-    
-    .channel-card { background: var(--card); border-radius: 10px; padding: 10px; text-align: center; cursor: pointer; transition: 0.2s; border: 2px solid transparent; }
-    .channel-card:hover { border-color: var(--focus); transform: scale(1.02); }
-    .channel-logo { width: 100%; height: 50px; object-fit: contain; pointer-events: none; }
-    .channel-name { font-size: 11px; margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-    /* Smart Corner Ad Box Style */
-    #corner-ad {
-      position: fixed; bottom: 15px; right: 15px; width: 200px; height: 95px;
-      background: #1a1a1a; border: 1.5px solid var(--primary); border-radius: 8px;
-      z-index: 9999; display: none; box-shadow: 0 0 15px rgba(0,229,255,0.2);
-      animation: slideIn 0.4s ease-out; overflow: visible;
+    body { 
+      margin:0; font-family: sans-serif; background: var(--bg); color: #eee; 
+      display: flex; flex-direction: column; height: 100vh; overflow: hidden; 
     }
-    @keyframes slideIn { from { transform: translateX(120%); } to { transform: translateX(0); } }
+    
+    /* প্লেয়ারকে উপরে ফিক্সড রাখা হয়েছে */
+    #player-container { 
+      width:100%; background:black; z-index: 1000; flex-shrink: 0;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.8);
+    }
+    .video-wrapper { width:100%; aspect-ratio: 16/9; position: relative; }
+    video { width:100%; height:100%; display: block; }
+
+    /* নেটিভ ব্যানারের জায়গা */
+    .native-ad { width: 100%; height: 50px; background: #000; display: flex; justify-content: center; overflow: hidden; }
+
+    /* চ্যানেল লিস্টের জন্য আলাদা স্ক্রল এরিয়া */
+    #side-nav { 
+      flex: 1; display: flex; flex-direction: column; overflow: hidden; 
+    }
+    
+    header { padding: 10px; background: #111; border-bottom: 1px solid #222; }
+    .search-box { background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 5px; width: 93%; outline: none; }
+
+    #content-area { flex: 1; overflow-y: auto; padding: 10px; -webkit-overflow-scrolling: touch; }
+    #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; padding-bottom: 20px; }
+    
+    .channel-card { background: var(--card); border-radius: 8px; padding: 10px; text-align: center; cursor: pointer; border: 1px solid #333; }
+    .channel-logo { width: 100%; height: 45px; object-fit: contain; }
+    .channel-name { font-size: 11px; margin-top: 5px; color: #ccc; }
+
+    /* কোণায় ছোট অ্যাড বক্স */
+    #corner-ad {
+      position: fixed; bottom: 10px; right: 10px; width: 180px; height: 80px;
+      background: #1a1a1a; border: 1.5px solid var(--primary); border-radius: 8px;
+      z-index: 99999; display: none; box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    }
     
     .close-ad-btn {
-      position: absolute; top: -10px; left: -10px; width: 24px; height: 24px;
+      position: absolute; top: -8px; left: -8px; width: 22px; height: 22px;
       background: var(--accent); color: white; border: none; border-radius: 50%;
-      cursor: pointer; font-weight: bold; font-size: 13px; z-index: 10001;
-      display: flex; align-items: center; justify-content: center; box-shadow: 0 0 5px rgba(0,0,0,0.5);
+      cursor: pointer; font-weight: bold; font-size: 12px; display: flex; align-items: center; justify-content: center;
     }
 
     @media (min-width: 900px) {
-      body { flex-direction: row; height: 100vh; }
-      #player { flex: 1.6; height: 100vh; position: relative; }
-      #side-nav { flex: 0.4; height: 100vh; overflow-y: auto; border-right: 1px solid #222; }
+      body { flex-direction: row; }
+      #player-container { flex: 1.6; height: 100vh; }
+      #side-nav { flex: 0.4; border-left: 1px solid #222; }
     }
   </style>
 </head>
 <body>
 
-<div id="player">
-  <video id="video" controls autoplay playsinline></video>
-  <div class="ad-slot">
+<div id="player-container">
+  <div class="video-wrapper">
+    <video id="video" controls autoplay playsinline></video>
+  </div>
+  <div class="native-ad">
     <script async="async" data-cfasync="false" src="https://pl28547132.effectivegatecpm.com/2f32b7d9a50d33e0e7a4484b6a4dcb18/invoke.js"></script>
     <div id="container-2f32b7d9a50d33e0e7a4484b6a4dcb18"></div>
   </div>
@@ -68,38 +76,35 @@
 
 <div id="side-nav">
   <header>
-    <div class="brand-area"><h2>📺 LIVE TV PRO</h2></div>
-    <div class="controls">
-      <input type="text" id="search" placeholder="চ্যানেল খুঁজুন...">
-    </div>
+    <h2 style="margin:0 0 10px 0; font-size:16px; color:var(--primary);">📺 LIVE TV PRO</h2>
+    <input type="text" id="search" class="search-box" placeholder="সার্চ করুন...">
   </header>
-  <div id="content-area"><div id="channelList"></div></div>
+  
+  <div id="content-area">
+    <div id="channelList"></div>
+  </div>
 </div>
 
 <div id="corner-ad">
     <button class="close-ad-btn" onclick="hideCornerAd()">X</button>
-    <div style="padding:8px; color:#fff; font-size:10px; text-align:center;">
-        <p style="margin:2px 0; color:var(--primary);">SPONSORED AD</p>
-        <div style="background:#222; height:50px; border-radius:5px; display:flex; align-items:center; justify-content:center; border:1px dashed #444;">
-            <span style="font-size:9px;">অ্যাড লোড হচ্ছে...</span>
-        </div>
+    <div style="padding:10px; text-align:center; font-size:10px;">
+        <p style="margin:0 0 5px 0; color:var(--primary);">Sponsored Ad</p>
+        <div style="background:#222; height:40px; border-radius:4px; display:flex; align-items:center; justify-content:center; color:#555;">Loading...</div>
     </div>
 </div>
 
 <script>
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 let allChannels = [], hls = null;
-let lastAdTime = 0; 
-const AD_INTERVAL = 3 * 60 * 1000; // ৩ মিনিট (১৮০ সেকেন্ড)
+let lastAdTime = 0;
+const AD_INTERVAL = 3 * 60 * 1000; 
 
 async function init() {
-  try {
-    const res = await fetch(playlistUrl);
-    const data = await res.text();
-    allChannels = parseM3U(data);
-    render(allChannels);
-    if(allChannels.length > 0) play(0);
-  } catch (e) { console.error("Error loading playlist"); }
+  const res = await fetch(playlistUrl);
+  const data = await res.text();
+  allChannels = parseM3U(data);
+  render(allChannels);
+  if(allChannels.length > 0) play(0);
 }
 
 function parseM3U(data) {
@@ -130,30 +135,27 @@ function render(list) {
 
 function play(index) {
   const ch = allChannels[index];
-  if (!ch) return;
   if (hls) hls.destroy();
+  const video = document.getElementById("video");
   if (Hls.isSupported()) {
     hls = new Hls();
     hls.loadSource(ch.url);
-    hls.attachMedia(document.getElementById("video"));
+    hls.attachMedia(video);
     hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
   }
 }
 
 function handlePlay(index) {
   play(index);
-  
-  const currentTime = Date.now();
-  // চেক করা হচ্ছে ৩ মিনিট পার হয়েছে কি না
-  if (currentTime - lastAdTime > AD_INTERVAL) {
+  const now = Date.now();
+  if (now - lastAdTime > AD_INTERVAL) {
     showCornerAd();
-    lastAdTime = currentTime; 
+    lastAdTime = now;
   }
 }
 
 function showCornerAd() {
   document.getElementById('corner-ad').style.display = 'block';
-  // ব্যাকগ্রাউন্ডে পপআন্ডার ট্রিগার
   window.open("https://pl28543701.effectivegatecpm.com/e6/4e/69/e64e696f8534324fddc71554f749e867.js", "_blank");
 }
 
