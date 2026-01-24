@@ -115,7 +115,6 @@
       .tabs { justify-content: center; }
     }
     
-    /* ফুলস্ক্রিন হলে ভিডিও অ্যাডজাস্টমেন্ট */
     video:fullscreen { object-fit: contain; background: black; }
     video:-webkit-full-screen { object-fit: contain; background: black; }
   </style>
@@ -132,7 +131,7 @@
   <header>
     <div class="top-bar">
       <div class="brand-area">
-        <h2>📺 LIVE TV PRO</h2>
+        <h2>📺 BD LIVE TV</h2>
         <a href="https://github.com/soheltanver85-a11y/My-app/releases/download/my-app-1/_BD_LIVE_TV_19452117.apk" class="download-link">⬇ ডাউনলোড অ্যাপ</a>
       </div>
       <span id="count" style="font-size: 12px; color:#00e5ff;">লোড হচ্ছে...</span>
@@ -178,21 +177,20 @@ let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || 
 let currentCategory = 'all', hls = null, selectedId = null;
 const video = document.getElementById("video");
 
-// --- নতুন রোটেশন কোড (অ্যাড করা হয়েছে) ---
+// রোটেশন হ্যান্ডলার
 function handleRotation() {
     if (document.fullscreenElement) {
         if (screen.orientation && screen.orientation.lock) {
-            screen.orientation.lock('landscape').catch(e => console.log("Rotation locked"));
+            screen.orientation.lock('landscape').catch(e => console.log("Rotation error"));
         }
     } else {
         if (screen.orientation && screen.orientation.unlock) {
-            screen.orientation.unlock().catch(e => console.log("Rotation unlocked"));
+            screen.orientation.unlock().catch(e => console.log("Unlock error"));
         }
     }
 }
 document.addEventListener('fullscreenchange', handleRotation);
 document.addEventListener('webkitfullscreenchange', handleRotation);
-// ---------------------------------------
 
 async function init() {
   try {
@@ -229,8 +227,10 @@ function render(list) {
     const isFav = favorites.includes(ch.id);
     return `
       <div class="channel-card ${isFav ? 'is-fav' : ''}" 
-           onmousedown="startHold('${ch.id}')" onmouseup="endHold('${ch.url}')" onmouseleave="clearHold()"
-           ontouchstart="startHold('${ch.id}')" ontouchend="endHold('${ch.url}')">
+           onclick="handlePlay('${ch.url}')"
+           oncontextmenu="event.preventDefault(); askFav('${ch.id}')"
+           ontouchstart="handleTouchStart('${ch.id}')" 
+           ontouchend="handleTouchEnd('${ch.url}')">
         <span class="star-icon">★</span>
         <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://via.placeholder.com/100x60?text=TV'">
         <div class="channel-name">${ch.name}</div>
@@ -240,15 +240,41 @@ function render(list) {
   document.getElementById("count").textContent = list.length + " CH";
 }
 
-let holdTimer, isLongPress = false;
-function startHold(id) {
-  isLongPress = false; selectedId = id;
-  holdTimer = setTimeout(() => { isLongPress = true; askFav(id); }, 700);
+// স্ক্রলিং সমস্যা সমাধানের জন্য টাচ হ্যান্ডলিং
+let touchStartTime = 0;
+let touchStartY = 0;
+
+function handleTouchStart(id) {
+    touchStartTime = Date.now();
+    touchStartY = event.touches[0].clientY;
+    selectedId = id;
 }
-function endHold(url) { clearTimeout(holdTimer); if (!isLongPress) playFromUrl(url); }
-function clearHold() { clearTimeout(holdTimer); }
+
+function handleTouchEnd(url) {
+    const touchEndTime = Date.now();
+    const touchEndY = event.changedTouches[0].clientY;
+    const duration = touchEndTime - touchStartTime;
+    const distanceY = Math.abs(touchEndY - touchStartY);
+
+    // যদি টাচ খুব অল্প সময় হয় এবং স্ক্রল না হয় (দূরত্ব ১০ পিক্সেলের কম)
+    if (duration < 300 && distanceY < 10) {
+        playFromUrl(url);
+    } 
+    // যদি ৭০০ মিলিসেকেন্ডের বেশি সময় ধরে চেপে রাখা হয় তবে ফেভারিট অপশন আসবে
+    else if (duration >= 700 && distanceY < 10) {
+        askFav(selectedId);
+    }
+}
+
+function handlePlay(url) {
+    // ডেস্কটপের জন্য সাধারণ ক্লিক
+    if (!('ontouchstart' in window)) {
+        playFromUrl(url);
+    }
+}
 
 function askFav(id) {
+  selectedId = id;
   const isFav = favorites.includes(id);
   document.getElementById("confirm-text").innerText = isFav ? "ফেভারিট থেকে বাদ দিবেন?" : "ফেভারিট লিস্টে যোগ করবেন?";
   document.getElementById("confirm-box").style.display = "block";
