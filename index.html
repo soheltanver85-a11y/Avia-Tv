@@ -15,38 +15,26 @@
       overflow-x: hidden; overflow-y: auto;
     }
 
-    /* ভিডিও প্লেয়ার সেকশন */
-    #player { 
-      width:100%; 
-      background:black; 
-      position: sticky; 
-      top: 0; 
-      z-index: 1000; 
-      box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
-    }
-    .video-container {
-      max-width: 1000px; /* ডেস্কটপে ভিডিও খুব বেশি বড় হবে না */
-      margin: 0 auto;
-      width: 100%;
-      aspect-ratio: 16/9;
-    }
+    #player { width:100%; background:black; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+    .video-container { max-width: 1000px; margin: 0 auto; width: 100%; aspect-ratio: 16/9; position: relative; background: #000; }
     video { width:100%; height:100%; outline: none; display: block; }
+
+    /* রোটেট বাটন স্টাইল */
+    .rotate-btn {
+      position: absolute; bottom: 50px; right: 15px;
+      background: rgba(0, 0, 0, 0.6); border: 1px solid var(--primary);
+      color: white; width: 35px; height: 35px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; z-index: 1001;
+    }
 
     header { padding: 10px; background: #111; border-bottom: 1px solid #222; }
     .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
     .brand-area h2 { margin:0; font-size:18px; color:var(--focus); }
 
     .download-link {
-      display: inline-block;
-      background: #222;
-      color: #00e5ff;
-      text-decoration: none;
-      font-size: 11px;
-      padding: 4px 10px;
-      border-radius: 4px;
-      border: 1px solid #333;
-      margin-top: 4px;
-      font-weight: bold;
+      display: inline-block; background: #222; color: #00e5ff; text-decoration: none;
+      font-size: 11px; padding: 4px 10px; border-radius: 4px; border: 1px solid #333; margin-top: 4px; font-weight: bold;
     }
 
     .tabs { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0; scrollbar-width: none; }
@@ -57,45 +45,20 @@
     }
     .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); font-weight: bold; }
 
-    #content-area { 
-      padding: 15px; 
-      max-width: 1200px; 
-      margin: 0 auto; 
-      width: 100%;
-      box-sizing: border-box;
-    }
-    
-    #channelList { 
-      display: grid; 
-      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); 
-      gap: 15px; 
-      padding-bottom: 100px; 
-    }
+    #content-area { padding: 10px; max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+    #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); gap: 12px; padding-bottom: 120px; }
 
     .channel-card { 
       background: var(--card); border-radius: 12px; padding: 12px; 
-      text-align: center; cursor: pointer; transition: 0.3s; border: 2px solid transparent; position: relative;
+      text-align: center; cursor: pointer; transition: 0.2s; border: 2px solid transparent; position: relative;
     }
-    .channel-card:hover { transform: translateY(-5px); border-color: var(--primary); }
-    
     .star-icon { position: absolute; top: 5px; right: 5px; font-size: 14px; color: var(--star); display: none; }
     .is-fav .star-icon { display: block; }
+    .channel-logo { width: 100%; height: 50px; object-fit: contain; pointer-events: none; }
+    .channel-name { font-size: 12px; margin-top: 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; pointer-events: none; }
 
-    .channel-logo { width: 100%; height: 60px; object-fit: contain; pointer-events: none; }
-    .channel-name { font-size: 13px; margin-top: 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-
-    .dev-footer {
-      padding: 30px 10px 150px 10px;
-      text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      opacity: 0.7;
-    }
-    .dev-logo { width: 20px; height: 20px; background: linear-gradient(135deg, #00e5ff 0%, #ff4081 100%); border-radius: 4px; color: #fff; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-    .dev-text { font-size: 10px; color: #888; }
-    .dev-name { color: #ccc; font-weight: 600; font-size: 11px; }
+    .dev-footer { padding: 20px 10px 150px 10px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 5px; opacity: 0.6; }
+    .dev-logo { width: 18px; height: 18px; background: linear-gradient(135deg, #00e5ff 0%, #ff4081 100%); border-radius: 4px; color: #fff; font-size: 9px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
 
     #confirm-box {
       position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -104,19 +67,12 @@
     }
     .confirm-btns { display: flex; justify-content: space-around; margin-top: 20px; }
     .c-btn { padding: 10px 25px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; }
+    #social-bar-wrapper { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 10000; min-height: 50px; text-align: center; background: #000; }
 
-    #social-bar-wrapper { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 10000; background: rgba(10,10,10,0.9); }
-
-    /* ডেস্কটপ অপ্টিমাইজেশন */
     @media (min-width: 900px) {
-      #channelList { 
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
-        gap: 20px;
-      }
-      .channel-logo { height: 80px; }
-      .channel-name { font-size: 14px; }
-      #search { max-width: 500px; margin: 0 auto; display: block; }
+      #channelList { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
       .tabs { justify-content: center; }
+      #search { max-width: 400px; margin: 0 auto; display: block; }
     }
   </style>
 </head>
@@ -125,6 +81,11 @@
 <div id="player">
   <div class="video-container">
     <video id="video" controls autoplay playsinline></video>
+    <div class="rotate-btn" onclick="toggleFS()">
+      <svg width="18" height="18" fill="white" viewBox="0 0 16 16">
+        <path d="M1.5 1a.5.5 0 0 0-.5.5v4a.5.5 0 0 1-1 0v-4A1.5 1.5 0 0 1 1.5 0h4a.5.5 0 0 1 0 1h-4zM10.5 1a.5.5 0 0 1 0-1h4A1.5 1.5 0 0 1 16 1.5v4a.5.5 0 0 1-1 0v-4a.5.5 0 0 0-.5-.5h-4zM1.5 10.5a.5.5 0 0 1 1 0v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 1 0 1h-4A1.5 1.5 0 0 1 0 14.5v-4zM14.5 10.5a.5.5 0 0 1 .5.5v4a1.5 1.5 0 0 1-1.5 1.5h-4a.5.5 0 0 1 0-1h4a.5.5 0 0 0 .5-.5v-4z"/>
+      </svg>
+    </div>
   </div>
 </div>
 
@@ -135,7 +96,7 @@
         <h2>📺 LIVE TV PRO</h2>
         <a href="https://github.com/soheltanver85-a11y/My-app/releases/download/my-app-1/_BD_LIVE_TV_19452117.apk" class="download-link">⬇ ডাউনলোড অ্যাপ</a>
       </div>
-      <span id="count" style="font-size: 12px; color:#00e5ff;">লোড হচ্ছে...</span>
+      <span id="count" style="font-size: 11px; color:#888;">...</span>
     </div>
     <div class="tabs">
       <button class="tab-btn active" onclick="filterCat('all', this)">All</button>
@@ -145,18 +106,17 @@
       <button class="tab-btn" onclick="filterCat('sports', this)">Sports</button>
       <button class="tab-btn" onclick="filterCat('movie', this)">Movie</button>
     </div>
-    <div style="padding: 0 5px; text-align: center;">
-      <input type="text" id="search" placeholder="চ্যানেল খুঁজুন..." style="width:100%; background:#222; border:1px solid #444; color:white; padding:12px; border-radius:30px; outline:none; box-sizing: border-box;">
+    <div style="padding: 0 5px;">
+      <input type="text" id="search" placeholder="সার্চ করুন..." style="width:100%; background:#222; border:1px solid #444; color:white; padding:12px; border-radius:8px; outline:none; box-sizing: border-box;">
     </div>
   </header>
 
-  <div id="content-area">
-    <div id="channelList"></div>
-    <div class="dev-footer">
-      <div class="dev-logo">ST</div>
-      <div class="dev-text">Developed by</div>
-      <div class="dev-name">SOHEL TANVER</div>
-    </div>
+  <div id="content-area"><div id="channelList"></div></div>
+
+  <div class="dev-footer">
+    <div class="dev-logo">ST</div>
+    <div class="dev-text">Dev by</div>
+    <div class="dev-name">SOHEL TANVER</div>
   </div>
 </div>
 
@@ -173,7 +133,6 @@
 </div>
 
 <script>
-// আপনার আগের জাভাস্ক্রিপ্ট কোড এখানে অপরিবর্তিত থাকবে
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let currentCategory = 'all', hls = null, selectedId = null;
@@ -185,7 +144,7 @@ async function init() {
     const data = await res.text();
     allChannels = parseM3U(data);
     render(allChannels);
-    if(allChannels.length > 0) play(0);
+    if(allChannels.length > 0) playFromUrl(allChannels[0].url);
   } catch (e) { document.getElementById("count").innerText = "Error!"; }
 }
 
@@ -214,7 +173,8 @@ function render(list) {
     const isFav = favorites.includes(ch.id);
     return `
       <div class="channel-card ${isFav ? 'is-fav' : ''}" 
-           onmousedown="startHold('${ch.id}')" onmouseup="endHold('${ch.url}')" onmouseleave="clearHold()"
+           onclick="playFromUrl('${ch.url}')" 
+           oncontextmenu="event.preventDefault(); askFav('${ch.id}')"
            ontouchstart="startHold('${ch.id}')" ontouchend="endHold('${ch.url}')">
         <span class="star-icon">★</span>
         <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://via.placeholder.com/100x60?text=TV'">
@@ -228,12 +188,12 @@ function render(list) {
 let holdTimer, isLongPress = false;
 function startHold(id) {
   isLongPress = false; selectedId = id;
-  holdTimer = setTimeout(() => { isLongPress = true; askFav(id); }, 700);
+  holdTimer = setTimeout(() => { isLongPress = true; askFav(id); }, 800);
 }
 function endHold(url) { clearTimeout(holdTimer); if (!isLongPress) playFromUrl(url); }
-function clearHold() { clearTimeout(holdTimer); }
 
 function askFav(id) {
+  selectedId = id;
   const isFav = favorites.includes(id);
   document.getElementById("confirm-text").innerText = isFav ? "ফেভারিট থেকে বাদ দিবেন?" : "ফেভারিট লিস্টে যোগ করবেন?";
   document.getElementById("confirm-box").style.display = "block";
@@ -252,12 +212,28 @@ document.getElementById("btn-yes").onclick = function() {
   filterCat(currentCategory, document.querySelector('.tab-btn.active'));
 };
 
-document.getElementById("search").addEventListener('input', (e) => {
-  const query = e.target.value.toLowerCase().trim();
-  if (query === "") { filterCat(currentCategory, document.querySelector('.tab-btn.active')); return; }
-  const filtered = allChannels.filter(ch => ch.name.toLowerCase().includes(query));
-  render(filtered);
-});
+function playFromUrl(url) {
+  if (!url) return;
+  if (hls) hls.destroy();
+  if (Hls.isSupported()) {
+    hls = new Hls(); hls.loadSource(url); hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    video.src = url; video.play();
+  }
+}
+
+function toggleFS() {
+  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+    const p = document.querySelector('.video-container');
+    if (p.requestFullscreen) p.requestFullscreen();
+    else if (p.webkitRequestFullscreen) p.webkitRequestFullscreen();
+    if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(e => {});
+  } else {
+    if (document.exitFullscreen) document.exitFullscreen();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+  }
+}
 
 function filterCat(cat, btn) {
   currentCategory = cat;
@@ -267,15 +243,11 @@ function filterCat(cat, btn) {
   render(filtered);
 }
 
-function playFromUrl(url) {
-  if (hls) hls.destroy();
-  if (Hls.isSupported()) {
-    hls = new Hls(); hls.loadSource(url); hls.attachMedia(video);
-    hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-  } else if (video.canPlayType('application/vnd.apple.mpegurl')) { video.src = url; }
-}
-
-function play(index) { if (allChannels[index]) playFromUrl(allChannels[index].url); }
+document.getElementById("search").addEventListener('input', (e) => {
+  const query = e.target.value.toLowerCase().trim();
+  const filtered = allChannels.filter(ch => ch.name.toLowerCase().includes(query));
+  render(filtered);
+});
 
 init();
 </script>
