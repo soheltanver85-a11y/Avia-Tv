@@ -4,33 +4,40 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Live TV Pro - Final Edition</title>
-  
+
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
   <style>
     :root { --primary: #00e5ff; --bg: #0a0a0a; --card: #1a1a1a; --focus: #00e5ff; --star: #ffd700; --accent: #ff4081; }
 
-    body { 
-      margin:0; font-family: sans-serif; background: var(--bg); color: #eee; 
+    body {
+      margin:0; font-family: sans-serif; background: var(--bg); color: #eee;
       display: flex; flex-direction: column; min-height: 100vh;
       overflow-x: hidden; overflow-y: auto;
     }
 
-    #player { 
-      width:100%; 
-      background:black; 
-      position: sticky; 
-      top: 0; 
-      z-index: 1000; 
-      box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
+    #player {
+      width:100%;
+      background:black;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
     }
+
     .video-container {
       max-width: 1000px;
       margin: 0 auto;
       width: 100%;
       aspect-ratio: 16/9;
-      position: relative;
     }
-    video { width:100%; height:100%; outline: none; display: block; }
+
+    video {
+      width:100%;
+      height:100%;
+      display:block;
+      background:black;
+    }
 
     header { padding: 10px; background: #111; border-bottom: 1px solid #222; }
     .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
@@ -38,83 +45,122 @@
 
     .download-link {
       display: inline-block;
-      background: #222; color: #00e5ff; text-decoration: none;
-      font-size: 11px; padding: 4px 10px; border-radius: 4px; border: 1px solid #333; margin-top: 4px; font-weight: bold;
+      background: #222;
+      color: #00e5ff;
+      text-decoration: none;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid #333;
+      margin-top: 4px;
+      font-weight: bold;
     }
 
     .tabs { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0; scrollbar-width: none; }
     .tabs::-webkit-scrollbar { display: none; }
-    .tab-btn { 
-      padding: 8px 16px; background: #222; border: 1px solid #333; color: #ccc; 
-      border-radius: 20px; font-size: 12px; cursor: pointer; white-space: nowrap; flex-shrink: 0;
+    .tab-btn {
+      padding: 8px 16px; background: #222; border: 1px solid #333; color: #ccc;
+      border-radius: 20px; font-size: 12px; cursor: pointer; white-space: nowrap;
     }
-    .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); font-weight: bold; }
+    .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
 
-    #content-area { padding: 15px; max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box; }
-    #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 15px; padding-bottom: 100px; }
-
-    .channel-card { 
-      background: var(--card); border-radius: 12px; padding: 12px; 
-      text-align: center; cursor: pointer; transition: 0.3s; border: 2px solid transparent; position: relative;
+    #content-area {
+      padding: 15px;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      box-sizing: border-box;
     }
+
+    #channelList {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 15px;
+      padding-bottom: 100px;
+    }
+
+    .channel-card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.3s;
+      border: 2px solid transparent;
+      position: relative;
+    }
+
     .channel-card:hover { transform: translateY(-5px); border-color: var(--primary); }
-    .star-icon { position: absolute; top: 5px; right: 5px; font-size: 14px; color: var(--star); display: none; }
+    .star-icon { position: absolute; top: 5px; right: 5px; color: var(--star); display: none; }
     .is-fav .star-icon { display: block; }
-    .channel-logo { width: 100%; height: 60px; object-fit: contain; pointer-events: none; }
-    .channel-name { font-size: 13px; margin-top: 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+    .channel-logo { width: 100%; height: 60px; object-fit: contain; }
+    .channel-name { font-size: 13px; margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     #confirm-box {
-      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      background: #181818; border: 2px solid var(--focus); padding: 25px;
-      border-radius: 15px; text-align: center; display: none; z-index: 10001; width: 280px;
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: #181818;
+      border: 2px solid var(--focus);
+      padding: 25px;
+      border-radius: 15px;
+      display: none;
+      z-index: 10001;
+      width: 280px;
+      text-align: center;
     }
+
     .confirm-btns { display: flex; justify-content: space-around; margin-top: 20px; }
     .c-btn { padding: 10px 25px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; }
 
     #social-bar-wrapper { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 10000; background: rgba(10,10,10,0.9); }
   </style>
 </head>
+
 <body>
 
 <div id="player">
   <div class="video-container">
+    <!-- 🔥 FIXED VIDEO TAG -->
     <video id="video" controls autoplay playsinline webkit-playsinline></video>
   </div>
 </div>
 
-<div id="side-nav">
-  <header>
-    <div class="top-bar">
-      <div class="brand-area">
-        <h2>📺 LIVE TV PRO</h2>
-        <a href="https://github.com/soheltanver85-a11y/My-app/releases/download/my-app-1/_BD_LIVE_TV_19452117.apk" class="download-link">⬇ ডাউনলোড অ্যাপ</a>
-      </div>
-      <span id="count" style="font-size: 12px; color:#00e5ff;">লোড হচ্ছে...</span>
+<header>
+  <div class="top-bar">
+    <div class="brand-area">
+      <h2>📺 LIVE TV PRO</h2>
+      <a href="https://github.com/soheltanver85-a11y/My-app/releases/download/my-app-1/_BD_LIVE_TV_19452117.apk" class="download-link">⬇ ডাউনলোড অ্যাপ</a>
     </div>
-    <div class="tabs">
-      <button class="tab-btn active" onclick="filterCat('all', this)">All</button>
-      <button class="tab-btn" style="color:var(--star)" onclick="filterCat('fav', this)">★ Favorite</button>
-      <button class="tab-btn" onclick="filterCat('bangla', this)">Bangla</button>
-      <button class="tab-btn" onclick="filterCat('hindi', this)">Hindi</button>
-      <button class="tab-btn" onclick="filterCat('sports', this)">Sports</button>
-      <button class="tab-btn" onclick="filterCat('movie', this)">Movie</button>
-    </div>
-    <div style="padding: 0 5px; text-align: center;">
-      <input type="text" id="search" placeholder="চ্যানেল খুঁজুন..." style="width:100%; background:#222; border:1px solid #444; color:white; padding:12px; border-radius:30px; outline:none; box-sizing: border-box;">
-    </div>
-  </header>
-
-  <div id="content-area">
-    <div id="channelList"></div>
+    <span id="count" style="font-size:12px;color:#00e5ff">লোড হচ্ছে...</span>
   </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="filterCat('all',this)">All</button>
+    <button class="tab-btn" onclick="filterCat('fav',this)">★ Favorite</button>
+    <button class="tab-btn" onclick="filterCat('bangla',this)">Bangla</button>
+    <button class="tab-btn" onclick="filterCat('hindi',this)">Hindi</button>
+    <button class="tab-btn" onclick="filterCat('sports',this)">Sports</button>
+    <button class="tab-btn" onclick="filterCat('movie',this)">Movie</button>
+  </div>
+
+  <input id="search" placeholder="চ্যানেল খুঁজুন..." style="width:100%;padding:12px;border-radius:30px;background:#222;color:white;border:1px solid #444;">
+</header>
+
+<div id="content-area">
+  <div id="channelList"></div>
 </div>
 
 <div id="confirm-box">
-  <p id="confirm-text" style="color: white;"></p>
+  <p id="confirm-text"></p>
   <div class="confirm-btns">
-    <button class="c-btn" style="background:var(--accent); color:white" id="btn-yes">হ্যাঁ</button>
-    <button class="c-btn" style="background:#555; color:white" onclick="closeConfirm()">না</button>
+    <button class="c-btn" style="background:var(--accent);color:white" id="btn-yes">হ্যাঁ</button>
+    <button class="c-btn" style="background:#555;color:white" onclick="closeConfirm()">না</button>
   </div>
+</div>
+
+<div id="social-bar-wrapper">
+  <script src="https://pl28548409.effectivegatecpm.com/88/59/b8/8859b87f27788aaf3cb337acab2ad812.js"></script>
 </div>
 
 <script>
@@ -124,115 +170,65 @@ let currentCategory = 'all', hls = null, selectedId = null;
 const video = document.getElementById("video");
 
 async function init() {
-  try {
-    const res = await fetch(playlistUrl);
-    const data = await res.text();
-    allChannels = parseM3U(data);
-    render(allChannels);
-    if(allChannels.length > 0) play(0);
-  } catch (e) { 
-    document.getElementById("count").innerText = "Error!"; 
-  }
+  const res = await fetch(playlistUrl);
+  const data = await res.text();
+  allChannels = parseM3U(data);
+  render(allChannels);
+  if(allChannels.length) playFromUrl(allChannels[0].url);
 }
 
 function parseM3U(data) {
   const lines = data.split("\n"), list = [];
   let cur = {};
-  lines.forEach(l => {
-    l = l.trim();
-    if (l.startsWith("#EXTINF")) {
-      cur.name = l.split(",")[1]?.trim() || "Unknown";
-      cur.logo = l.match(/tvg-logo="([^"]+)"/)?.[1] || "";
-      cur.cat = (l.match(/group-title="([^"]+)"/)?.[1] || "").toLowerCase();
-      cur.id = btoa(unescape(encodeURIComponent(cur.name)));
-    } else if (l.startsWith("http")) {
-      cur.url = l;
-      list.push({...cur});
-      cur = {};
+  lines.forEach(l=>{
+    l=l.trim();
+    if(l.startsWith("#EXTINF")){
+      cur.name=l.split(",")[1];
+      cur.logo=l.match(/tvg-logo="([^"]+)"/)?.[1]||"";
+      cur.cat=(l.match(/group-title="([^"]+)"/)?.[1]||"").toLowerCase();
+      cur.id=btoa(cur.name);
+    } else if(l.startsWith("http")){
+      cur.url=l; list.push({...cur}); cur={};
     }
   });
   return list;
 }
 
-function render(list) {
-  const grid = document.getElementById("channelList");
-  grid.innerHTML = list.map((ch) => {
-    const isFav = favorites.includes(ch.id);
-    return `
-      <div class="channel-card ${isFav ? 'is-fav' : ''}" 
-           onmousedown="startHold('${ch.id}')" onmouseup="endHold('${ch.url}')" 
-           ontouchstart="startHold('${ch.id}')" ontouchend="endHold('${ch.url}')">
-        <span class="star-icon">★</span>
-        <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://via.placeholder.com/100x60?text=TV'">
-        <div class="channel-name">${ch.name}</div>
-      </div>
-    `;
+function render(list){
+  channelList.innerHTML=list.map(ch=>{
+    const fav=favorites.includes(ch.id);
+    return `<div class="channel-card ${fav?'is-fav':''}"
+      onmousedown="startHold('${ch.id}')"
+      onmouseup="endHold('${ch.url}')"
+      ontouchstart="startHold('${ch.id}')"
+      ontouchend="endHold('${ch.url}')">
+      <span class="star-icon">★</span>
+      <img src="${ch.logo}" class="channel-logo">
+      <div class="channel-name">${ch.name}</div>
+    </div>`;
   }).join('');
-  document.getElementById("count").textContent = list.length + " CH";
+  count.innerText=list.length+" CH";
 }
 
-let holdTimer, isLongPress = false;
-function startHold(id) {
-  isLongPress = false; selectedId = id;
-  holdTimer = setTimeout(() => { isLongPress = true; askFav(id); }, 700);
-}
-function endHold(url) { clearTimeout(holdTimer); if (!isLongPress) playFromUrl(url); }
-
-function askFav(id) {
-  const isFav = favorites.includes(id);
-  document.getElementById("confirm-text").innerText = isFav ? "ফেভারিট থেকে বাদ দিবেন?" : "ফেভারিট লিস্টে যোগ করবেন?";
-  document.getElementById("confirm-box").style.display = "block";
-}
-function closeConfirm() { document.getElementById("confirm-box").style.display = "none"; }
-
-document.getElementById("btn-yes").onclick = function() {
-  if (favorites.includes(selectedId)) {
-    favorites = favorites.filter(f => f !== selectedId);
-  } else {
-    favorites.push(selectedId);
-  }
-  localStorage.setItem('myFavs', JSON.stringify(favorites));
-  closeConfirm();
-  filterCat(currentCategory, document.querySelector('.tab-btn.active'));
-};
-
-function filterCat(cat, btn) {
-  currentCategory = cat;
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  let filtered = (cat === 'all') ? allChannels : (cat === 'fav' ? allChannels.filter(ch => favorites.includes(ch.id)) : allChannels.filter(ch => ch.name.toLowerCase().includes(cat) || ch.cat.includes(cat)));
-  render(filtered);
+function playFromUrl(url){
+  if(hls) hls.destroy();
+  if(Hls.isSupported()){
+    hls=new Hls(); hls.loadSource(url); hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED,()=>video.play());
+  } else video.src=url;
 }
 
-function playFromUrl(url) {
-  if (hls) hls.destroy();
-  if (Hls.isSupported()) {
-    hls = new Hls(); hls.loadSource(url); hls.attachMedia(video);
-    hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-  } else if (video.canPlayType('application/vnd.apple.mpegurl')) { 
-    video.src = url; 
+/* 🔥 FULLSCREEN ROTATION FIX */
+function enableRotation(){
+  if(screen.orientation && screen.orientation.unlock){
+    screen.orientation.unlock();
   }
 }
-
-function play(index) { if (allChannels[index]) playFromUrl(allChannels[index].url); }
-
-// ফুলস্ক্রিন ফাংশন
-function openFullscreen() {
-  if (video.requestFullscreen) { video.requestFullscreen(); } 
-  else if (video.webkitRequestFullscreen) { video.webkitRequestFullscreen(); } 
-  else if (video.msRequestFullscreen) { video.msRequestFullscreen(); }
-}
-
-// ভিডিওতে ডাবল ক্লিক করলে ফুলস্ক্রিন হবে
-video.addEventListener('dblclick', openFullscreen);
-
-document.getElementById("search").addEventListener('input', (e) => {
-  const query = e.target.value.toLowerCase().trim();
-  const filtered = allChannels.filter(ch => ch.name.toLowerCase().includes(query));
-  render(filtered);
-});
+video.addEventListener("fullscreenchange", enableRotation);
+video.addEventListener("webkitfullscreenchange", enableRotation);
 
 init();
 </script>
+
 </body>
 </html>
