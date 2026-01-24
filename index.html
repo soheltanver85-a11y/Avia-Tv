@@ -51,7 +51,6 @@
     /* কন্টেন্ট এরিয়া ও গ্রিড */
     #content-area { padding: 6px; box-sizing: border-box; }
     
-    /* পারফেক্ট ৩-কলাম গ্রিড (স্ক্রিনশট অনুযায়ী ছোট সাইজ) */
     #channelList { 
       display: grid; 
       grid-template-columns: repeat(3, 1fr); 
@@ -71,8 +70,10 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 72px; /* উচ্চতা কমিয়ে স্লিম করা হয়েছে */
+      height: 72px; 
       transition: 0.2s;
+      -webkit-user-select: none; /* লং প্রেস অপশনের জন্য টেক্সট সিলেক্ট বন্ধ */
+      user-select: none;
     }
     .channel-card:active { transform: scale(0.95); background: #222; }
     
@@ -82,9 +83,10 @@
     .channel-logo { 
       width: auto; 
       max-width: 55%;
-      height: 30px; /* লোগো ছোট করা হয়েছে যাতে কার্ডের সাইজ ছোট থাকে */
+      height: 30px; 
       object-fit: contain; 
       margin-bottom: 4px;
+      pointer-events: none; /* ইমেজ সিলেক্ট হওয়া বন্ধ */
     }
     
     .channel-name { 
@@ -99,12 +101,14 @@
 
     .dev-footer { padding: 20px 0 140px 0; text-align: center; opacity: 0.3; font-size: 8px; }
 
+    /* কনফার্মেশন বক্স */
     #confirm-box {
       position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      background: #181818; border: 1px solid var(--focus); padding: 20px;
+      background: #1a1a1a; border: 1px solid var(--focus); padding: 20px;
       border-radius: 12px; text-align: center; display: none; z-index: 10001; width: 220px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.7);
     }
-    .c-btn { padding: 6px 15px; border-radius: 4px; border: none; cursor: pointer; font-size: 11px; }
+    .c-btn { padding: 8px 20px; border-radius: 5px; border: none; cursor: pointer; font-size: 12px; font-weight: bold; }
 
     #social-bar-wrapper { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 10000; background: #000; }
   </style>
@@ -141,10 +145,10 @@
 </div>
 
 <div id="confirm-box">
-  <p id="confirm-text" style="color: white; margin-bottom:15px; font-size: 12px;"></p>
+  <p id="confirm-text" style="color: white; margin-bottom:15px; font-size: 13px;"></p>
   <div style="display: flex; justify-content: space-around;">
     <button class="c-btn" style="background:var(--accent); color:white" id="btn-yes">হ্যাঁ</button>
-    <button class="c-btn" style="background:#333; color:white" onclick="closeConfirm()">না</button>
+    <button class="c-btn" style="background:#444; color:white" onclick="closeConfirm()">না</button>
   </div>
 </div>
 
@@ -193,7 +197,7 @@ function render(list) {
     const isFav = favorites.includes(ch.id);
     return `
       <div class="channel-card ${isFav ? 'is-fav' : ''}" 
-           onclick="handlePlay('${ch.url}')"
+           oncontextmenu="event.preventDefault(); askFav('${ch.id}')"
            ontouchstart="handleTouchStart('${ch.id}')" 
            ontouchend="handleTouchEnd('${ch.url}')">
         <span class="star-icon">★</span>
@@ -205,15 +209,24 @@ function render(list) {
   document.getElementById("count").textContent = list.length + " CH";
 }
 
-let touchStartTime = 0, touchStartY = 0;
-function handleTouchStart(id) { touchStartTime = Date.now(); touchStartY = event.touches[0].clientY; selectedId = id; }
-function handleTouchEnd(url) {
-    const duration = Date.now() - touchStartTime;
-    const distanceY = Math.abs(event.changedTouches[0].clientY - touchStartY);
-    if (duration < 300 && distanceY < 10) playFromUrl(url);
-    else if (duration >= 600 && distanceY < 10) askFav(selectedId);
+// লং প্রেস হ্যান্ডলার (ফেভারিট অপশনের জন্য)
+let touchTimer;
+function handleTouchStart(id) {
+  selectedId = id;
+  // ৬০০ মিলি-সেকেন্ড ধরে রাখলে ফেভারিট অপশন আসবে
+  touchTimer = setTimeout(() => {
+    askFav(id);
+    touchTimer = null;
+  }, 600);
 }
-function handlePlay(url) { if (!('ontouchstart' in window)) playFromUrl(url); }
+
+function handleTouchEnd(url) {
+  if (touchTimer) {
+    clearTimeout(touchTimer);
+    touchTimer = null;
+    playFromUrl(url); // যদি দ্রুত ছেড়ে দেয় তবে চ্যানেল চলবে
+  }
+}
 
 function askFav(id) {
   selectedId = id;
@@ -221,22 +234,30 @@ function askFav(id) {
   document.getElementById("confirm-text").innerText = isFav ? "ফেভারিট থেকে বাদ দিবেন?" : "ফেভারিট লিস্টে যোগ করবেন?";
   document.getElementById("confirm-box").style.display = "block";
 }
-function closeConfirm() { document.getElementById("confirm-box").style.display = "none"; }
+
+function closeConfirm() {
+  document.getElementById("confirm-box").style.display = "none";
+}
 
 document.getElementById("btn-yes").onclick = function() {
-  if (favorites.includes(selectedId)) favorites = favorites.filter(f => f !== selectedId);
-  else favorites.push(selectedId);
+  if (favorites.includes(selectedId)) {
+    favorites = favorites.filter(f => f !== selectedId);
+  } else {
+    favorites.push(selectedId);
+  }
   localStorage.setItem('myFavs', JSON.stringify(favorites));
   closeConfirm();
   filterCat(currentCategory, document.querySelector('.tab-btn.active'));
 };
 
+// সার্চ ফাংশন
 document.getElementById("search").addEventListener('input', (e) => {
   const query = e.target.value.toLowerCase().trim();
   const filtered = allChannels.filter(ch => ch.name.toLowerCase().includes(query));
   render(filtered);
 });
 
+// ক্যাটাগরি ফিল্টার
 function filterCat(cat, btn) {
   currentCategory = cat;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -250,7 +271,9 @@ function playFromUrl(url) {
   if (Hls.isSupported()) {
     hls = new Hls(); hls.loadSource(url); hls.attachMedia(video);
     hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-  } else if (video.canPlayType('application/vnd.apple.mpegurl')) { video.src = url; }
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) { 
+    video.src = url; 
+  }
 }
 
 init();
