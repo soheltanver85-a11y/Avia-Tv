@@ -25,12 +25,13 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
     }
     .video-container {
-      max-width: 1000px; /* ডেস্কটপে ভিডিও খুব বেশি বড় হবে না */
+      max-width: 1000px; 
       margin: 0 auto;
       width: 100%;
       aspect-ratio: 16/9;
+      position: relative;
     }
-    video { width:100%; height:100%; outline: none; display: block; }
+    video { width:100%; height:100%; outline: none; display: block; object-fit: contain; }
 
     header { padding: 10px; background: #111; border-bottom: 1px solid #222; }
     .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
@@ -107,12 +108,8 @@
 
     #social-bar-wrapper { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 10000; background: rgba(10,10,10,0.9); }
 
-    /* ডেস্কটপ অপ্টিমাইজেশন */
     @media (min-width: 900px) {
-      #channelList { 
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
-        gap: 20px;
-      }
+      #channelList { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 20px; }
       .channel-logo { height: 80px; }
       .channel-name { font-size: 14px; }
       #search { max-width: 500px; margin: 0 auto; display: block; }
@@ -173,7 +170,6 @@
 </div>
 
 <script>
-// আপনার আগের জাভাস্ক্রিপ্ট কোড এখানে অপরিবর্তিত থাকবে
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let currentCategory = 'all', hls = null, selectedId = null;
@@ -267,12 +263,29 @@ function filterCat(cat, btn) {
   render(filtered);
 }
 
+// Fullscreen logic
+function toggleFullScreen() {
+  if (video.requestFullscreen) {
+    video.requestFullscreen();
+  } else if (video.webkitRequestFullscreen) {
+    video.webkitRequestFullscreen();
+  } else if (video.msRequestFullscreen) {
+    video.msRequestFullscreen();
+  }
+}
+
+// ভিডিওতে ডাবল ট্যাপ করলে ফুলস্ক্রিন হবে
+video.addEventListener('dblclick', toggleFullScreen);
+
 function playFromUrl(url) {
   if (hls) hls.destroy();
   if (Hls.isSupported()) {
     hls = new Hls(); hls.loadSource(url); hls.attachMedia(video);
     hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-  } else if (video.canPlayType('application/vnd.apple.mpegurl')) { video.src = url; }
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) { 
+    video.src = url; 
+    video.play();
+  }
 }
 
 function play(index) { if (allChannels[index]) playFromUrl(allChannels[index].url); }
