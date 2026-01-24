@@ -58,31 +58,32 @@
     .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); font-weight: bold; }
 
     #content-area { 
-      padding: 15px; 
+      padding: 10px; 
       max-width: 1200px; 
       margin: 0 auto; 
       width: 100%;
       box-sizing: border-box;
     }
     
+    /* পরিবর্তন: এখানে ৩টি চ্যানেল দেখানোর জন্য আপডেট করা হয়েছে */
     #channelList { 
       display: grid; 
-      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); 
-      gap: 15px; 
+      grid-template-columns: repeat(3, 1fr); 
+      gap: 10px; 
       padding-bottom: 100px; 
     }
 
     .channel-card { 
-      background: var(--card); border-radius: 12px; padding: 12px; 
-      text-align: center; cursor: pointer; transition: 0.3s; border: 2px solid transparent; position: relative;
+      background: var(--card); border-radius: 10px; padding: 8px; 
+      text-align: center; cursor: pointer; transition: 0.3s; border: 1px solid transparent; position: relative;
     }
-    .channel-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+    .channel-card:hover { transform: translateY(-3px); border-color: var(--primary); }
     
-    .star-icon { position: absolute; top: 5px; right: 5px; font-size: 14px; color: var(--star); display: none; }
+    .star-icon { position: absolute; top: 3px; right: 3px; font-size: 12px; color: var(--star); display: none; }
     .is-fav .star-icon { display: block; }
 
-    .channel-logo { width: 100%; height: 60px; object-fit: contain; pointer-events: none; }
-    .channel-name { font-size: 13px; margin-top: 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .channel-logo { width: 100%; height: 50px; object-fit: contain; pointer-events: none; }
+    .channel-name { font-size: 11px; margin-top: 5px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
     .dev-footer {
       padding: 30px 10px 150px 10px;
@@ -107,12 +108,14 @@
 
     #social-bar-wrapper { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 10000; background: rgba(10,10,10,0.9); }
 
-    @media (min-width: 900px) {
-      #channelList { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 20px; }
-      .channel-logo { height: 80px; }
-      .channel-name { font-size: 14px; }
-      #search { max-width: 500px; margin: 0 auto; display: block; }
-      .tabs { justify-content: center; }
+    /* ডেস্কটপ বা বড় ট্যাবের জন্য লেআউট ঠিক করা */
+    @media (min-width: 600px) {
+      #channelList { 
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); 
+        gap: 15px;
+      }
+      .channel-logo { height: 70px; }
+      .channel-name { font-size: 13px; }
     }
     
     video:fullscreen { object-fit: contain; background: black; }
@@ -177,7 +180,6 @@ let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || 
 let currentCategory = 'all', hls = null, selectedId = null;
 const video = document.getElementById("video");
 
-// রোটেশন হ্যান্ডলার
 function handleRotation() {
     if (document.fullscreenElement) {
         if (screen.orientation && screen.orientation.lock) {
@@ -240,7 +242,6 @@ function render(list) {
   document.getElementById("count").textContent = list.length + " CH";
 }
 
-// স্ক্রলিং সমস্যা সমাধানের জন্য টাচ হ্যান্ডলিং
 let touchStartTime = 0;
 let touchStartY = 0;
 
@@ -256,18 +257,15 @@ function handleTouchEnd(url) {
     const duration = touchEndTime - touchStartTime;
     const distanceY = Math.abs(touchEndY - touchStartY);
 
-    // যদি টাচ খুব অল্প সময় হয় এবং স্ক্রল না হয় (দূরত্ব ১০ পিক্সেলের কম)
     if (duration < 300 && distanceY < 10) {
         playFromUrl(url);
     } 
-    // যদি ৭০০ মিলিসেকেন্ডের বেশি সময় ধরে চেপে রাখা হয় তবে ফেভারিট অপশন আসবে
     else if (duration >= 700 && distanceY < 10) {
         askFav(selectedId);
     }
 }
 
 function handlePlay(url) {
-    // ডেস্কটপের জন্য সাধারণ ক্লিক
     if (!('ontouchstart' in window)) {
         playFromUrl(url);
     }
