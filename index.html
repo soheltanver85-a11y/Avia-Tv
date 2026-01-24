@@ -8,81 +8,207 @@
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <style>
-:root { --primary:#00e5ff; --bg:#0a0a0a; --card:#1a1a1a; --focus:#00e5ff; --star:#ffd700; --accent:#ff4081; }
-
-body{
-  margin:0;font-family:sans-serif;background:var(--bg);color:#eee;
-  display:flex;flex-direction:column;min-height:100vh;
+:root{
+  --primary:#00e5ff;
+  --bg:#0a0a0a;
+  --card:#1a1a1a;
+  --star:#ffd700;
+  --accent:#ff4081;
 }
 
+body{
+  margin:0;
+  font-family:sans-serif;
+  background:var(--bg);
+  color:#eee;
+}
+
+/* ================= PLAYER ================= */
 #player{
-  width:100%;background:black;position:sticky;top:0;z-index:1000;
+  background:#000;
+  position:sticky;
+  top:0;
+  z-index:1000;
 }
 
 .video-container{
-  max-width:1000px;margin:0 auto;width:100%;aspect-ratio:16/9;
+  max-width:1000px;
+  margin:0 auto;
+  width:100%;
+  aspect-ratio:16/9;
+  position:relative;
 }
 
 video{
-  width:100%;height:100%;display:block;background:black;
+  width:100%;
+  height:100%;
+  background:black;
 }
 
-/* ✅ SAFE FULLSCREEN FIX */
-video:fullscreen,
-video:-webkit-full-screen{
-  width:100vw;
-  height:100vh;
+/* 🔥 Custom Rotate / Fullscreen Button */
+.rotate-btn{
+  position:absolute;
+  right:14px;
+  bottom:14px;
+  z-index:9999;
+  background:rgba(0,0,0,0.65);
+  color:#fff;
+  border:1px solid var(--primary);
+  border-radius:6px;
+  padding:5px 9px;
+  font-size:14px;
+  cursor:pointer;
+}
+
+.rotate-btn:active{
+  transform:scale(0.95);
+}
+
+/* ================= HEADER ================= */
+header{
+  padding:10px;
+  background:#111;
+  border-bottom:1px solid #222;
+}
+
+.tabs{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding:10px 0;
+}
+
+.tab-btn{
+  padding:8px 16px;
+  background:#222;
+  border:1px solid #333;
+  color:#ccc;
+  border-radius:20px;
+  cursor:pointer;
+  font-size:12px;
+}
+
+.tab-btn.active{
+  background:var(--accent);
+  color:#fff;
+}
+
+#search{
+  width:100%;
+  background:#222;
+  border:1px solid #444;
+  color:#fff;
+  padding:12px;
+  border-radius:30px;
+  outline:none;
+}
+
+/* ================= CHANNEL GRID ================= */
+#content-area{
+  padding:15px;
+  max-width:1200px;
+  margin:0 auto;
+}
+
+#channelList{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(110px,1fr));
+  gap:15px;
+  padding-bottom:120px;
+}
+
+.channel-card{
+  background:var(--card);
+  border-radius:12px;
+  padding:12px;
+  text-align:center;
+  cursor:pointer;
+  border:2px solid transparent;
+  transition:.3s;
+  position:relative;
+}
+
+.channel-card:hover{
+  border-color:var(--primary);
+}
+
+.star-icon{
+  position:absolute;
+  top:5px;
+  right:5px;
+  color:var(--star);
+  display:none;
+}
+
+.is-fav .star-icon{
+  display:block;
+}
+
+.channel-logo{
+  width:100%;
+  height:60px;
   object-fit:contain;
 }
 
-header{padding:10px;background:#111;border-bottom:1px solid #222;}
-.tabs{display:flex;gap:8px;overflow-x:auto;padding:10px 0;}
-.tab-btn{padding:8px 16px;background:#222;border:1px solid #333;color:#ccc;border-radius:20px;}
-.tab-btn.active{background:var(--accent);color:#fff;}
-
-#content-area{padding:15px;max-width:1200px;margin:0 auto;width:100%;}
-#channelList{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:15px;padding-bottom:120px;}
-
-.channel-card{
-  background:var(--card);border-radius:12px;padding:12px;text-align:center;
-  cursor:pointer;transition:.3s;border:2px solid transparent;position:relative;
+.channel-name{
+  font-size:13px;
+  margin-top:8px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
-.channel-card:hover{border-color:var(--primary);}
-.star-icon{position:absolute;top:5px;right:5px;color:var(--star);display:none;}
-.is-fav .star-icon{display:block;}
-.channel-logo{width:100%;height:60px;object-fit:contain;}
-.channel-name{font-size:13px;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 </style>
 </head>
 
 <body>
 
+<!-- ================= PLAYER ================= -->
 <div id="player">
   <div class="video-container">
-    <video id="video" controls autoplay playsinline webkit-playsinline></video>
+    <video
+      id="video"
+      controls
+      autoplay
+      playsinline
+      webkit-playsinline
+      controlsList="nofullscreen"
+    ></video>
+
+    <!-- ✅ Custom Fullscreen / Rotate -->
+    <button id="rotateBtn" class="rotate-btn">⤢</button>
   </div>
 </div>
 
+<!-- ================= HEADER ================= -->
 <header>
   <div class="tabs">
     <button class="tab-btn active" onclick="filterCat('all',this)">All</button>
     <button class="tab-btn" onclick="filterCat('fav',this)">★ Favorite</button>
     <button class="tab-btn" onclick="filterCat('bangla',this)">Bangla</button>
+    <button class="tab-btn" onclick="filterCat('hindi',this)">Hindi</button>
     <button class="tab-btn" onclick="filterCat('sports',this)">Sports</button>
+    <button class="tab-btn" onclick="filterCat('movie',this)">Movie</button>
   </div>
-  <input id="search" placeholder="চ্যানেল খুঁজুন..." style="width:100%;padding:12px;border-radius:30px;background:#222;color:white;border:1px solid #444;">
+  <input id="search" placeholder="চ্যানেল খুঁজুন...">
 </header>
 
+<!-- ================= CONTENT ================= -->
 <div id="content-area">
   <div id="channelList"></div>
 </div>
 
 <script>
-const playlistUrl="https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
-let allChannels=[],favorites=JSON.parse(localStorage.getItem("myFavs"))||[];
-let currentCategory="all",hls=null,selectedId=null;
+const playlistUrl =
+"https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
+
+let allChannels=[];
+let favorites=JSON.parse(localStorage.getItem("myFavs"))||[];
+let currentCategory="all";
+let hls=null;
+
 const video=document.getElementById("video");
 
+/* ========== INIT ========== */
 async function init(){
   const res=await fetch(playlistUrl);
   const data=await res.text();
@@ -91,9 +217,12 @@ async function init(){
   if(allChannels.length) playFromUrl(allChannels[0].url);
 }
 
+/* ========== PARSE M3U ========== */
 function parseM3U(data){
-  const lines=data.split("\n"),list=[];
+  const lines=data.split("\n");
+  const list=[];
   let cur={};
+
   lines.forEach(l=>{
     l=l.trim();
     if(l.startsWith("#EXTINF")){
@@ -102,54 +231,86 @@ function parseM3U(data){
       cur.cat=(l.match(/group-title="([^"]+)"/)?.[1]||"").toLowerCase();
       cur.id=btoa(unescape(encodeURIComponent(cur.name)));
     }else if(l.startsWith("http")){
-      cur.url=l;list.push({...cur});cur={};
+      cur.url=l;
+      list.push({...cur});
+      cur={};
     }
   });
   return list;
 }
 
+/* ========== RENDER ========== */
 function render(list){
   channelList.innerHTML=list.map(ch=>{
     const fav=favorites.includes(ch.id);
     return `
-    <div class="channel-card ${fav?'is-fav':''}"
-      onclick="playFromUrl('${ch.url}')"
-      oncontextmenu="toggleFav('${ch.id}');return false;">
-      <span class="star-icon">★</span>
-      <img src="${ch.logo}" class="channel-logo">
-      <div class="channel-name">${ch.name}</div>
-    </div>`;
+      <div class="channel-card ${fav?'is-fav':''}"
+        onclick="playFromUrl('${ch.url}')"
+        oncontextmenu="toggleFav('${ch.id}');return false;">
+        <span class="star-icon">★</span>
+        <img src="${ch.logo}" class="channel-logo">
+        <div class="channel-name">${ch.name}</div>
+      </div>
+    `;
   }).join("");
 }
 
+/* ========== PLAY ========== */
 function playFromUrl(url){
   if(hls) hls.destroy();
   if(Hls.isSupported()){
-    hls=new Hls();hls.loadSource(url);hls.attachMedia(video);
+    hls=new Hls();
+    hls.loadSource(url);
+    hls.attachMedia(video);
     hls.on(Hls.Events.MANIFEST_PARSED,()=>video.play());
   }else{
-    video.src=url;video.play();
+    video.src=url;
+    video.play();
   }
 }
 
+/* ========== FAVORITE ========== */
 function toggleFav(id){
-  favorites=favorites.includes(id)?favorites.filter(f=>f!==id):[...favorites,id];
+  favorites=favorites.includes(id)
+    ? favorites.filter(f=>f!==id)
+    : [...favorites,id];
   localStorage.setItem("myFavs",JSON.stringify(favorites));
   filterCat(currentCategory,document.querySelector(".tab-btn.active"));
 }
 
+/* ========== FILTER ========== */
 function filterCat(cat,btn){
   currentCategory=cat;
   document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
   btn.classList.add("active");
-  let list=cat==="all"?allChannels:cat==="fav"?allChannels.filter(c=>favorites.includes(c.id)):allChannels.filter(c=>c.cat.includes(cat));
+
+  let list =
+    cat==="all" ? allChannels :
+    cat==="fav" ? allChannels.filter(c=>favorites.includes(c.id)) :
+    allChannels.filter(c=>c.cat.includes(cat));
+
   render(list);
 }
 
+/* ========== SEARCH ========== */
 search.oninput=e=>{
   const q=e.target.value.toLowerCase();
   render(allChannels.filter(c=>c.name.toLowerCase().includes(q)));
 };
+
+/* ========== CUSTOM FULLSCREEN + ROTATE ========== */
+document.getElementById("rotateBtn").addEventListener("click", async ()=>{
+  try{
+    if(screen.orientation && screen.orientation.lock){
+      await screen.orientation.lock("landscape");
+    }
+    if(video.requestFullscreen){
+      video.requestFullscreen();
+    }
+  }catch(e){
+    if(video.requestFullscreen) video.requestFullscreen();
+  }
+});
 
 init();
 </script>
