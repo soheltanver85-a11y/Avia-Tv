@@ -15,7 +15,6 @@
       overflow-x: hidden; overflow-y: auto;
     }
 
-    /* ভিডিও প্লেয়ার সেকশন */
     #player { 
       width:100%; 
       background:black; 
@@ -25,13 +24,13 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
     }
     .video-container {
-      max-width: 1000px; 
+      max-width: 1000px;
       margin: 0 auto;
       width: 100%;
       aspect-ratio: 16/9;
       position: relative;
     }
-    video { width:100%; height:100%; outline: none; display: block; object-fit: contain; }
+    video { width:100%; height:100%; outline: none; display: block; }
 
     header { padding: 10px; background: #111; border-bottom: 1px solid #222; }
     .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
@@ -39,15 +38,8 @@
 
     .download-link {
       display: inline-block;
-      background: #222;
-      color: #00e5ff;
-      text-decoration: none;
-      font-size: 11px;
-      padding: 4px 10px;
-      border-radius: 4px;
-      border: 1px solid #333;
-      margin-top: 4px;
-      font-weight: bold;
+      background: #222; color: #00e5ff; text-decoration: none;
+      font-size: 11px; padding: 4px 10px; border-radius: 4px; border: 1px solid #333; margin-top: 4px; font-weight: bold;
     }
 
     .tabs { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0; scrollbar-width: none; }
@@ -58,45 +50,18 @@
     }
     .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); font-weight: bold; }
 
-    #content-area { 
-      padding: 15px; 
-      max-width: 1200px; 
-      margin: 0 auto; 
-      width: 100%;
-      box-sizing: border-box;
-    }
-    
-    #channelList { 
-      display: grid; 
-      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); 
-      gap: 15px; 
-      padding-bottom: 100px; 
-    }
+    #content-area { padding: 15px; max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+    #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 15px; padding-bottom: 100px; }
 
     .channel-card { 
       background: var(--card); border-radius: 12px; padding: 12px; 
       text-align: center; cursor: pointer; transition: 0.3s; border: 2px solid transparent; position: relative;
     }
     .channel-card:hover { transform: translateY(-5px); border-color: var(--primary); }
-    
     .star-icon { position: absolute; top: 5px; right: 5px; font-size: 14px; color: var(--star); display: none; }
     .is-fav .star-icon { display: block; }
-
     .channel-logo { width: 100%; height: 60px; object-fit: contain; pointer-events: none; }
     .channel-name { font-size: 13px; margin-top: 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-
-    .dev-footer {
-      padding: 30px 10px 150px 10px;
-      text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      opacity: 0.7;
-    }
-    .dev-logo { width: 20px; height: 20px; background: linear-gradient(135deg, #00e5ff 0%, #ff4081 100%); border-radius: 4px; color: #fff; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-    .dev-text { font-size: 10px; color: #888; }
-    .dev-name { color: #ccc; font-weight: 600; font-size: 11px; }
 
     #confirm-box {
       position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -107,21 +72,13 @@
     .c-btn { padding: 10px 25px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; }
 
     #social-bar-wrapper { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 10000; background: rgba(10,10,10,0.9); }
-
-    @media (min-width: 900px) {
-      #channelList { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 20px; }
-      .channel-logo { height: 80px; }
-      .channel-name { font-size: 14px; }
-      #search { max-width: 500px; margin: 0 auto; display: block; }
-      .tabs { justify-content: center; }
-    }
   </style>
 </head>
 <body>
 
 <div id="player">
   <div class="video-container">
-    <video id="video" controls autoplay playsinline></video>
+    <video id="video" controls autoplay playsinline webkit-playsinline></video>
   </div>
 </div>
 
@@ -149,11 +106,6 @@
 
   <div id="content-area">
     <div id="channelList"></div>
-    <div class="dev-footer">
-      <div class="dev-logo">ST</div>
-      <div class="dev-text">Developed by</div>
-      <div class="dev-name">SOHEL TANVER</div>
-    </div>
   </div>
 </div>
 
@@ -163,10 +115,6 @@
     <button class="c-btn" style="background:var(--accent); color:white" id="btn-yes">হ্যাঁ</button>
     <button class="c-btn" style="background:#555; color:white" onclick="closeConfirm()">না</button>
   </div>
-</div>
-
-<div id="social-bar-wrapper">
-  <script src="https://pl28548409.effectivegatecpm.com/88/59/b8/8859b87f27788aaf3cb337acab2ad812.js"></script>
 </div>
 
 <script>
@@ -182,7 +130,9 @@ async function init() {
     allChannels = parseM3U(data);
     render(allChannels);
     if(allChannels.length > 0) play(0);
-  } catch (e) { document.getElementById("count").innerText = "Error!"; }
+  } catch (e) { 
+    document.getElementById("count").innerText = "Error!"; 
+  }
 }
 
 function parseM3U(data) {
@@ -210,7 +160,7 @@ function render(list) {
     const isFav = favorites.includes(ch.id);
     return `
       <div class="channel-card ${isFav ? 'is-fav' : ''}" 
-           onmousedown="startHold('${ch.id}')" onmouseup="endHold('${ch.url}')" onmouseleave="clearHold()"
+           onmousedown="startHold('${ch.id}')" onmouseup="endHold('${ch.url}')" 
            ontouchstart="startHold('${ch.id}')" ontouchend="endHold('${ch.url}')">
         <span class="star-icon">★</span>
         <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://via.placeholder.com/100x60?text=TV'">
@@ -227,14 +177,12 @@ function startHold(id) {
   holdTimer = setTimeout(() => { isLongPress = true; askFav(id); }, 700);
 }
 function endHold(url) { clearTimeout(holdTimer); if (!isLongPress) playFromUrl(url); }
-function clearHold() { clearTimeout(holdTimer); }
 
 function askFav(id) {
   const isFav = favorites.includes(id);
   document.getElementById("confirm-text").innerText = isFav ? "ফেভারিট থেকে বাদ দিবেন?" : "ফেভারিট লিস্টে যোগ করবেন?";
   document.getElementById("confirm-box").style.display = "block";
 }
-
 function closeConfirm() { document.getElementById("confirm-box").style.display = "none"; }
 
 document.getElementById("btn-yes").onclick = function() {
@@ -248,13 +196,6 @@ document.getElementById("btn-yes").onclick = function() {
   filterCat(currentCategory, document.querySelector('.tab-btn.active'));
 };
 
-document.getElementById("search").addEventListener('input', (e) => {
-  const query = e.target.value.toLowerCase().trim();
-  if (query === "") { filterCat(currentCategory, document.querySelector('.tab-btn.active')); return; }
-  const filtered = allChannels.filter(ch => ch.name.toLowerCase().includes(query));
-  render(filtered);
-});
-
 function filterCat(cat, btn) {
   currentCategory = cat;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -263,20 +204,6 @@ function filterCat(cat, btn) {
   render(filtered);
 }
 
-// Fullscreen logic
-function toggleFullScreen() {
-  if (video.requestFullscreen) {
-    video.requestFullscreen();
-  } else if (video.webkitRequestFullscreen) {
-    video.webkitRequestFullscreen();
-  } else if (video.msRequestFullscreen) {
-    video.msRequestFullscreen();
-  }
-}
-
-// ভিডিওতে ডাবল ট্যাপ করলে ফুলস্ক্রিন হবে
-video.addEventListener('dblclick', toggleFullScreen);
-
 function playFromUrl(url) {
   if (hls) hls.destroy();
   if (Hls.isSupported()) {
@@ -284,11 +211,26 @@ function playFromUrl(url) {
     hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
   } else if (video.canPlayType('application/vnd.apple.mpegurl')) { 
     video.src = url; 
-    video.play();
   }
 }
 
 function play(index) { if (allChannels[index]) playFromUrl(allChannels[index].url); }
+
+// ফুলস্ক্রিন ফাংশন
+function openFullscreen() {
+  if (video.requestFullscreen) { video.requestFullscreen(); } 
+  else if (video.webkitRequestFullscreen) { video.webkitRequestFullscreen(); } 
+  else if (video.msRequestFullscreen) { video.msRequestFullscreen(); }
+}
+
+// ভিডিওতে ডাবল ক্লিক করলে ফুলস্ক্রিন হবে
+video.addEventListener('dblclick', openFullscreen);
+
+document.getElementById("search").addEventListener('input', (e) => {
+  const query = e.target.value.toLowerCase().trim();
+  const filtered = allChannels.filter(ch => ch.name.toLowerCase().includes(query));
+  render(filtered);
+});
 
 init();
 </script>
