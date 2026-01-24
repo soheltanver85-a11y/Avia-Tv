@@ -15,7 +15,6 @@
       overflow-x: hidden; overflow-y: auto;
     }
 
-    /* প্লেয়ার সেকশন */
     #player { 
       width:100%; background:black; position: sticky; top: 0; z-index: 1000; 
       box-shadow: 0 4px 10px rgba(0,0,0,0.8); 
@@ -41,30 +40,48 @@
 
     #content-area { padding: 8px; box-sizing: border-box; }
     
-    /* --- ফিক্সড ৩ কলাম গ্রিড (পজিশন ঠিক রাখার জন্য) --- */
+    /* পজিশন ঠিক রাখার জন্য পারফেক্ট ৩ কলাম গ্রিড */
     #channelList { 
       display: grid; 
-      grid-template-columns: repeat(3, 1fr); /* সবসময় ৩টি সমান কলাম থাকবে */
-      gap: 8px; 
+      grid-template-columns: repeat(3, 1fr); 
+      gap: 10px; 
       padding-bottom: 120px; 
     }
 
     .channel-card { 
-      background: var(--card); border-radius: 8px; padding: 8px 4px; 
-      text-align: center; cursor: pointer; transition: 0.2s; 
-      border: 1px solid #222; position: relative;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      background: var(--card); 
+      border-radius: 10px; 
+      padding: 10px 5px; 
+      text-align: center; 
+      cursor: pointer; 
+      transition: 0.2s; 
+      border: 1px solid #222; 
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      aspect-ratio: 1 / 1; /* এটি কার্ডকে একদম বর্গাকার রাখবে */
     }
     .channel-card:active { transform: scale(0.95); background: #252525; }
     
-    .star-icon { position: absolute; top: 3px; right: 3px; font-size: 10px; color: var(--star); display: none; }
+    .star-icon { position: absolute; top: 5px; right: 5px; font-size: 10px; color: var(--star); display: none; }
     .is-fav .star-icon { display: block; }
 
-    .channel-logo { width: 85%; height: 45px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+    .channel-logo { 
+      width: 70%; 
+      height: 40px; 
+      object-fit: contain; 
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); 
+    }
     .channel-name { 
-      font-size: 10px; margin-top: 6px; color: #ddd;
-      width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+      font-size: 10px; 
+      margin-top: 8px; 
+      color: #bbb;
+      width: 90%;
+      overflow: hidden; 
+      white-space: nowrap; 
+      text-overflow: ellipsis;
       font-weight: 500;
     }
 
@@ -94,7 +111,7 @@
     <div class="top-bar">
       <div class="brand-area">
         <h2>📺 BD LIVE TV PRO</h2>
-        <a href="#" class="download-link">⬇ APP</a>
+        <a href="https://github.com/soheltanver85-a11y/My-app/releases/download/my-app-1/_BD_LIVE_TV_19452117.apk" class="download-link">⬇ APP</a>
       </div>
       <span id="count" style="font-size: 11px; color:#00e5ff;">...</span>
     </div>
