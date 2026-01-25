@@ -72,7 +72,7 @@
       justify-content: center;
       height: 72px; 
       transition: 0.2s;
-      -webkit-user-select: none; /* লং প্রেস অপশনের জন্য টেক্সট সিলেক্ট বন্ধ */
+      -webkit-user-select: none;
       user-select: none;
     }
     .channel-card:active { transform: scale(0.95); background: #222; }
@@ -86,7 +86,7 @@
       height: 30px; 
       object-fit: contain; 
       margin-bottom: 4px;
-      pointer-events: none; /* ইমেজ সিলেক্ট হওয়া বন্ধ */
+      pointer-events: none;
     }
     
     .channel-name { 
@@ -162,6 +162,9 @@ let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || 
 let currentCategory = 'all', hls = null, selectedId = null;
 const video = document.getElementById("video");
 
+// স্ক্রলিং ডিটেকশনের জন্য ভেরিয়েবল
+let isScrolling = false;
+
 async function init() {
   try {
     const res = await fetch(playlistUrl);
@@ -199,6 +202,7 @@ function render(list) {
       <div class="channel-card ${isFav ? 'is-fav' : ''}" 
            oncontextmenu="event.preventDefault(); askFav('${ch.id}')"
            ontouchstart="handleTouchStart('${ch.id}')" 
+           ontouchmove="handleTouchMove()"
            ontouchend="handleTouchEnd('${ch.url}')">
         <span class="star-icon">★</span>
         <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://via.placeholder.com/50x30?text=TV'">
@@ -209,22 +213,35 @@ function render(list) {
   document.getElementById("count").textContent = list.length + " CH";
 }
 
-// লং প্রেস হ্যান্ডলার (ফেভারিট অপশনের জন্য)
 let touchTimer;
+
 function handleTouchStart(id) {
   selectedId = id;
-  // ৬০০ মিলি-সেকেন্ড ধরে রাখলে ফেভারিট অপশন আসবে
+  isScrolling = false; // টাচ শুরু হলে স্ক্রলিং রিসেট
   touchTimer = setTimeout(() => {
-    askFav(id);
+    if (!isScrolling) {
+      askFav(id);
+    }
     touchTimer = null;
   }, 600);
+}
+
+function handleTouchMove() {
+  isScrolling = true; // আঙ্গুল নড়াচড়া করলে স্ক্রলিং ট্রু হবে
+  if (touchTimer) {
+    clearTimeout(touchTimer);
+    touchTimer = null;
+  }
 }
 
 function handleTouchEnd(url) {
   if (touchTimer) {
     clearTimeout(touchTimer);
     touchTimer = null;
-    playFromUrl(url); // যদি দ্রুত ছেড়ে দেয় তবে চ্যানেল চলবে
+    // যদি স্ক্রল না করা হয়, তবেই চ্যানেল প্লে হবে
+    if (!isScrolling) {
+      playFromUrl(url);
+    }
   }
 }
 
@@ -250,14 +267,12 @@ document.getElementById("btn-yes").onclick = function() {
   filterCat(currentCategory, document.querySelector('.tab-btn.active'));
 };
 
-// সার্চ ফাংশন
 document.getElementById("search").addEventListener('input', (e) => {
   const query = e.target.value.toLowerCase().trim();
   const filtered = allChannels.filter(ch => ch.name.toLowerCase().includes(query));
   render(filtered);
 });
 
-// ক্যাটাগরি ফিল্টার
 function filterCat(cat, btn) {
   currentCategory = cat;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
