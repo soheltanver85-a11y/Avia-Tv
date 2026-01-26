@@ -53,9 +53,8 @@
     .live-dot-btn::after {
       content: '';
       position: absolute;
-      bottom: 2px;
-      left: 50%;
-      transform: translateX(-50%);
+      top: 5px;
+      right: 5px;
       width: 5px;
       height: 5px;
       background: var(--live);
@@ -66,30 +65,8 @@
 
     @keyframes blink { 0% {opacity: 1;} 50% {opacity: 0.2;} 100% {opacity: 1;} }
 
-    /* লাইভ স্কোর স্লাইডার */
-    #score-slider { 
-      display: flex; overflow-x: auto; gap: 10px; padding: 5px; 
-      scroll-snap-type: x mandatory; scrollbar-width: none; 
-    }
-    #score-slider::-webkit-scrollbar { display: none; }
-
-    .match-card {
-      min-width: 88%; scroll-snap-align: center; 
-      background: linear-gradient(145deg, #161616, #0a0a0a);
-      border: 1px solid #222; border-radius: 12px; padding: 12px; 
-      margin: 5px 2px 10px 2px;
-    }
-    .match-tag { font-size: 9px; color: #00e5ff; margin-bottom: 8px; opacity: 0.8; }
-    .match-main { display: flex; justify-content: space-between; align-items: center; }
-    .team { text-align: center; flex: 1; }
-    .team-box { 
-      width: 42px; height: 42px; border-radius: 8px; 
-      display: flex; align-items: center; justify-content: center; 
-      margin: 0 auto 5px; font-weight: bold; font-size: 14px; border: 1px solid #333;
-    }
-    .score-area { flex: 1.5; text-align: center; }
-    .live-label { color: #ff4d4d; font-size: 10px; font-weight: bold; margin-bottom: 3px; }
-    .main-score { font-size: 22px; font-weight: bold; letter-spacing: 1px; }
+    /* লাইভ স্কোর এরিয়া */
+    #score-slider { width: 100%; box-sizing: border-box; padding: 0 5px; }
 
     /* কন্টেন্ট এরিয়া ও গ্রিড */
     #content-area { padding: 6px; box-sizing: border-box; }
@@ -149,7 +126,6 @@
     <button class="tab-btn live-dot-btn" onclick="filterCat('sports', this)">Live Sports</button>
     <button class="tab-btn" onclick="filterCat('bangla', this)">Bangla</button>
     <button class="tab-btn" onclick="filterCat('hindi', this)">Hindi</button>
-    <button class="tab-btn" onclick="filterCat('sports', this)">Sports</button>
   </div>
 </header>
 
@@ -172,12 +148,6 @@
 </div>
 
 <script>
-// লাইভ ম্যাচের ডাটা (একাধিক ম্যাচ যোগ করা যাবে)
-let matches = [
-  { tournament: "U19 WORLD CUP 2026", t1: "BAN", t1c: "#006a4e", t2: "ENG", t2c: "#00247d", score: "1 : 29 : 44", status: "LIVE" },
-  { tournament: "IPL LIVE 2026", t1: "MI", t1c: "#004ba0", t2: "CSK", t2c: "#fdb913", score: "145/2 (15.2)", status: "LIVE" }
-];
-
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let currentCategory = 'all', hls = null, selectedId = null, isScrolling = false;
@@ -212,22 +182,24 @@ function parseM3U(data) {
   return list;
 }
 
-function updateScoresUI() {
+// লাইভ স্কোর উইজেট ফাংশন
+function renderLiveScoreWidget() {
   const slider = document.getElementById("score-slider");
   if (currentCategory === 'sports') {
-    slider.innerHTML = matches.map(m => `
-      <div class="match-card">
-        <div class="match-tag">🏆 ${m.tournament}</div>
-        <div class="match-main">
-          <div class="team"><div class="team-box" style="background:${m.t1c}">${m.t1}</div></div>
-          <div class="score-area">
-            <div class="live-label">● ${m.status}</div>
-            <div class="main-score">${m.score}</div>
-          </div>
-          <div class="team"><div class="team-box" style="background:${m.t2c}">${m.t2}</div></div>
-        </div>
-      </div>
-    `).join('');
+    slider.innerHTML = ""; 
+    const widgetBox = document.createElement("div");
+    widgetBox.style.cssText = "width:100%; background:#161616; border-radius:10px; margin: 5px 0 10px 0; overflow:hidden; border: 1px solid #222; min-height: 60px;";
+    
+    const scriptConf = document.createElement("script");
+    scriptConf.innerHTML = "app='www.cricwaves.com'; mo='h_p11'; nt='1'; wi ='n'; co ='7'; ad='1';";
+    
+    const scriptSrc = document.createElement("script");
+    scriptSrc.type = "text/javascript";
+    scriptSrc.src = "//www.cricwaves.com/cricket/widgets/script/scoreWidgets.js?v=0.111";
+    
+    widgetBox.appendChild(scriptConf);
+    widgetBox.appendChild(scriptSrc);
+    slider.appendChild(widgetBox);
   } else {
     slider.innerHTML = "";
   }
@@ -235,7 +207,8 @@ function updateScoresUI() {
 
 function render(list) {
   const grid = document.getElementById("channelList");
-  updateScoresUI();
+  renderLiveScoreWidget();
+  
   grid.innerHTML = list.map((ch) => {
     const isFav = favorites.includes(ch.id);
     return `
@@ -252,11 +225,6 @@ function render(list) {
   }).join('');
   document.getElementById("count").textContent = list.length + " CH";
 }
-
-// প্রতি ৩০ সেকেন্ড পর পর স্কোর আপডেট
-setInterval(() => {
-  updateScoresUI();
-}, 30000);
 
 // টাচ হ্যান্ডলিং
 let touchTimer;
