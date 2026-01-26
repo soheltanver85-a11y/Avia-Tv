@@ -7,7 +7,7 @@
   
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
-    :root { --primary: #00e5ff; --bg: #0a0a0a; --card: #161616; --focus: #00e5ff; --star: #ffd700; --accent: #ff4081; }
+    :root { --primary: #00e5ff; --bg: #0a0a0a; --card: #161616; --focus: #00e5ff; --star: #ffd700; --accent: #ff4081; --live: #ff0000; }
 
     body { 
       margin:0; font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: #eee; 
@@ -45,12 +45,54 @@
     .tab-btn { 
       padding: 5px 12px; background: #1a1a1a; border: 1px solid #333; color: #999; 
       border-radius: 15px; font-size: 10px; cursor: pointer; white-space: nowrap;
+      position: relative;
     }
     .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
 
+    /* লাইভ স্পোর্টস লাল বাতি অ্যানিমেশন */
+    .live-dot-btn::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 5px;
+      height: 5px;
+      background: var(--live);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--live);
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink { 0% {opacity: 1;} 50% {opacity: 0.2;} 100% {opacity: 1;} }
+
+    /* লাইভ স্কোর স্লাইডার */
+    #score-slider { 
+      display: flex; overflow-x: auto; gap: 10px; padding: 5px; 
+      scroll-snap-type: x mandatory; scrollbar-width: none; 
+    }
+    #score-slider::-webkit-scrollbar { display: none; }
+
+    .match-card {
+      min-width: 88%; scroll-snap-align: center; 
+      background: linear-gradient(145deg, #161616, #0a0a0a);
+      border: 1px solid #222; border-radius: 12px; padding: 12px; 
+      margin: 5px 2px 10px 2px;
+    }
+    .match-tag { font-size: 9px; color: #00e5ff; margin-bottom: 8px; opacity: 0.8; }
+    .match-main { display: flex; justify-content: space-between; align-items: center; }
+    .team { text-align: center; flex: 1; }
+    .team-box { 
+      width: 42px; height: 42px; border-radius: 8px; 
+      display: flex; align-items: center; justify-content: center; 
+      margin: 0 auto 5px; font-weight: bold; font-size: 14px; border: 1px solid #333;
+    }
+    .score-area { flex: 1.5; text-align: center; }
+    .live-label { color: #ff4d4d; font-size: 10px; font-weight: bold; margin-bottom: 3px; }
+    .main-score { font-size: 22px; font-weight: bold; letter-spacing: 1px; }
+
     /* কন্টেন্ট এরিয়া ও গ্রিড */
     #content-area { padding: 6px; box-sizing: border-box; }
-    
     #channelList { 
       display: grid; 
       grid-template-columns: repeat(3, 1fr); 
@@ -59,45 +101,17 @@
     }
 
     .channel-card { 
-      background: var(--card); 
-      border-radius: 6px; 
-      padding: 6px 2px; 
-      text-align: center; 
-      cursor: pointer; 
-      border: 1px solid #222; 
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 72px; 
-      transition: 0.2s;
-      -webkit-user-select: none;
-      user-select: none;
+      background: var(--card); border-radius: 6px; padding: 6px 2px; 
+      text-align: center; cursor: pointer; border: 1px solid #222; 
+      position: relative; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; height: 72px; 
+      transition: 0.2s; -webkit-user-select: none; user-select: none;
     }
     .channel-card:active { transform: scale(0.95); background: #222; }
-    
     .star-icon { position: absolute; top: 3px; right: 3px; font-size: 8px; color: var(--star); display: none; }
     .is-fav .star-icon { display: block; }
-
-    .channel-logo { 
-      width: auto; 
-      max-width: 55%;
-      height: 30px; 
-      object-fit: contain; 
-      margin-bottom: 4px;
-      pointer-events: none;
-    }
-    
-    .channel-name { 
-      font-size: 8.5px; 
-      color: #bbb;
-      width: 95%;
-      overflow: hidden; 
-      white-space: nowrap; 
-      text-overflow: ellipsis;
-      font-weight: 500;
-    }
+    .channel-logo { width: auto; max-width: 55%; height: 30px; object-fit: contain; margin-bottom: 4px; pointer-events: none; }
+    .channel-name { font-size: 8.5px; color: #bbb; width: 95%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 500; }
 
     .dev-footer { padding: 20px 0 140px 0; text-align: center; opacity: 0.3; font-size: 8px; }
 
@@ -109,7 +123,6 @@
       box-shadow: 0 0 20px rgba(0,0,0,0.7);
     }
     .c-btn { padding: 8px 20px; border-radius: 5px; border: none; cursor: pointer; font-size: 12px; font-weight: bold; }
-
     #social-bar-wrapper { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 10000; background: #000; }
   </style>
 </head>
@@ -133,6 +146,7 @@
   <div class="tabs">
     <button class="tab-btn active" onclick="filterCat('all', this)">All</button>
     <button class="tab-btn" style="color:var(--star)" onclick="filterCat('fav', this)">★ Fav</button>
+    <button class="tab-btn live-dot-btn" onclick="filterCat('sports', this)">Live Sports</button>
     <button class="tab-btn" onclick="filterCat('bangla', this)">Bangla</button>
     <button class="tab-btn" onclick="filterCat('hindi', this)">Hindi</button>
     <button class="tab-btn" onclick="filterCat('sports', this)">Sports</button>
@@ -140,6 +154,7 @@
 </header>
 
 <div id="content-area">
+  <div id="score-slider"></div>
   <div id="channelList"></div>
   <div class="dev-footer">Developed by SOHEL TANVER</div>
 </div>
@@ -157,13 +172,16 @@
 </div>
 
 <script>
+// লাইভ ম্যাচের ডাটা (একাধিক ম্যাচ যোগ করা যাবে)
+let matches = [
+  { tournament: "U19 WORLD CUP 2026", t1: "BAN", t1c: "#006a4e", t2: "ENG", t2c: "#00247d", score: "1 : 29 : 44", status: "LIVE" },
+  { tournament: "IPL LIVE 2026", t1: "MI", t1c: "#004ba0", t2: "CSK", t2c: "#fdb913", score: "145/2 (15.2)", status: "LIVE" }
+];
+
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
-let currentCategory = 'all', hls = null, selectedId = null;
+let currentCategory = 'all', hls = null, selectedId = null, isScrolling = false;
 const video = document.getElementById("video");
-
-// স্ক্রলিং ডিটেকশনের জন্য ভেরিয়েবল
-let isScrolling = false;
 
 async function init() {
   try {
@@ -194,8 +212,30 @@ function parseM3U(data) {
   return list;
 }
 
+function updateScoresUI() {
+  const slider = document.getElementById("score-slider");
+  if (currentCategory === 'sports') {
+    slider.innerHTML = matches.map(m => `
+      <div class="match-card">
+        <div class="match-tag">🏆 ${m.tournament}</div>
+        <div class="match-main">
+          <div class="team"><div class="team-box" style="background:${m.t1c}">${m.t1}</div></div>
+          <div class="score-area">
+            <div class="live-label">● ${m.status}</div>
+            <div class="main-score">${m.score}</div>
+          </div>
+          <div class="team"><div class="team-box" style="background:${m.t2c}">${m.t2}</div></div>
+        </div>
+      </div>
+    `).join('');
+  } else {
+    slider.innerHTML = "";
+  }
+}
+
 function render(list) {
   const grid = document.getElementById("channelList");
+  updateScoresUI();
   grid.innerHTML = list.map((ch) => {
     const isFav = favorites.includes(ch.id);
     return `
@@ -213,36 +253,20 @@ function render(list) {
   document.getElementById("count").textContent = list.length + " CH";
 }
 
+// প্রতি ৩০ সেকেন্ড পর পর স্কোর আপডেট
+setInterval(() => {
+  updateScoresUI();
+}, 30000);
+
+// টাচ হ্যান্ডলিং
 let touchTimer;
-
 function handleTouchStart(id) {
-  selectedId = id;
-  isScrolling = false; // টাচ শুরু হলে স্ক্রলিং রিসেট
-  touchTimer = setTimeout(() => {
-    if (!isScrolling) {
-      askFav(id);
-    }
-    touchTimer = null;
-  }, 600);
+  selectedId = id; isScrolling = false;
+  touchTimer = setTimeout(() => { if (!isScrolling) askFav(id); touchTimer = null; }, 600);
 }
-
-function handleTouchMove() {
-  isScrolling = true; // আঙ্গুল নড়াচড়া করলে স্ক্রলিং ট্রু হবে
-  if (touchTimer) {
-    clearTimeout(touchTimer);
-    touchTimer = null;
-  }
-}
-
+function handleTouchMove() { isScrolling = true; if (touchTimer) { clearTimeout(touchTimer); touchTimer = null; } }
 function handleTouchEnd(url) {
-  if (touchTimer) {
-    clearTimeout(touchTimer);
-    touchTimer = null;
-    // যদি স্ক্রল না করা হয়, তবেই চ্যানেল প্লে হবে
-    if (!isScrolling) {
-      playFromUrl(url);
-    }
-  }
+  if (touchTimer) { clearTimeout(touchTimer); touchTimer = null; if (!isScrolling) playFromUrl(url); }
 }
 
 function askFav(id) {
@@ -252,16 +276,11 @@ function askFav(id) {
   document.getElementById("confirm-box").style.display = "block";
 }
 
-function closeConfirm() {
-  document.getElementById("confirm-box").style.display = "none";
-}
+function closeConfirm() { document.getElementById("confirm-box").style.display = "none"; }
 
 document.getElementById("btn-yes").onclick = function() {
-  if (favorites.includes(selectedId)) {
-    favorites = favorites.filter(f => f !== selectedId);
-  } else {
-    favorites.push(selectedId);
-  }
+  if (favorites.includes(selectedId)) { favorites = favorites.filter(f => f !== selectedId); } 
+  else { favorites.push(selectedId); }
   localStorage.setItem('myFavs', JSON.stringify(favorites));
   closeConfirm();
   filterCat(currentCategory, document.querySelector('.tab-btn.active'));
@@ -269,15 +288,14 @@ document.getElementById("btn-yes").onclick = function() {
 
 document.getElementById("search").addEventListener('input', (e) => {
   const query = e.target.value.toLowerCase().trim();
-  const filtered = allChannels.filter(ch => ch.name.toLowerCase().includes(query));
-  render(filtered);
+  render(allChannels.filter(ch => ch.name.toLowerCase().includes(query)));
 });
 
 function filterCat(cat, btn) {
   currentCategory = cat;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  let filtered = (cat === 'all') ? allChannels : (cat === 'fav' ? allChannels.filter(ch => favorites.includes(ch.id)) : allChannels.filter(ch => ch.name.toLowerCase().includes(cat) || ch.cat.includes(cat)));
+  let filtered = (cat === 'all') ? allChannels : (cat === 'fav' ? allChannels.filter(ch => favorites.includes(ch.id)) : allChannels.filter(ch => ch.name.toLowerCase().includes(cat) || (ch.cat && ch.cat.includes(cat))));
   render(filtered);
 }
 
@@ -286,9 +304,7 @@ function playFromUrl(url) {
   if (Hls.isSupported()) {
     hls = new Hls(); hls.loadSource(url); hls.attachMedia(video);
     hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-  } else if (video.canPlayType('application/vnd.apple.mpegurl')) { 
-    video.src = url; 
-  }
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) { video.src = url; }
 }
 
 init();
