@@ -16,7 +16,7 @@
     }
 
     #player { width:100%; background:black; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.9); }
-    .video-container { width: 100%; aspect-ratio: 16/9; margin: 0 auto; background: #000; }
+    .video-container { width: 100%; aspect-ratio: 16/9; max-width: 900px; margin: 0 auto; background: #000; }
     video { width:100%; height:100%; outline: none; display: block; object-fit: contain; }
 
     header { padding: 8px 12px; background: #111; border-bottom: 1px solid #222; }
@@ -55,19 +55,33 @@
     .score-wrapper::-webkit-scrollbar { display: none; }
     .score-card { min-width: 88%; background: #161616; border-radius: 10px; border: 1px solid #222; overflow: hidden; height: 105px; }
 
-    #content-area { padding: 6px; box-sizing: border-box; }
-    #channelList { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding-bottom: 150px; }
+    #content-area { padding: 6px; box-sizing: border-box; max-width: 1200px; margin: 0 auto; width: 100%; }
+    
+    /* Responsive Grid for PC and Mobile */
+    #channelList { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); 
+      gap: 8px; 
+      padding-bottom: 150px; 
+    }
 
     .channel-card { 
-      background: var(--card); border-radius: 6px; padding: 6px 2px; text-align: center; cursor: pointer; 
+      background: var(--card); border-radius: 6px; padding: 10px 4px; text-align: center; cursor: pointer; 
       border: 1px solid #222; position: relative; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; height: 72px; transition: 0.2s;
+      align-items: center; justify-content: center; height: 85px; transition: 0.2s;
     }
+    
+    /* PC Hover Effect */
+    @media (min-width: 768px) {
+      .channel-card:hover { border-color: var(--focus); transform: translateY(-3px); background: #222; }
+      .score-card { min-width: 45%; } /* PC তে স্কোর কার্ড ২টা পাশাপাশি দেখাবে */
+    }
+
     .channel-card:active { transform: scale(0.95); background: #222; }
     .star-icon { position: absolute; top: 3px; right: 3px; font-size: 8px; color: var(--star); display: none; }
     .is-fav .star-icon { display: block; }
-    .channel-logo { width: auto; max-width: 55%; height: 30px; object-fit: contain; margin-bottom: 4px; pointer-events: none; }
-    .channel-name { font-size: 8.5px; color: #bbb; width: 95%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 500; }
+    .channel-logo { width: auto; max-width: 60%; height: 35px; object-fit: contain; margin-bottom: 6px; pointer-events: none; }
+    .channel-name { font-size: 9px; color: #bbb; width: 95%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 500; }
 
     .dev-footer { padding: 20px 0 140px 0; text-align: center; opacity: 0.3; font-size: 8px; }
 
@@ -187,6 +201,8 @@ function render(list) {
     const isFav = favorites.includes(ch.id);
     return `
       <div class="channel-card ${isFav ? 'is-fav' : ''}" 
+           onclick="playFromUrl('${ch.url}')"
+           oncontextmenu="event.preventDefault(); askFav('${ch.id}')"
            ontouchstart="handleTouchStart('${ch.id}')" 
            ontouchmove="handleTouchMove()"
            ontouchend="handleTouchEnd('${ch.url}')">
@@ -242,7 +258,6 @@ function filterCat(cat, btn) {
   } else if (cat === 'fav') {
     filtered = allChannels.filter(ch => favorites.includes(ch.id));
   } else if (cat === 'sports') {
-    // এখানে আপনার স্পোর্টস চ্যানেলগুলোর নাম বা গ্রুপ অনুযায়ী ফিল্টার হবে
     filtered = allChannels.filter(ch => 
       ch.name.toLowerCase().includes('sports') || 
       ch.name.toLowerCase().includes('gtv') || 
