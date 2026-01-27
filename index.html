@@ -74,7 +74,7 @@
     /* PC Hover Effect */
     @media (min-width: 768px) {
       .channel-card:hover { border-color: var(--focus); transform: translateY(-3px); background: #222; }
-      .score-card { min-width: 45%; } /* PC তে স্কোর কার্ড ২টা পাশাপাশি দেখাবে */
+      .score-card { min-width: 45%; } 
     }
 
     .channel-card:active { transform: scale(0.95); background: #222; }
@@ -106,7 +106,7 @@
   <div class="top-bar">
     <div class="brand-area">
       <h2>📺 BD LIVE TV PRO</h2>
-      <a href="https://github.com/soheltanver85-a11y/My-app/releases/download/my-app-1/_BD_LIVE_TV_19452117.apk" class="download-link">⬇ APP</a>
+      <a href="https://www.mediafire.com/file/nbuh7xzrvbaxikd/_LIVE_TV_PRO_19475039.apk/file" class="download-link">⬇ APP</a>
     </div>
     <span id="count" style="font-size: 10px; color:#666;">...</span>
   </div>
@@ -139,6 +139,7 @@
 </div>
 
 <script>
+// আপনার বাকি জাভাস্ক্রিপ্ট কোড এখানে অপরিবর্তিত আছে...
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let currentCategory = 'all', hls = null, selectedId = null, isScrolling = false;
