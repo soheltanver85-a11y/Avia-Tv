@@ -53,7 +53,7 @@
     #sports-widgets { display: none; padding: 8px; gap: 10px; overflow-x: auto; background: #111; border-bottom: 1px solid #222; }
     .widget-box { min-width: 280px; height: 110px; border-radius: 8px; overflow: hidden; border: 1px solid #333; flex-shrink: 0; background: #000; }
 
-    #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 8px; padding: 10px; }
+    #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 8px; padding: 10px; min-height: 200px; }
     .channel-card { background: var(--card); border-radius: 10px; padding: 10px 4px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); height: 85px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
     .channel-logo { width: auto; max-width: 55%; height: 32px; object-fit: contain; margin-bottom: 5px; pointer-events: none; }
     .channel-name { font-size: 9px; color: #ccc; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; width: 90%; }
@@ -63,7 +63,6 @@
     .dev-footer { padding: 10px 0 140px 0; text-align: center; opacity: 0.4; font-size: 9px; }
 
     #confirm-box { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a1a; border: 1px solid var(--focus); padding: 20px; border-radius: 12px; text-align: center; display: none; z-index: 10001; width: 220px; }
-    #social-bar-wrapper { position: fixed; bottom: 0; width: 100%; z-index: 9999; }
   </style>
 </head>
 <body>
@@ -110,7 +109,7 @@
     </div>
   </div>
 
-  <div id="channelList"></div>
+  <div id="channelList">লোডিং হচ্ছে...</div>
 
   <div class="visitor-stats">
     <p>LIVE VISITORS</p>
@@ -119,6 +118,12 @@
   </div>
 
   <div class="dev-footer">Developed by SOHEL TANVER</div>
+</div>
+
+<div id="confirm-box">
+  <p id="confirm-text" style="color: white; font-size: 13px;"></p>
+  <button id="btn-yes" style="background:var(--accent); color:white; padding:8px 20px; border:none; border-radius:5px; margin-right:10px;">হ্যাঁ</button>
+  <button onclick="closeConfirm()" style="background:#444; color:white; padding:8px 20px; border:none; border-radius:5px;">না</button>
 </div>
 
 <script>
@@ -134,7 +139,9 @@ async function init() {
     allChannels = parseM3U(data);
     render(allChannels);
     if(allChannels.length > 0) playFromUrl(allChannels[0].url, allChannels[0].name);
-  } catch(e) { }
+  } catch(e) {
+    document.getElementById("channelList").innerText = "চ্যানেল লোড করতে ব্যর্থ হয়েছে!";
+  }
 }
 
 function parseM3U(data) {
@@ -156,6 +163,10 @@ function parseM3U(data) {
 
 function render(list) {
   const grid = document.getElementById("channelList");
+  if(list.length === 0) {
+    grid.innerHTML = "<p style='text-align:center; padding:20px;'>কোনো চ্যানেল পাওয়া যায়নি!</p>";
+    return;
+  }
   grid.innerHTML = list.map(ch => `
     <div class="channel-card" onclick="playFromUrl('${ch.url}', '${ch.name}')" oncontextmenu="event.preventDefault(); askFav('${ch.id}')">
       ${favorites.includes(ch.id) ? '<span style="position:absolute;top:5px;right:5px;color:var(--star);font-size:10px;">★</span>' : ''}
@@ -170,7 +181,7 @@ function playFromUrl(url, name) {
   document.getElementById("now-playing-text").innerText = "এখন দেখছেন: " + name + " | ";
   if (hls) hls.destroy();
   if (Hls.isSupported()) {
-    hls = new Hls({ enableWorker: true });
+    hls = new Hls();
     hls.loadSource(url);
     hls.attachMedia(video);
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
@@ -197,7 +208,7 @@ function filterCat(cat, btn) {
 function askFav(id) {
   selectedId = id;
   document.getElementById("confirm-box").style.display = "block";
-  document.getElementById("confirm-text").innerText = favorites.includes(id) ? "বাদ দিবেন?" : "যোগ করবেন?";
+  document.getElementById("confirm-text").innerText = favorites.includes(id) ? "প্রিয় তালিকা থেকে বাদ দিবেন?" : "প্রিয় তালিকায় যোগ করবেন?";
 }
 
 document.getElementById("btn-yes").onclick = function() {
