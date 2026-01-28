@@ -47,6 +47,10 @@
     .tab-btn { padding: 6px 14px; background: #1a1a1a; border: 1px solid #333; color: #999; border-radius: 15px; font-size: 11px; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 5px; }
     .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
     
+    /* ইন্ডিকেটর ডট অ্যানিমেশন */
+    .tab-live-dot { width: 6px; height: 6px; background: #ff0000; border-radius: 50%; animation: tabBlink 1s infinite; }
+    @keyframes tabBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+
     #sports-widgets { display: none; padding: 8px; gap: 10px; overflow-x: auto; background: #111; border-bottom: 1px solid #222; }
     .widget-box { min-width: 280px; height: 110px; border-radius: 8px; overflow: hidden; border: 1px solid #333; flex-shrink: 0; background: #000; }
 
@@ -92,8 +96,9 @@
 
   <div class="tabs">
     <button class="tab-btn active" onclick="filterCat('all', this)">All</button>
-    <button class="tab-btn" onclick="filterCat('sports', this)">Live Sports</button>
+    <button class="tab-btn" onclick="filterCat('sports', this)"><div class="tab-live-dot"></div> Live Sports</button>
     <button class="tab-btn" onclick="filterCat('bangla', this)">Bangla</button>
+    <button class="tab-btn" style="color:var(--star)" onclick="filterCat('fav', this)">★ Fav</button>
   </div>
 </header>
 
@@ -141,9 +146,7 @@ async function init() {
     allChannels = parseM3U(data);
     render(allChannels);
     if(allChannels.length > 0) playFromUrl(allChannels[0].url, allChannels[0].name);
-  } catch(e) { 
-    document.getElementById("channelList").innerText = "লোড করতে সমস্যা হচ্ছে!";
-  }
+  } catch(e) { }
 }
 
 function parseM3U(data) {
@@ -185,12 +188,33 @@ function playFromUrl(url, name) {
 }
 
 function filterCat(cat, btn) {
+  currentCategory = cat;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById("sports-widgets").style.display = (cat === 'sports') ? 'flex' : 'none';
-  let filtered = allChannels.filter(ch => cat==='all' || (ch.cat && ch.cat.includes(cat)));
+  let filtered = allChannels.filter(ch => {
+    if(cat==='all') return true;
+    if(cat==='fav') return favorites.includes(ch.id);
+    return (ch.cat && ch.cat.includes(cat)) || ch.name.toLowerCase().includes(cat);
+  });
   render(filtered);
 }
+
+function askFav(id) {
+  selectedId = id;
+  document.getElementById("confirm-box").style.display = "block";
+  document.getElementById("confirm-text").innerText = favorites.includes(id) ? "বাদ দিবেন?" : "যোগ করবেন?";
+}
+
+document.getElementById("btn-yes").onclick = function() {
+  if (favorites.includes(selectedId)) favorites = favorites.filter(f => f !== selectedId);
+  else favorites.push(selectedId);
+  localStorage.setItem('myFavs', JSON.stringify(favorites));
+  closeConfirm();
+  filterCat(currentCategory, document.querySelector('.tab-btn.active'));
+};
+
+function closeConfirm() { document.getElementById("confirm-box").style.display = "none"; }
 
 document.getElementById("search").addEventListener('input', (e) => {
   const q = e.target.value.toLowerCase();
