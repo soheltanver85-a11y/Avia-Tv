@@ -15,11 +15,11 @@
   
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
-    :root { --primary: #00e5ff; --bg: #0a0a0a; --card: rgba(255, 255, 255, 0.05); --focus: #00e5ff; --accent: #ff4081; --star: #ffd700; }
+    :root { --primary: #00e5ff; --bg: #0a0a0a; --card: rgba(255, 255, 255, 0.05); --focus: #00e5ff; --accent: #ff4081; --star: #ffd700; --tg: #24A1DE; --apk: #3DDC84; }
 
     body { margin:0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #eee; overflow-x: hidden; }
 
-    #player { width:100%; background:black; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px #000; }
+    #player { width:100%; background:black; position: sticky; top: 0; z-index: 1000; }
     .video-container { width: 100%; aspect-ratio: 16/9; max-width: 1200px; margin: 0 auto; }
     video { width:100%; height:100%; display: block; object-fit: contain; background: #000; }
 
@@ -28,7 +28,20 @@
     @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
     header { padding: 8px 12px; background: #111; border-bottom: 1px solid #222; }
-    #search { width:100%; background:#1a1a1a; border:1px solid #333; color:white; padding:8px; border-radius:6px; font-size:11px; margin-bottom: 8px; box-sizing: border-box; }
+    #search { width:100%; background:#1a1a1a; border:1px solid #333; color:white; padding:10px; border-radius:8px; font-size:12px; margin-bottom: 10px; box-sizing: border-box; outline: none; }
+    #search:focus { border-color: var(--primary); }
+
+    /* ইউনিক বাটন স্টাইল */
+    .action-buttons { display: flex; gap: 8px; margin-bottom: 12px; }
+    .btn-action { 
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; 
+      padding: 8px; border-radius: 8px; font-size: 11px; font-weight: bold; 
+      text-decoration: none; transition: 0.3s; border: 1px solid rgba(255,255,255,0.1);
+    }
+    .btn-tg { background: rgba(36, 161, 222, 0.1); color: var(--tg); border-color: var(--tg); }
+    .btn-tg:hover { background: var(--tg); color: white; }
+    .btn-apk { background: rgba(61, 220, 132, 0.1); color: var(--apk); border-color: var(--apk); }
+    .btn-apk:hover { background: var(--apk); color: black; }
 
     .tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
     .tab-btn { padding: 6px 14px; background: #1a1a1a; border: 1px solid #333; color: #999; border-radius: 15px; font-size: 11px; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 5px; }
@@ -37,21 +50,18 @@
     .tab-live-dot { width: 6px; height: 6px; background: #ff0000; border-radius: 50%; animation: tabBlink 1s infinite; }
     @keyframes tabBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
 
-    /* স্পোর্টস উইজেট - ছোট ও পাশাপাশি */
     #sports-widgets { display: none; padding: 8px; gap: 10px; overflow-x: auto; background: #111; border-bottom: 1px solid #222; }
     .widget-box { min-width: 280px; height: 110px; border-radius: 8px; overflow: hidden; border: 1px solid #333; flex-shrink: 0; }
 
     #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 8px; padding: 10px; }
     .channel-card { background: var(--card); border-radius: 10px; padding: 10px 4px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); height: 85px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-    .channel-logo { width: auto; max-width: 55%; height: 32px; object-fit: contain; margin-bottom: 5px; pointer-events: none; }
-    .channel-name { font-size: 9px; color: #ccc; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; width: 90%; pointer-events: none; }
+    .channel-logo { width: auto; max-width: 55%; height: 32px; object-fit: contain; margin-bottom: 5px; }
+    .channel-name { font-size: 9px; color: #ccc; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; width: 90%; }
 
-    /* ভিজিটর কাউন্টার সেকশন */
     .visitor-stats { text-align: center; margin-top: 20px; padding: 10px; border-top: 1px solid #222; }
-    .visitor-stats p { font-size: 10px; color: var(--primary); margin-bottom: 5px; font-weight: bold; letter-spacing: 1px; }
+    .visitor-stats p { font-size: 10px; color: var(--primary); margin-bottom: 5px; font-weight: bold; }
 
-    .dev-footer { padding: 10px 0 140px 0; text-align: center; opacity: 0.4; font-size: 9px; color: #fff; }
-    
+    .dev-footer { padding: 10px 0 140px 0; text-align: center; opacity: 0.4; font-size: 9px; }
     #confirm-box { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a1a; border: 1px solid var(--focus); padding: 20px; border-radius: 12px; text-align: center; display: none; z-index: 10001; width: 220px; }
     #social-bar-wrapper { position: fixed; bottom: 0; width: 100%; z-index: 9999; }
   </style>
@@ -70,7 +80,22 @@
 </div>
 
 <header>
+  <div class="top-bar">
+    <div class="brand-area"><h2 style="margin:0; font-size: 14px; color:var(--focus);">📺 BD LIVE TV PRO</h2></div>
+    <span id="count" style="font-size: 10px; color:#666;">...</span>
+  </div>
+  
   <input type="text" id="search" placeholder="সার্চ চ্যানেল...">
+  
+  <div class="action-buttons">
+    <a href="https://t.me/techbd_group" target="_blank" class="btn-action btn-tg">
+      <span>📩</span> Contact Us
+    </a>
+    <a href="https://www.mediafire.com/file/nbuh7xzrvbaxikd/_LIVE_TV_PRO_19475039.apk/file" target="_blank" class="btn-action btn-apk">
+      <span>📥</span> Download APK
+    </a>
+  </div>
+
   <div class="tabs">
     <button class="tab-btn active" onclick="filterCat('all', this)">All</button>
     <button class="tab-btn" onclick="filterCat('sports', this)"><div class="tab-live-dot"></div> Live Sports</button>
@@ -148,6 +173,7 @@ function render(list) {
       <div class="channel-name">${ch.name}</div>
     </div>
   `).join('');
+  document.getElementById("count").textContent = list.length + " CH";
 }
 
 function playFromUrl(url, name) {
@@ -176,7 +202,7 @@ function filterCat(cat, btn) {
 
 function askFav(id) {
   selectedId = id;
-  document.getElementById("confirm-text").innerText = favorites.includes(id) ? "ফেভারিট থেকে বাদ দিবেন?" : "ফেভারিট লিস্টে যোগ করবেন?";
+  document.getElementById("confirm-text").innerText = favorites.includes(id) ? "বাদ দিবেন?" : "যোগ করবেন?";
   document.getElementById("confirm-box").style.display = "block";
 }
 
