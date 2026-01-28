@@ -57,12 +57,11 @@
 
     #content-area { padding: 6px; box-sizing: border-box; max-width: 1200px; margin: 0 auto; width: 100%; }
     
-    /* Responsive Grid for PC and Mobile */
     #channelList { 
       display: grid; 
       grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); 
       gap: 8px; 
-      padding-bottom: 150px; 
+      padding-bottom: 20px; 
     }
 
     .channel-card { 
@@ -71,7 +70,6 @@
       align-items: center; justify-content: center; height: 85px; transition: 0.2s;
     }
     
-    /* PC Hover Effect */
     @media (min-width: 768px) {
       .channel-card:hover { border-color: var(--focus); transform: translateY(-3px); background: #222; }
       .score-card { min-width: 45%; } 
@@ -92,6 +90,16 @@
     }
     .c-btn { padding: 8px 20px; border-radius: 5px; border: none; cursor: pointer; font-size: 12px; font-weight: bold; }
     #social-bar-wrapper { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 10000; background: #000; }
+    
+    /* Visitor Counter Styling */
+    .visitor-stat {
+      text-align: center; 
+      margin: 30px 0 10px 0; 
+      padding: 15px; 
+      background: #111; 
+      border-radius: 10px;
+      border: 1px solid #1a1a1a;
+    }
   </style>
 </head>
 <body>
@@ -123,6 +131,12 @@
 <div id="content-area">
   <div id="score-slider"></div>
   <div id="channelList"></div>
+
+  <div class="visitor-stat">
+    <p style="font-size: 10px; color: #00e5ff; margin-bottom: 8px; font-weight: bold;">LIVE VISITORS</p>
+    <script id="_wauz6a">var _wau = _wau || []; _wau.push(["small", "vylky6ygi0", "z6a"]);</script>
+    <script async src="//waust.at/s.js"></script>
+  </div>
   <div class="dev-footer">Developed by SOHEL TANVER</div>
 </div>
 
@@ -139,7 +153,6 @@
 </div>
 
 <script>
-// আপনার বাকি জাভাস্ক্রিপ্ট কোড এখানে অপরিবর্তিত আছে...
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let currentCategory = 'all', hls = null, selectedId = null, isScrolling = false;
