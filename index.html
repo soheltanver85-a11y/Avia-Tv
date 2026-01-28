@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-99V1DXBKKT"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-99V1DXBKKT');
+  </script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>BD LIVE TV PRO</title>
@@ -16,7 +24,7 @@
     }
 
     #player { width:100%; background:black; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.9); }
-    /* প্লেয়ার বড় করা হয়েছে */
+    /* ডিসপ্লে বড় করা হয়েছে */
     .video-container { width: 100%; aspect-ratio: 16/9; max-width: 1200px; margin: 0 auto; background: #000; }
     video { width:100%; height:100%; outline: none; display: block; object-fit: contain; }
 
@@ -40,7 +48,7 @@
     .tab-btn { padding: 5px 12px; background: #1a1a1a; border: 1px solid #333; color: #999; border-radius: 15px; font-size: 10px; cursor: pointer; white-space: nowrap; }
     .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
 
-    /* গ্লাস মরফিজম কার্ড */
+    /* গ্লাস মরফিজম চ্যানেল কার্ড */
     #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; padding-bottom: 10px; }
     .channel-card { 
       background: var(--card); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
@@ -48,7 +56,7 @@
       border: 1px solid rgba(255,255,255,0.1); position: relative; display: flex; flex-direction: column;
       align-items: center; justify-content: center; height: 90px; transition: 0.3s ease;
     }
-    .channel-card:hover { border-color: var(--focus); transform: translateY(-3px); }
+    .channel-card:hover { border-color: var(--focus); transform: translateY(-3px); background: rgba(255,255,255,0.1); }
     .channel-logo { width: auto; max-width: 60%; height: 35px; object-fit: contain; margin-bottom: 6px; pointer-events: none; }
     .channel-name { font-size: 9px; color: #ccc; width: 95%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
@@ -118,7 +126,7 @@
 </div>
 
 <div id="social-bar-wrapper">
-  <script src="https://pl28548409.effectivegatecpm.com/88/59/b8/8859b87f27788aaf3cb337acab2ad812.js"></script>
+  <script async src="https://pl28548409.effectivegatecpm.com/88/59/b8/8859b87f27788aaf3cb337acab2ad812.js"></script>
 </div>
 
 <script>
@@ -192,7 +200,6 @@ function askFav(id) {
   document.getElementById("confirm-text").innerText = isFav ? "ফেভারিট থেকে বাদ দিবেন?" : "ফেভারিট লিস্টে যোগ করবেন?";
   document.getElementById("confirm-box").style.display = "block";
 }
-
 function closeConfirm() { document.getElementById("confirm-box").style.display = "none"; }
 
 document.getElementById("btn-yes").onclick = function() {
