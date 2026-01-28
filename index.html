@@ -24,11 +24,9 @@
     }
 
     #player { width:100%; background:black; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.9); }
-    /* ডিসপ্লে বড় করা হয়েছে */
     .video-container { width: 100%; aspect-ratio: 16/9; max-width: 1200px; margin: 0 auto; background: #000; }
     video { width:100%; height:100%; outline: none; display: block; object-fit: contain; }
 
-    /* ছোট এবং সুনির্দিষ্ট টিকার বার */
     #ticker {
       background: #001a1a; color: #fff; padding: 4px 0; font-size: 10px;
       overflow: hidden; white-space: nowrap; border-bottom: 2px solid var(--primary);
@@ -48,7 +46,6 @@
     .tab-btn { padding: 5px 12px; background: #1a1a1a; border: 1px solid #333; color: #999; border-radius: 15px; font-size: 10px; cursor: pointer; white-space: nowrap; }
     .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
 
-    /* গ্লাস মরফিজম চ্যানেল কার্ড */
     #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; padding-bottom: 10px; }
     .channel-card { 
       background: var(--card); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
@@ -56,14 +53,13 @@
       border: 1px solid rgba(255,255,255,0.1); position: relative; display: flex; flex-direction: column;
       align-items: center; justify-content: center; height: 90px; transition: 0.3s ease;
     }
-    .channel-card:hover { border-color: var(--focus); transform: translateY(-3px); background: rgba(255,255,255,0.1); }
+    .channel-card:hover { border-color: var(--focus); transform: translateY(-3px); }
     .channel-logo { width: auto; max-width: 60%; height: 35px; object-fit: contain; margin-bottom: 6px; pointer-events: none; }
     .channel-name { font-size: 9px; color: #ccc; width: 95%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
     .share-btn { position: fixed; bottom: 85px; right: 20px; width: 45px; height: 45px; background: var(--primary); color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,229,255,0.4); z-index: 9999; cursor: pointer; }
     .dev-footer { padding: 20px 0 140px 0; text-align: center; opacity: 0.3; font-size: 8px; }
     
-    /* ফেভারিট কনফার্ম বক্স */
     #confirm-box { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a1a; border: 1px solid var(--focus); padding: 20px; border-radius: 12px; text-align: center; display: none; z-index: 10001; width: 220px; }
     .c-btn { padding: 8px 20px; border-radius: 5px; border: none; cursor: pointer; font-size: 12px; font-weight: bold; }
     #social-bar-wrapper { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 10000; background: #000; }
@@ -98,8 +94,9 @@
   <div class="tabs">
     <button class="tab-btn active" onclick="filterCat('all', this)">All</button>
     <button class="tab-btn" style="color:var(--star)" onclick="filterCat('fav', this)">★ Fav</button>
-    <button class="tab-btn" onclick="filterCat('sports', this)">Sports</button>
+    <button class="tab-btn" onclick="filterCat('sports', this)">Live Sports</button>
     <button class="tab-btn" onclick="filterCat('bangla', this)">Bangla</button>
+    <button class="tab-btn" onclick="filterCat('hindi', this)">Hindi</button>
   </div>
 </header>
 
@@ -231,7 +228,11 @@ function filterCat(cat, btn) {
   currentCategory = cat;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   if(btn) btn.classList.add('active');
-  let filtered = allChannels.filter(ch => cat==='all' ? true : (cat==='fav' ? favorites.includes(ch.id) : (ch.name.toLowerCase().includes(cat) || (ch.cat && ch.cat.includes(cat)))));
+  let filtered = allChannels.filter(ch => {
+    if(cat === 'all') return true;
+    if(cat === 'fav') return favorites.includes(ch.id);
+    return (ch.name.toLowerCase().includes(cat) || (ch.cat && ch.cat.includes(cat)));
+  });
   render(filtered);
 }
 
