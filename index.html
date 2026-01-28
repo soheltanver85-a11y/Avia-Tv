@@ -50,7 +50,6 @@
     .tab-live-dot { width: 6px; height: 6px; background: #ff0000; border-radius: 50%; animation: tabBlink 1s infinite; }
     @keyframes tabBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
 
-    /* উইজেট ডিজাইন - আপনার চাওয়া উচ্চতা এবং পাশাপাশি থাকার ব্যবস্থা */
     #sports-widgets { display: none; padding: 8px; gap: 10px; overflow-x: auto; background: #111; border-bottom: 1px solid #222; }
     .widget-box { min-width: 280px; height: 110px; border-radius: 8px; overflow: hidden; border: 1px solid #333; flex-shrink: 0; background: #000; }
 
@@ -76,7 +75,7 @@
 <div id="ticker">
   <div class="ticker-content">
     <span id="now-playing-text" style="color: var(--primary); font-weight: bold;">চ্যানেল নির্বাচন করুন...</span>
-    <span style="margin-left: 20px;">📢 পরামর্শ বা অভিযোগ: <a href="https://t.me/techbd_group" style="color:#ffd700; text-decoration:none;">TECH BD GROUP</a></span>
+    <span style="margin-left: 20px;">📢 পরামর্শ বা অভিযোগ: <a href="tg://resolve?domain=techbd_group" style="color:#ffd700; text-decoration:none;">TECH BD GROUP</a></span>
   </div>
 </div>
 
@@ -89,7 +88,7 @@
   <input type="text" id="search" placeholder="সার্চ চ্যানেল...">
   
   <div class="action-buttons">
-    <a href="https://t.me/techbd_group" target="_blank" class="btn-action btn-tg"><span>📩</span> Contact Us</a>
+    <a href="tg://resolve?domain=techbd_group" target="_blank" class="btn-action btn-tg"><span>📩</span> Contact Us</a>
     <a href="https://www.mediafire.com/file/nbuh7xzrvbaxikd/_LIVE_TV_PRO_19475039.apk/file" target="_blank" class="btn-action btn-apk"><span>📥</span> Download APK</a>
   </div>
 
@@ -104,7 +103,7 @@
 <div id="content-area">
   <div id="sports-widgets">
     <div class="widget-box">
-      <iframe src="https://www.cricket-score.com/widget/" style="width:100%; height:110px; border:none; overflow:hidden;" scrolling="no"></iframe>
+      <iframe src="https://www.cricket-score.com/widget/scores" style="width:100%; height:110px; border:none; overflow:hidden;" scrolling="no"></iframe>
     </div>
     <div class="widget-box">
       <iframe src="https://www.scorebat.com/embed/livescore/" style="width:100%; height:110px; border:none; overflow:hidden;" scrolling="no"></iframe>
