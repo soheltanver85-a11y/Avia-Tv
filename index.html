@@ -17,109 +17,93 @@
   <style>
     :root { --primary: #00e5ff; --bg: #0a0a0a; --card: rgba(255, 255, 255, 0.05); --focus: #00e5ff; --star: #ffd700; --accent: #ff4081; --live: #ff0000; }
 
-    body { 
-      margin:0; font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: #eee; 
-      display: flex; flex-direction: column; min-height: 100vh;
-      overflow-x: hidden; overflow-y: auto;
-    }
+    body { margin:0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #eee; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
 
-    #player { width:100%; background:black; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.9); }
+    #player { width:100%; background:black; position: sticky; top: 0; z-index: 1000; }
     .video-container { width: 100%; aspect-ratio: 16/9; max-width: 1200px; margin: 0 auto; background: #000; }
-    video { width:100%; height:100%; outline: none; display: block; object-fit: contain; }
+    video { width:100%; height:100%; display: block; object-fit: contain; }
 
-    #ticker {
-      background: #001a1a; color: #fff; padding: 4px 0; font-size: 10px;
-      overflow: hidden; white-space: nowrap; border-bottom: 2px solid var(--primary);
-    }
+    #ticker { background: #001a1a; color: #fff; padding: 4px 0; font-size: 10px; overflow: hidden; white-space: nowrap; border-bottom: 2px solid var(--primary); }
     .ticker-content { display: inline-block; animation: marquee 20s linear infinite; }
     @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-    .ticker-content a { color: #ffd700; text-decoration: none; font-weight: bold; }
 
     header { padding: 8px 12px; background: #111; border-bottom: 1px solid #222; }
     .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
     .brand-area h2 { margin:0; font-size: 14px; color:var(--focus); font-weight: bold; }
-    .download-link { display: inline-block; background: #222; color: #00e5ff; text-decoration: none; font-size: 8px; padding: 2px 8px; border-radius: 4px; border: 1px solid #333; }
+    
+    #search { width:100%; background:#1a1a1a; border:1px solid #333; color:white; padding:8px 12px; border-radius:6px; font-size:11px; margin-bottom: 8px; box-sizing: border-box; }
 
-    #search { width:100%; background:#1a1a1a; border:1px solid #333; color:white; padding:8px 12px; border-radius:6px; outline:none; font-size:11px; box-sizing: border-box; margin-bottom: 8px; }
-
-    .tabs { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
-    .tab-btn { padding: 5px 12px; background: #1a1a1a; border: 1px solid #333; color: #999; border-radius: 15px; font-size: 10px; cursor: pointer; white-space: nowrap; }
+    .tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; align-items: center; }
+    .tab-btn { padding: 6px 14px; background: #1a1a1a; border: 1px solid #333; color: #999; border-radius: 15px; font-size: 11px; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 5px; }
     .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
 
-    #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; padding-bottom: 10px; }
-    .channel-card { 
-      background: var(--card); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-      border-radius: 12px; padding: 10px 4px; text-align: center; cursor: pointer; 
-      border: 1px solid rgba(255,255,255,0.1); position: relative; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; height: 90px; transition: 0.3s ease;
-    }
-    .channel-card:hover { border-color: var(--focus); transform: translateY(-3px); }
-    .channel-logo { width: auto; max-width: 60%; height: 35px; object-fit: contain; margin-bottom: 6px; pointer-events: none; }
-    .channel-name { font-size: 9px; color: #ccc; width: 95%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .tab-live-dot { width: 6px; height: 6px; background: #ff0000; border-radius: 50%; box-shadow: 0 0 5px #ff0000; animation: tabBlink 1s infinite; }
+    @keyframes tabBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
 
-    .share-btn { position: fixed; bottom: 85px; right: 20px; width: 45px; height: 45px; background: var(--primary); color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,229,255,0.4); z-index: 9999; cursor: pointer; }
+    /* স্পোর্টস উইজেট স্টাইল */
+    #sports-widgets { display: none; padding: 10px; flex-direction: column; gap: 10px; background: rgba(0, 229, 255, 0.05); border-radius: 10px; margin-bottom: 10px; }
+    .widget-box { width: 100%; border-radius: 8px; overflow: hidden; border: 1px solid #333; }
+
+    #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; padding: 10px; }
+    .channel-card { background: var(--card); border-radius: 12px; padding: 10px 4px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); height: 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .channel-logo { width: auto; max-width: 60%; height: 35px; object-fit: contain; margin-bottom: 6px; }
+    .channel-name { font-size: 9px; color: #ccc; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; width: 90%; }
+
+    .share-btn { position: fixed; bottom: 85px; right: 20px; width: 45px; height: 45px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 999; cursor: pointer; }
     .dev-footer { padding: 20px 0 140px 0; text-align: center; opacity: 0.3; font-size: 8px; }
-    
     #confirm-box { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a1a; border: 1px solid var(--focus); padding: 20px; border-radius: 12px; text-align: center; display: none; z-index: 10001; width: 220px; }
-    .c-btn { padding: 8px 20px; border-radius: 5px; border: none; cursor: pointer; font-size: 12px; font-weight: bold; }
-    #social-bar-wrapper { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 10000; background: #000; }
   </style>
 </head>
 <body>
 
 <div id="player">
-  <div class="video-container">
-    <video id="video" controls autoplay playsinline></video>
-  </div>
+  <div class="video-container"><video id="video" controls autoplay playsinline></video></div>
 </div>
 
 <div id="ticker">
   <div class="ticker-content">
     <span id="now-playing-text" style="color: var(--primary); font-weight: bold;">চ্যানেল নির্বাচন করুন...</span>
-    <span style="margin-left: 20px;">
-      📢 পরামর্শ বা অভিযোগ: <a href="https://t.me/techbd_group" target="_blank">TECH BD GROUP</a> 🚀
-    </span>
+    <span style="margin-left: 20px;">📢 পরামর্শ বা অভিযোগ: <a href="https://t.me/techbd_group" target="_blank" style="color:#ffd700">TECH BD GROUP</a></span>
   </div>
 </div>
 
 <header>
   <div class="top-bar">
-    <div class="brand-area">
-      <h2>📺 BD LIVE TV PRO</h2>
-      <a href="https://www.mediafire.com/file/nbuh7xzrvbaxikd/_LIVE_TV_PRO_19475039.apk/file" class="download-link">⬇ APP</a>
-    </div>
+    <div class="brand-area"><h2>📺 BD LIVE TV PRO</h2></div>
     <span id="count" style="font-size: 10px; color:#666;">...</span>
   </div>
   <input type="text" id="search" placeholder="সার্চ চ্যানেল...">
   <div class="tabs">
     <button class="tab-btn active" onclick="filterCat('all', this)">All</button>
-    <button class="tab-btn" style="color:var(--star)" onclick="filterCat('fav', this)">★ Fav</button>
-    <button class="tab-btn" onclick="filterCat('sports', this)">Live Sports</button>
+    <button class="tab-btn" onclick="filterCat('sports', this)"><div class="tab-live-dot"></div> Live Sports</button>
     <button class="tab-btn" onclick="filterCat('bangla', this)">Bangla</button>
     <button class="tab-btn" onclick="filterCat('hindi', this)">Hindi</button>
+    <button class="tab-btn" style="color:var(--star)" onclick="filterCat('fav', this)">★ Fav</button>
   </div>
 </header>
 
 <div id="content-area">
-  <div id="channelList"></div>
-  <div style="text-align: center; margin-top: 30px; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 12px;">
-    <p style="font-size: 10px; color: var(--primary); margin-bottom: 8px; font-weight: bold;">LIVE VISITORS</p>
-    <script id="_wauz6a">var _wau = _wau || []; _wau.push(["small", "vylky6ygi0", "z6a"]);</script>
-    <script async src="//waust.at/s.js"></script>
+  <div id="sports-widgets">
+    <div class="widget-box">
+      <iframe src="https://www.cricket-score.com/widget/" style="width:100%; height:150px; border:none;"></iframe>
+    </div>
+    <div class="widget-box">
+      <iframe src="https://www.scorebat.com/embed/livescore/" style="width:100%; height:200px; border:none;"></iframe>
+    </div>
   </div>
+
+  <div id="channelList"></div>
   <div class="dev-footer">Developed by SOHEL TANVER</div>
 </div>
 
 <div class="share-btn" onclick="shareSite()">
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
 </div>
 
 <div id="confirm-box">
-  <p id="confirm-text" style="color: white; margin-bottom:15px; font-size: 13px;"></p>
-  <div style="display: flex; justify-content: space-around;">
-    <button class="c-btn" style="background:var(--accent); color:white" id="btn-yes">হ্যাঁ</button>
-    <button class="c-btn" style="background:#444; color:white" onclick="closeConfirm()">না</button>
-  </div>
+  <p id="confirm-text" style="color: white; font-size: 13px;"></p>
+  <button onclick="toggleFav()" style="background:var(--accent); color:white; padding:8px 20px; border:none; border-radius:5px; margin-right:10px;">হ্যাঁ</button>
+  <button onclick="closeConfirm()" style="background:#444; color:white; padding:8px 20px; border:none; border-radius:5px;">না</button>
 </div>
 
 <div id="social-bar-wrapper">
@@ -129,33 +113,28 @@
 <script>
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
-let currentCategory = 'all', hls = null, selectedId = null, isScrolling = false;
+let currentCategory = 'all', hls = null, selectedId = null;
 const video = document.getElementById("video");
 
 async function init() {
-  try {
-    const res = await fetch(playlistUrl);
-    const data = await res.text();
-    allChannels = parseM3U(data);
-    render(allChannels);
-    if(allChannels.length > 0) playFromUrl(allChannels[0].url, allChannels[0].name);
-  } catch (e) { }
+  const res = await fetch(playlistUrl);
+  const data = await res.text();
+  allChannels = parseM3U(data);
+  render(allChannels);
+  if(allChannels.length > 0) playFromUrl(allChannels[0].url, allChannels[0].name);
 }
 
 function parseM3U(data) {
   const lines = data.split("\n"), list = [];
   let cur = {};
   lines.forEach(l => {
-    l = l.trim();
     if (l.startsWith("#EXTINF")) {
-      cur.name = l.split(",")[1]?.trim() || "TV";
+      cur.name = l.split(",")[1]?.trim();
       cur.logo = l.match(/tvg-logo="([^"]+)"/)?.[1] || "";
       cur.cat = (l.match(/group-title="([^"]+)"/)?.[1] || "").toLowerCase();
-      cur.id = btoa(unescape(encodeURIComponent(cur.name)));
+      cur.id = btoa(cur.name);
     } else if (l.startsWith("http")) {
-      cur.url = l;
-      list.push({...cur});
-      cur = {};
+      cur.url = l; list.push({...cur}); cur = {};
     }
   });
   return list;
@@ -163,52 +142,18 @@ function parseM3U(data) {
 
 function render(list) {
   const grid = document.getElementById("channelList");
-  grid.innerHTML = list.map((ch) => {
-    const isFav = favorites.includes(ch.id);
-    return `
-      <div class="channel-card" 
-           onclick="playFromUrl('${ch.url}', '${ch.name}')"
-           oncontextmenu="event.preventDefault(); askFav('${ch.id}')"
-           ontouchstart="handleTouchStart('${ch.id}')" 
-           ontouchmove="handleTouchMove()"
-           ontouchend="handleTouchEnd('${ch.url}', '${ch.name}')">
-        <span style="position:absolute; top:5px; right:5px; font-size:8px; color:var(--star); display:${isFav ? 'block':'none'}">★</span>
-        <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://via.placeholder.com/50x30?text=TV'">
-        <div class="channel-name">${ch.name}</div>
-      </div>
-    `;
-  }).join('');
+  grid.innerHTML = list.map(ch => `
+    <div class="channel-card" onclick="playFromUrl('${ch.url}', '${ch.name}')" oncontextmenu="event.preventDefault(); askFav('${ch.id}')">
+      ${favorites.includes(ch.id) ? '<span style="position:absolute;top:5px;right:5px;color:var(--star);font-size:10px;">★</span>' : ''}
+      <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://via.placeholder.com/50x30?text=TV'">
+      <div class="channel-name">${ch.name}</div>
+    </div>
+  `).join('');
   document.getElementById("count").textContent = list.length + " CH";
 }
 
-let touchTimer;
-function handleTouchStart(id) {
-  selectedId = id; isScrolling = false;
-  touchTimer = setTimeout(() => { if (!isScrolling) askFav(id); touchTimer = null; }, 600);
-}
-function handleTouchMove() { isScrolling = true; if (touchTimer) { clearTimeout(touchTimer); touchTimer = null; } }
-function handleTouchEnd(url, name) {
-  if (touchTimer) { clearTimeout(touchTimer); touchTimer = null; if (!isScrolling) playFromUrl(url, name); }
-}
-
-function askFav(id) {
-  selectedId = id;
-  const isFav = favorites.includes(id);
-  document.getElementById("confirm-text").innerText = isFav ? "ফেভারিট থেকে বাদ দিবেন?" : "ফেভারিট লিস্টে যোগ করবেন?";
-  document.getElementById("confirm-box").style.display = "block";
-}
-function closeConfirm() { document.getElementById("confirm-box").style.display = "none"; }
-
-document.getElementById("btn-yes").onclick = function() {
-  if (favorites.includes(selectedId)) { favorites = favorites.filter(f => f !== selectedId); } 
-  else { favorites.push(selectedId); }
-  localStorage.setItem('myFavs', JSON.stringify(favorites));
-  closeConfirm();
-  filterCat(currentCategory, document.querySelector('.tab-btn.active'));
-};
-
 function playFromUrl(url, name) {
-  if (name) document.getElementById("now-playing-text").innerText = "এখন দেখছেন: " + name + " | ";
+  document.getElementById("now-playing-text").innerText = "এখন দেখছেন: " + name + " | ";
   if (hls) hls.destroy();
   if (Hls.isSupported()) {
     hls = new Hls(); hls.loadSource(url); hls.attachMedia(video);
@@ -216,29 +161,36 @@ function playFromUrl(url, name) {
   } else if (video.canPlayType('application/vnd.apple.mpegurl')) { video.src = url; }
 }
 
-function shareSite() {
-  if (navigator.share) {
-    navigator.share({ title: 'BD LIVE TV PRO', url: window.location.href });
-  } else {
-    alert("লিংক: " + window.location.href);
-  }
-}
-
 function filterCat(cat, btn) {
   currentCategory = cat;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-  let filtered = allChannels.filter(ch => {
-    if(cat === 'all') return true;
-    if(cat === 'fav') return favorites.includes(ch.id);
-    return (ch.name.toLowerCase().includes(cat) || (ch.cat && ch.cat.includes(cat)));
-  });
+  btn.classList.add('active');
+  
+  // স্পোর্টস উইজেট হ্যান্ডলিং
+  const widgetArea = document.getElementById("sports-widgets");
+  widgetArea.style.display = (cat === 'sports') ? 'flex' : 'none';
+
+  let filtered = allChannels.filter(ch => cat==='all' ? true : (cat==='fav' ? favorites.includes(ch.id) : (ch.name.toLowerCase().includes(cat) || (ch.cat && ch.cat.includes(cat)))));
   render(filtered);
 }
 
+function askFav(id) {
+  selectedId = id;
+  document.getElementById("confirm-text").innerText = favorites.includes(id) ? "বাদ দিবেন?" : "যোগ করবেন?";
+  document.getElementById("confirm-box").style.display = "block";
+}
+function toggleFav() {
+  if (favorites.includes(selectedId)) favorites = favorites.filter(f => f !== selectedId);
+  else favorites.push(selectedId);
+  localStorage.setItem('myFavs', JSON.stringify(favorites));
+  closeConfirm(); filterCat(currentCategory, document.querySelector('.tab-btn.active'));
+}
+function closeConfirm() { document.getElementById("confirm-box").style.display = "none"; }
+function shareSite() { navigator.share ? navigator.share({url: window.location.href}) : alert(window.location.href); }
+
 document.getElementById("search").addEventListener('input', (e) => {
-  const query = e.target.value.toLowerCase().trim();
-  render(allChannels.filter(ch => ch.name.toLowerCase().includes(query)));
+  const q = e.target.value.toLowerCase();
+  render(allChannels.filter(ch => ch.name.toLowerCase().includes(q)));
 });
 
 init();
