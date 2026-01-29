@@ -23,16 +23,12 @@
 
     body { margin:0; font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: #eee; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-    /* প্লেয়ার সেকশন */
     #player { width:100%; background:black; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); }
     .video-container { width: 100%; aspect-ratio: 16/9; max-width: 1200px; margin: 0 auto; }
     video { width:100%; height:100%; display: block; object-fit: contain; }
 
-    /* আধুনিক হেডার ডিজাইন */
     header { padding: 10px 15px; background: #111; border-bottom: 1px solid #222; }
-    
     .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-    
     .brand-box { display: flex; align-items: center; gap: 8px; }
     .logo-icon { width: 24px; height: 24px; background: linear-gradient(45deg, var(--primary), var(--accent)); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: #000; box-shadow: 0 0 10px rgba(0, 229, 255, 0.4); }
     .brand-title { font-size: 14px; font-weight: 700; letter-spacing: 0.5px; color: #fff; text-transform: uppercase; }
@@ -43,19 +39,17 @@
     .btn-apk { color: var(--apk); background: rgba(61, 220, 132, 0.15); }
     .btn-share { color: #fff; background: rgba(255, 255, 255, 0.08); }
 
-    /* সার্চ ও ট্যাব রো */
     .search-row { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
     #search { flex: 1; background:#1a1a1a; border:1px solid #333; color:white; padding: 7px 12px; border-radius: 8px; font-size: 12px; outline: none; }
-    #count { font-size: 10px; color: var(--primary); font-weight: bold; background: rgba(0, 229, 255, 0.1); padding: 4px 8px; border-radius: 5px; white-space: nowrap; }
+    #count { font-size: 10px; color: var(--primary); font-weight: bold; background: rgba(0, 229, 255, 0.1); padding: 4px 8px; border-radius: 5px; }
 
     .tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
-    .tab-btn { display: flex; align-items: center; gap: 5px; padding: 6px 12px; background: #1a1a1a; border: 1px solid #333; color: #bbb; border-radius: 6px; font-size: 11px; white-space: nowrap; cursor: pointer; transition: 0.2s; }
+    .tab-btn { display: flex; align-items: center; gap: 5px; padding: 6px 12px; background: #1a1a1a; border: 1px solid #333; color: #bbb; border-radius: 6px; font-size: 11px; white-space: nowrap; cursor: pointer; }
     .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
     
     .live-dot { height: 6px; width: 6px; background-color: #ff0000; border-radius: 50%; display: inline-block; animation: blink 1s infinite; }
     @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
-    /* কন্টেন্ট এরিয়া */
     #content-area { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
     #ticker { background: #001a1a; color: #fff; padding: 4px 0; font-size: 10px; border-bottom: 1px solid var(--primary); }
     .ticker-content { display: inline-block; animation: marquee 20s linear infinite; white-space: nowrap; }
@@ -67,8 +61,7 @@
     .channel-name { font-size: 10px; color: #ccc; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; width: 90%; }
 
     .visitor-stats { text-align: center; padding: 20px 0; }
-    .dev-footer { padding: 10px 0 40px 0; text-align: center; opacity: 0.3; font-size: 10px; letter-spacing: 1px; }
-    
+    .dev-footer { padding: 10px 0 40px 0; text-align: center; opacity: 0.3; font-size: 10px; }
     #confirm-box { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a1a; border: 1px solid var(--focus); padding: 20px; border-radius: 12px; text-align: center; display: none; z-index: 10001; width: 220px; }
   </style>
 </head>
@@ -92,9 +85,9 @@
         <div class="brand-title">LIVE TV PRO</div>
       </div>
       <div class="action-btns">
-        <a href="https://telegram.dog/techbd_group" target="_blank" class="circle-btn btn-tg" title="Contact">📩</a>
-        <a href="https://www.mediafire.com/file/nbuh7xzrvbaxikd/_LIVE_TV_PRO_19475039.apk/file" target="_blank" class="circle-btn btn-apk" title="Download">📥</a>
-        <button onclick="shareApp()" class="circle-btn btn-share" title="Share">🔗</button>
+        <a href="https://telegram.dog/techbd_group" target="_blank" class="circle-btn btn-tg">📩</a>
+        <a href="https://www.mediafire.com/file/nbuh7xzrvbaxikd/_LIVE_TV_PRO_19475039.apk/file" target="_blank" class="circle-btn btn-apk">📥</a>
+        <button onclick="shareApp()" class="circle-btn btn-share">🔗</button>
       </div>
     </div>
     
@@ -131,8 +124,8 @@
 
 <div id="confirm-box">
   <p id="confirm-text" style="color: white; font-size: 13px; margin-bottom: 15px;"></p>
-  <button id="btn-yes" style="background:var(--accent); color:white; padding:8px 20px; border:none; border-radius:5px; margin-right:8px; cursor:pointer;">হ্যাঁ</button>
-  <button onclick="closeConfirm()" style="background:#333; color:white; padding:8px 20px; border:none; border-radius:5px; cursor:pointer;">না</button>
+  <button id="btn-yes" style="background:var(--accent); color:white; padding:8px 20px; border:none; border-radius:5px; margin-right:8px;">হ্যাঁ</button>
+  <button onclick="closeConfirm()" style="background:#333; color:white; padding:8px 20px; border:none; border-radius:5px;">না</button>
 </div>
 
 <script>
