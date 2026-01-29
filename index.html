@@ -26,17 +26,18 @@
       overflow: hidden; background: var(--bg); font-family: 'Segoe UI', sans-serif; 
     }
 
-    /* রিফ্রেশ ইন্ডিকেটর স্টাইল */
+    /* রিফ্রেশ ইন্ডিকেটর */
     #refresh-indicator {
       position: fixed; top: -50px; left: 50%; transform: translateX(-50%);
       background: var(--primary); color: #000; padding: 8px 15px;
       border-radius: 20px; font-size: 12px; font-weight: bold;
-      z-index: 2000; transition: top 0.3s ease;
+      z-index: 2000; transition: 0.3s ease;
     }
 
+    /* টপ সেকশন ফিক্সড */
     #top-section {
       position: fixed; top: 0; left: 0; width: 100%;
-      background: var(--bg); z-index: 1000;
+      background: #111; z-index: 1000;
       border-bottom: 1px solid #222;
     }
 
@@ -61,29 +62,28 @@
     #count { font-size: 9px; color: var(--primary); font-weight: bold; background: rgba(0, 229, 255, 0.1); padding: 3px 6px; border-radius: 4px; }
 
     .tabs { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
-    .tab-btn { padding: 5px 10px; background: #1a1a1a; border: 1px solid #333; color: #bbb; border-radius: 5px; font-size: 10px; white-space: nowrap; cursor: pointer; }
+    .tab-btn { padding: 5px 12px; background: #1a1a1a; border: 1px solid #333; color: #bbb; border-radius: 5px; font-size: 10px; white-space: nowrap; cursor: pointer; }
     .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
     
     #ticker { background: #001a1a; color: #fff; padding: 3px 0; font-size: 9px; border-bottom: 1px solid var(--primary); }
     .ticker-content { display: inline-block; animation: marquee 20s linear infinite; white-space: nowrap; }
     @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
+    /* কন্টেন্ট এরিয়া */
     #content-area { 
-      margin-top: 310px; 
-      height: calc(100vh - 310px);
-      overflow-y: auto; 
-      -webkit-overflow-scrolling: touch; 
-      padding-bottom: 50px;
+      position: absolute; width: 100%; left: 0;
+      overflow-y: auto; -webkit-overflow-scrolling: touch; 
+      background: var(--bg);
     }
 
-    #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 8px; padding: 12px; }
-    .channel-card { background: var(--card); border-radius: 10px; padding: 8px 4px; text-align: center; border: 1px solid rgba(255,255,255,0.05); height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; }
-    .channel-logo { width: auto; max-width: 60%; height: 32px; object-fit: contain; margin-bottom: 5px; }
-    .channel-name { font-size: 9px; color: #ccc; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; width: 90%; }
+    #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; padding: 15px; }
+    .channel-card { background: var(--card); border-radius: 10px; padding: 10px 5px; text-align: center; border: 1px solid rgba(255,255,255,0.05); height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; }
+    .channel-logo { width: auto; max-width: 60%; height: 32px; object-fit: contain; margin-bottom: 5px; pointer-events: none;}
+    .channel-name { font-size: 9px; color: #ccc; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; width: 90%; pointer-events: none;}
 
     .visitor-stats { text-align: center; padding: 20px 0; }
-    .dev-footer { padding: 10px 0 40px 0; text-align: center; opacity: 0.3; font-size: 9px; }
-    #confirm-box { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a1a; border: 1px solid var(--focus); padding: 15px; border-radius: 10px; text-align: center; display: none; z-index: 2001; width: 200px; }
+    .dev-footer { padding: 10px 0 50px 0; text-align: center; opacity: 0.3; font-size: 9px; }
+    #confirm-box { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a1a; border: 1px solid var(--focus); padding: 20px; border-radius: 10px; text-align: center; display: none; z-index: 3000; width: 220px; }
   </style>
 </head>
 <body>
@@ -130,24 +130,23 @@
 </div>
 
 <div id="content-area">
-  <div id="social-bar-wrapper">
+  <div id="social-bar-wrapper" style="padding: 10px 0;">
     <script async src="https://pl28548409.effectivegatecpm.com/88/59/b8/8859b87f27788aaf3cb337acab2ad812.js"></script>
   </div>
 
-  <div id="channelList">লোডিং হচ্ছে...</div>
+  <div id="channelList">লোডিং...</div>
 
   <div class="visitor-stats">
     <script id="_wauz6a">var _wau = _wau || []; _wau.push(["small", "vylky6ygi0", "z6a"]);</script>
     <script async src="//waust.at/s.js"></script>
   </div>
-
   <div class="dev-footer">CREATED BY SOHEL TANVER</div>
 </div>
 
 <div id="confirm-box">
-  <p id="confirm-text" style="color: white; font-size: 12px; margin-bottom: 12px;"></p>
-  <button id="btn-yes" style="background:var(--accent); color:white; padding:6px 15px; border:none; border-radius:4px; margin-right:5px; cursor:pointer;">হ্যাঁ</button>
-  <button onclick="closeConfirm()" style="background:#333; color:white; padding:6px 15px; border:none; border-radius:4px; cursor:pointer;">না</button>
+  <p id="confirm-text" style="color: white; font-size: 13px; margin-bottom: 15px;"></p>
+  <button id="btn-yes" style="background:var(--accent); color:white; padding:8px 20px; border:none; border-radius:5px; margin-right:10px;">হ্যাঁ</button>
+  <button onclick="closeConfirm()" style="background:#333; color:white; padding:8px 20px; border:none; border-radius:5px;">না</button>
 </div>
 
 <script>
@@ -162,24 +161,24 @@ let touchStart = 0;
 contentArea.addEventListener('touchstart', (e) => { touchStart = e.touches[0].pageY; }, {passive: true});
 contentArea.addEventListener('touchmove', (e) => {
   const touchMove = e.touches[0].pageY;
-  if (contentArea.scrollTop === 0 && touchMove > touchStart + 80) {
+  if (contentArea.scrollTop <= 0 && touchMove > touchStart + 70) {
     document.getElementById('refresh-indicator').style.top = '20px';
   }
 }, {passive: true});
 contentArea.addEventListener('touchend', (e) => {
-  if (contentArea.scrollTop === 0 && e.changedTouches[0].pageY > touchStart + 80) {
+  if (contentArea.scrollTop <= 0 && e.changedTouches[0].pageY > touchStart + 70) {
     location.reload();
   } else {
     document.getElementById('refresh-indicator').style.top = '-50px';
   }
 });
 
-function adjustContentArea() {
-  const topHeight = document.getElementById('top-section').offsetHeight;
-  contentArea.style.marginTop = topHeight + 'px';
-  contentArea.style.height = (window.innerHeight - topHeight) + 'px';
+function adjustLayout() {
+  const topH = document.getElementById('top-section').offsetHeight;
+  contentArea.style.top = topH + 'px';
+  contentArea.style.height = (window.innerHeight - topH) + 'px';
 }
-window.addEventListener('resize', adjustContentArea);
+window.addEventListener('resize', adjustLayout);
 
 async function init() {
   try {
@@ -187,10 +186,10 @@ async function init() {
     const data = await res.text();
     allChannels = parseM3U(data);
     render(allChannels);
-    adjustContentArea();
+    adjustLayout();
     if(allChannels.length > 0) playFromUrl(allChannels[0].url, allChannels[0].name);
   } catch(e) {
-    document.getElementById("channelList").innerText = "চ্যানেল লোড করতে সমস্যা হয়েছে।";
+    document.getElementById("channelList").innerText = "Error Loading Channels.";
   }
 }
 
@@ -213,6 +212,7 @@ function parseM3U(data) {
 
 function render(list) {
   const grid = document.getElementById("channelList");
+  if(list.length === 0) { grid.innerHTML = "No Channels Found."; return; }
   grid.innerHTML = list.map(ch => `
     <div class="channel-card" onclick="playFromUrl('${ch.url}', '${ch.name}')" oncontextmenu="event.preventDefault(); askFav('${ch.id}')">
       ${favorites.includes(ch.id) ? '<span style="position:absolute;top:5px;right:5px;color:var(--star);font-size:10px;">★</span>' : ''}
@@ -249,7 +249,7 @@ function shareApp() {
     navigator.share({ title: 'LIVE TV PRO', text: 'লাইভ টিভি দেখুন এখানে!', url: window.location.href });
   } else {
     navigator.clipboard.writeText(window.location.href);
-    alert("লিঙ্ক কপি করা হয়েছে!");
+    alert("Link Copied!");
   }
 }
 
