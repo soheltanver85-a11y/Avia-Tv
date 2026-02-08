@@ -11,7 +11,7 @@
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>LIVE TV PRO</title>
+  <title>LIVE TV</title>
   
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
@@ -43,20 +43,59 @@
     .video-container { width: 100%; aspect-ratio: 16/9; max-width: 1200px; margin: 0 auto; }
     video { width:100%; height:100%; display: block; object-fit: contain; }
 
-    header { padding: 8px 15px; background: #111; }
-    .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .brand-box { display: flex; align-items: center; gap: 8px; }
-    .logo-icon { width: 22px; height: 22px; background: linear-gradient(45deg, var(--primary), var(--accent)); border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; color: #000; }
-    .brand-title { font-size: 13px; font-weight: 700; color: #fff; text-transform: uppercase; }
+    header { padding: 8px 12px; background: #111; }
+    
+    /* উপরের সেকশন যেখানে নাম এবং রিসেন্ট চ্যানেল থাকবে */
+    .header-top { 
+      display: flex; 
+      align-items: center; 
+      gap: 12px; 
+      margin-bottom: 10px; 
+      height: 40px;
+    }
+    
+    .brand-title { 
+      font-size: 10px; 
+      font-weight: 800; 
+      color: var(--primary); 
+      letter-spacing: 0.5px; 
+      white-space: nowrap;
+      opacity: 0.8;
+    }
 
-    .action-btns { display: flex; gap: 6px; }
-    .circle-btn { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 13px; border: 1px solid rgba(255,255,255,0.1); }
+    /* রিসেন্ট চ্যানেল লিস্ট - যা খালি জায়গা ফিলাপ করবে */
+    #recent-list { 
+      flex: 1; 
+      display: flex; 
+      gap: 8px; 
+      overflow-x: auto; 
+      scrollbar-width: none; 
+      align-items: center;
+    }
+    #recent-list::-webkit-scrollbar { display: none; }
+    
+    .recent-item { 
+      min-width: 32px; 
+      height: 32px; 
+      background: rgba(255,255,255,0.05); 
+      border-radius: 8px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      border: 1px solid #333; 
+      cursor: pointer; 
+      flex-shrink: 0;
+    }
+    .recent-item img { width: 75%; height: 75%; object-fit: contain; }
+
+    .action-btns { display: flex; gap: 5px; align-items: center; }
+    .circle-btn { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 12px; border: 1px solid rgba(255,255,255,0.1); }
     .btn-tg { color: var(--tg); background: rgba(36, 161, 222, 0.1); }
     .btn-apk { color: var(--apk); background: rgba(61, 220, 132, 0.1); }
     .btn-share { color: #fff; background: rgba(255, 255, 255, 0.05); }
 
-    .search-row { display: flex; gap: 10px; align-items: center; margin-bottom: 6px; }
-    #search { flex: 1; background:#1a1a1a; border:1px solid #333; color:white; padding: 6px 10px; border-radius: 6px; font-size: 12px; outline: none; }
+    .search-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+    #search { flex: 1; background:#1a1a1a; border:1px solid #333; color:white; padding: 6px 12px; border-radius: 6px; font-size: 11px; outline: none; }
     #count { font-size: 9px; color: var(--primary); font-weight: bold; background: rgba(0, 229, 255, 0.1); padding: 3px 6px; border-radius: 4px; }
 
     .tabs { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
@@ -81,7 +120,6 @@
     .channel-logo { width: auto; max-width: 60%; height: 32px; object-fit: contain; margin-bottom: 5px; pointer-events: none;}
     .channel-name { font-size: 9px; color: #ccc; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; width: 90%; pointer-events: none;}
 
-    /* Modern Footer Style */
     .dev-footer { padding: 20px 0 40px 0; text-align: center; font-size: 9px; letter-spacing: 0.8px; }
     .dev-link { display: inline-flex; align-items: center; gap: 5px; text-decoration: none; color: rgba(255, 255, 255, 0.4); background: rgba(255, 255, 255, 0.03); padding: 5px 12px; border-radius: 50px; border: 1px solid rgba(0, 229, 255, 0.15); transition: 0.3s; }
     .dev-link:hover { border-color: var(--primary); color: #fff; background: rgba(0, 229, 255, 0.05); }
@@ -89,7 +127,6 @@
     .pulse-dot { width: 5px; height: 5px; background: var(--primary); border-radius: 50%; box-shadow: 0 0 5px var(--primary); animation: dev-pulse 1.5s infinite; }
     @keyframes dev-pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
 
-    .visitor-stats { text-align: center; padding: 10px 0; }
     #confirm-box { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a1a; border: 1px solid var(--focus); padding: 20px; border-radius: 10px; text-align: center; display: none; z-index: 3000; width: 220px; }
   </style>
 </head>
@@ -109,10 +146,11 @@
     
     <header>
       <div class="header-top">
-        <div class="brand-box">
-          <div class="logo-icon">L</div>
-          <div class="brand-title">LIVE TV PRO</div>
-        </div>
+        <div class="brand-title">LIVE<br>TV</div>
+        
+        <div id="recent-list">
+          </div>
+
         <div class="action-btns">
           <a href="https://telegram.dog/techbd_group" target="_blank" class="circle-btn btn-tg">📩</a>
           <a href="https://www.mediafire.com/file/nbuh7xzrvbaxikd/_LIVE_TV_PRO_19475039.apk/file" target="_blank" class="circle-btn btn-apk">📥</a>
@@ -141,18 +179,14 @@
   <div id="social-bar-wrapper" style="padding: 10px 0;">
     <script async src="https://pl28548409.effectivegatecpm.com/88/59/b8/8859b87f27788aaf3cb337acab2ad812.js"></script>
   </div>
-
   <div id="channelList">লোডিং...</div>
-
-  <div class="visitor-stats">
+  <div class="visitor-stats" style="text-align: center; padding: 10px 0;">
     <script id="_wauz6a">var _wau = _wau || []; _wau.push(["small", "vylky6ygi0", "z6a"]);</script>
     <script async src="//waust.at/s.js"></script>
   </div>
-  
   <div class="dev-footer">
     <a href="https://telegram.dog/techbd_group" target="_blank" class="dev-link">
-      <span class="pulse-dot"></span>
-      Developed by <b>SOHEL TANVER</b>
+      <span class="pulse-dot"></span>Developed by <b>SOHEL TANVER</b>
     </a>
   </div>
 </div>
@@ -166,10 +200,12 @@
 <script>
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
+let recentChannels = JSON.parse(localStorage.getItem('recentCh')) || [];
 let currentCategory = 'all', hls = null, selectedId = null;
 const video = document.getElementById("video");
 const contentArea = document.getElementById("content-area");
 
+// Pull to refresh
 let touchStart = 0;
 contentArea.addEventListener('touchstart', (e) => { touchStart = e.touches[0].pageY; }, {passive: true});
 contentArea.addEventListener('touchmove', (e) => {
@@ -199,8 +235,9 @@ async function init() {
     const data = await res.text();
     allChannels = parseM3U(data);
     render(allChannels);
+    renderRecent();
     adjustLayout();
-    if(allChannels.length > 0) playFromUrl(allChannels[0].url, allChannels[0].name);
+    if(allChannels.length > 0) playFromUrl(allChannels[0].url, allChannels[0].name, allChannels[0].logo, false);
   } catch(e) {
     document.getElementById("channelList").innerText = "Error Loading Channels.";
   }
@@ -227,7 +264,7 @@ function render(list) {
   const grid = document.getElementById("channelList");
   if(list.length === 0) { grid.innerHTML = "No Channels Found."; return; }
   grid.innerHTML = list.map(ch => `
-    <div class="channel-card" onclick="playFromUrl('${ch.url}', '${ch.name}')" oncontextmenu="event.preventDefault(); askFav('${ch.id}')">
+    <div class="channel-card" onclick="playFromUrl('${ch.url}', '${ch.name}', '${ch.logo}')" oncontextmenu="event.preventDefault(); askFav('${ch.id}')">
       ${favorites.includes(ch.id) ? '<span style="position:absolute;top:5px;right:5px;color:var(--star);font-size:10px;">★</span>' : ''}
       <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://via.placeholder.com/50x30?text=TV'">
       <div class="channel-name">${ch.name}</div>
@@ -236,8 +273,31 @@ function render(list) {
   document.getElementById("count").textContent = list.length + " CH";
 }
 
-function playFromUrl(url, name) {
+function renderRecent() {
+  const listEl = document.getElementById("recent-list");
+  if (recentChannels.length === 0) {
+    listEl.innerHTML = '<span style="color:#333; font-size:9px; margin-left:10px;">সাম্প্রতিক নেই</span>';
+    return;
+  }
+  
+  listEl.innerHTML = recentChannels.map(ch => `
+    <div class="recent-item" onclick="playFromUrl('${ch.url}', '${ch.name}', '${ch.logo}')" title="${ch.name}">
+      <img src="${ch.logo}" onerror="this.src='https://via.placeholder.com/20x20?text=TV'">
+    </div>
+  `).join('');
+}
+
+function playFromUrl(url, name, logo, updateRecent = true) {
   document.getElementById("now-playing-text").innerText = "দেখছেন: " + name + " | ";
+  
+  if (updateRecent) {
+    recentChannels = recentChannels.filter(c => c.url !== url);
+    recentChannels.unshift({name, url, logo});
+    if (recentChannels.length > 8) recentChannels.pop(); // সর্বোচ্চ ৮টি লোগো রাখবে
+    localStorage.setItem('recentCh', JSON.stringify(recentChannels));
+    renderRecent();
+  }
+
   if (hls) hls.destroy();
   if (Hls.isSupported()) {
     hls = new Hls(); hls.loadSource(url); hls.attachMedia(video);
@@ -259,7 +319,7 @@ function filterCat(cat, btn) {
 
 function shareApp() {
   if (navigator.share) {
-    navigator.share({ title: 'LIVE TV PRO', text: 'লাইভ টিভি দেখুন এখানে!', url: window.location.href });
+    navigator.share({ title: 'LIVE TV', text: 'লাইভ টিভি দেখুন এখানে!', url: window.location.href });
   } else {
     navigator.clipboard.writeText(window.location.href);
     alert("Link Copied!");
