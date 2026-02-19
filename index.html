@@ -23,22 +23,10 @@
 
     html, body { 
       margin: 0; padding: 0; width: 100%; height: 100%; 
-      overflow: hidden; background: var(--bg); font-family: 'Segoe UI', sans-serif;
-      overscroll-behavior: none;
+      background: var(--bg); font-family: 'Segoe UI', sans-serif;
+      /* স্ট্যান্ডার্ড রিফ্রেশ এনাবল করা হয়েছে কিন্তু জোরপূর্বক কোনো স্ক্রিপ্ট নেই */
+      overscroll-behavior-y: contain; 
     }
-
-    /* স্ট্যান্ডার্ড রিফ্রেশ লোডার - লুকানো থাকে */
-    #ptr-loader {
-      position: fixed; top: -50px; left: 50%; transform: translateX(-50%);
-      width: 40px; height: 40px; background: #fff; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4); z-index: 9999;
-      pointer-events: none; opacity: 0;
-      transition: opacity 0.2s;
-    }
-    #ptr-loader svg { width: 22px; height: 22px; stroke: var(--primary); fill: none; stroke-width: 3; stroke-linecap: round; }
-    .ptr-loading svg { animation: ptr-rotate 0.8s linear infinite; }
-    @keyframes ptr-rotate { 100% { transform: rotate(360deg); } }
 
     #top-section { position: fixed; top: 0; left: 0; width: 100%; background: #111; z-index: 1000; border-bottom: 1px solid #222; }
     #player { width:100%; background:black; }
@@ -71,10 +59,12 @@
     .ticker-content { display: inline-block; animation: marquee 20s linear infinite; white-space: nowrap; }
     @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
-    #content-area { position: absolute; width: 100%; left: 0; overflow-y: auto; background: var(--bg); -webkit-overflow-scrolling: touch; }
+    #content-area { position: relative; width: 100%; overflow-y: auto; background: var(--bg); -webkit-overflow-scrolling: touch; }
     #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; padding: 15px; }
     
     .channel-card { background: var(--card); border-radius: 10px; padding: 10px 5px; text-align: center; border: 1px solid rgba(255,255,255,0.05); height: 85px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; user-select: none; }
+    
+    /* Favorite Star Option - সংরক্ষিত */
     .fav-star { position: absolute; top: 6px; right: 6px; font-size: 16px; color: rgba(255,255,255,0.2); z-index: 5; transition: 0.2s; padding: 2px; }
     .fav-star.active { color: var(--star); text-shadow: 0 0 5px rgba(255, 215, 0, 0.5); }
     
@@ -89,13 +79,6 @@
   </style>
 </head>
 <body>
-
-<div id="ptr-loader">
-  <svg viewBox="0 0 30 30">
-    <path d="M15,5 A10,10 0 1,1 14.99,5"></path>
-    <polyline points="15,2 18,5 15,8"></polyline>
-  </svg>
-</div>
 
 <div id="top-section">
   <div id="player">
@@ -148,56 +131,10 @@ let currentCategory = 'all', hls = null;
 const video = document.getElementById("video");
 const contentArea = document.getElementById("content-area");
 
-/* --- স্মার্ট রিফ্রেশ লজিক (স্ক্রলিং বাগ ফিক্সড) --- */
-let startY = 0, isAtTop = false, pulling = false;
-const loader = document.getElementById('ptr-loader');
-const PULL_LIMIT = 180; // অনেক বেশি টানলে তবেই রিফ্রেশ হবে
-
-contentArea.addEventListener('touchstart', (e) => {
-    // কেবল যদি লিস্টের একদম উপরে থাকে তবেই লজিক শুরু হবে
-    if (contentArea.scrollTop <= 0) {
-        startY = e.touches[0].pageY;
-        isAtTop = true;
-    } else {
-        isAtTop = false;
-    }
-}, {passive: true});
-
-contentArea.addEventListener('touchmove', (e) => {
-    if (!isAtTop) return;
-    const currentY = e.touches[0].pageY;
-    const diff = currentY - startY;
-
-    // যদি নিচের দিকে টানা হয় এবং লিস্ট একদম উপরে থাকে
-    if (diff > 10 && contentArea.scrollTop <= 0) {
-        pulling = true;
-        loader.style.opacity = "1";
-        // Resistance: টানলে বাধা অনুভব হবে (Math.pow দিয়ে কন্ট্রোল করা)
-        const move = Math.min(Math.pow(diff, 0.8), 100); 
-        loader.style.top = (move - 40) + 'px';
-        loader.style.transform = `translateX(-50%) rotate(${diff * 2}deg)`;
-        
-        // যদি থ্রেশহোল্ডের কাছাকাছি যায়, রঙ বদলাবে
-        loader.style.background = diff > PULL_LIMIT ? "#e0f7fa" : "#fff";
-    }
-}, {passive: true});
-
-contentArea.addEventListener('touchend', (e) => {
-    if (!pulling) return;
-    const finalDiff = e.changedTouches[0].pageY - startY;
-    
-    if (finalDiff > PULL_LIMIT && contentArea.scrollTop <= 0) {
-        loader.classList.add('ptr-loading');
-        loader.style.top = '70px';
-        setTimeout(() => location.reload(), 800);
-    } else {
-        // রিফ্রেশ না হলে স্মুথলি উপরে চলে যাবে
-        loader.style.top = '-50px';
-        loader.style.opacity = "0";
-    }
-    pulling = false;
-    isAtTop = false;
-});
+/* --- রিফ্রেশ লজিক পরিবর্তন --- 
+Rivo TV-তে কোনো কাস্টম Pull-to-refresh কোড নেই, তাই আপনার কোড থেকেও 
+বিরক্তিকর টাচ ইভেন্টগুলো সরিয়ে ফেলা হয়েছে। এখন এটি একদম স্মুথলি কাজ করবে। 
+*/
 
 function updateOnlineStatus() {
     let baseOnline = Math.floor(Math.random() * 3) + 1;
@@ -206,8 +143,8 @@ function updateOnlineStatus() {
 
 function adjustLayout() {
   const topH = document.getElementById('top-section').offsetHeight;
-  contentArea.style.top = topH + 'px';
-  contentArea.style.height = (window.innerHeight - topH) + 'px';
+  contentArea.style.marginTop = topH + 'px';
+  contentArea.style.minHeight = (window.innerHeight - topH) + 'px';
 }
 window.addEventListener('resize', adjustLayout);
 
@@ -274,7 +211,7 @@ function toggleFav(event, id) {
 
 function renderRecent() {
   const listEl = document.getElementById("recent-list");
-  if (recentChannels.length === 0) { listEl.innerHTML = '<span style="color:#333; font-size:9px; margin-left:10px;">সাম্প্রতিক নেই</span>'; return; }
+  if (recentChannels.length === 0) { listEl.innerHTML = ''; return; }
   listEl.innerHTML = recentChannels.map(ch => `
     <div class="recent-item" onclick="playFromUrl('${ch.url}', '${ch.name}', '${ch.logo}')">
       <img src="${ch.logo}" onerror="this.src='https://via.placeholder.com/20x20?text=TV'">
