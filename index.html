@@ -1,10 +1,6 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-  <script src="https://pl28744070.effectivegatecpm.com/d0/6e/79/d06e79767e37c835c1f36cc898ad6320.js"></script>
-  
-  <script src="https://pl28744078.effectivegatecpm.com/77/45/12/774512aa06cc31fabddd395b71e127b6.js"></script>
-
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-99V1DXBKKT"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -30,13 +26,8 @@
       background: var(--bg); font-family: 'Segoe UI', sans-serif;
     }
 
-    /* Fixed Top Section */
     #top-section { position: fixed; top: 0; left: 0; width: 100%; background: #111; z-index: 1000; border-bottom: 1px solid #222; }
-    
-    .video-container { 
-      width: 100%; aspect-ratio: 16/9; max-width: 1200px; margin: 0 auto; 
-      background: #000;
-    }
+    .video-container { width: 100%; aspect-ratio: 16/9; max-width: 1200px; margin: 0 auto; background: #000; }
     video { width:100%; height:100%; display: block; object-fit: contain; }
     
     header { padding: 8px 12px; background: #111; }
@@ -66,17 +57,13 @@
     @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
     #content-area { position: relative; width: 100%; background: var(--bg); }
-    
     .ad-slot { width: 100%; display: flex; flex-direction: column; align-items: center; padding: 10px 0; background: rgba(255,255,255,0.02); border-bottom: 1px solid #222; margin-bottom: 10px; }
 
     #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; padding: 15px; }
-    
     .channel-card { background: var(--card); border-radius: 10px; padding: 10px 5px; text-align: center; border: 1px solid rgba(255,255,255,0.05); height: 85px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; }
-    .channel-card:active { border-color: var(--primary); background: rgba(0, 229, 255, 0.05); }
-    
+    .channel-card:active { border-color: var(--primary); }
     .fav-star { position: absolute; top: 6px; right: 6px; font-size: 16px; color: rgba(255,255,255,0.2); z-index: 5; transition: 0.2s; padding: 2px; }
     .fav-star.active { color: var(--star); text-shadow: 0 0 5px rgba(255, 215, 0, 0.5); }
-    
     .channel-logo { max-width: 60%; height: 32px; object-fit: contain; margin-bottom: 5px; pointer-events: none; }
     .channel-name { font-size: 9px; color: #ccc; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; width: 90%; pointer-events: none; }
 
@@ -108,12 +95,10 @@
           <button onclick="shareApp()" class="circle-btn btn-share">🔗</button>
         </div>
       </div>
-      
       <div class="search-row">
         <input type="text" id="search" placeholder="সার্চ চ্যানেল...">
         <span id="count">0 CH</span>
       </div>
-
       <div class="tabs">
         <button class="tab-btn active" onclick="filterCat('all', this)">All</button>
         <button class="tab-btn" onclick="filterCat('sports', this)">Live Sports</button>
@@ -160,7 +145,6 @@ async function init() {
     render(allChannels);
     renderRecent();
     adjustLayout();
-    // Default স্থির থাকবে, স্ক্রল হবে না
     if(allChannels.length > 0) playFromUrl(allChannels[0].url, allChannels[0].name, allChannels[0].logo, false, false);
   } catch(e) { document.getElementById("channelList").innerText = "Error Loading."; }
 }
@@ -219,10 +203,8 @@ function renderRecent() {
   `).join('');
 }
 
-// play function updated to REMOVE scroll behavior
 function playFromUrl(url, name, logo, updateRecent = true, shouldPlay = true) {
   document.getElementById("now-playing-text").innerText = "দেখছেন: " + name + " | ";
-  
   if (updateRecent) {
     recentChannels = recentChannels.filter(c => c.url !== url);
     recentChannels.unshift({name, url, logo});
@@ -230,7 +212,6 @@ function playFromUrl(url, name, logo, updateRecent = true, shouldPlay = true) {
     localStorage.setItem('recentCh', JSON.stringify(recentChannels));
     renderRecent();
   }
-  
   if (hls) hls.destroy();
   if (Hls.isSupported()) {
     hls = new Hls(); hls.loadSource(url); hls.attachMedia(video);
@@ -241,7 +222,6 @@ function playFromUrl(url, name, logo, updateRecent = true, shouldPlay = true) {
     video.src = url; 
     if(shouldPlay) video.play();
   }
-  // নোট: এখানে কোনো window.scrollTo রাখা হয়নি, তাই ফোকাস চ্যানেলেই থাকবে।
 }
 
 function filterCat(cat, btn) {
@@ -286,5 +266,9 @@ init();
     if (statusEl) statusEl.innerText = count + " Real-time Online";
   });
 </script>
+
+<script src="https://pl28744070.effectivegatecpm.com/d0/6e/79/d06e79767e37c835c1f36cc898ad6320.js"></script>
+<script src="https://pl28744078.effectivegatecpm.com/77/45/12/774512aa06cc31fabddd395b71e127b6.js"></script>
+
 </body>
 </html>
