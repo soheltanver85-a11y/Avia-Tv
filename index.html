@@ -27,10 +27,11 @@
     }
 
     #refresh-indicator {
-      position: fixed; top: -50px; left: 50%; transform: translateX(-50%);
-      background: var(--primary); color: #000; padding: 8px 15px;
-      border-radius: 20px; font-size: 12px; font-weight: bold;
-      z-index: 2000; transition: 0.3s ease;
+      position: fixed; top: -60px; left: 50%; transform: translateX(-50%);
+      background: var(--primary); color: #000; padding: 10px 20px;
+      border-radius: 30px; font-size: 13px; font-weight: bold;
+      z-index: 2000; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
     }
 
     #top-section {
@@ -45,7 +46,6 @@
 
     header { padding: 8px 12px; background: #111; }
     
-    /* উপরের সেকশন যেখানে নাম এবং রিসেন্ট চ্যানেল থাকবে */
     .header-top { 
       display: flex; 
       align-items: center; 
@@ -63,7 +63,6 @@
       opacity: 0.8;
     }
 
-    /* রিসেন্ট চ্যানেল লিস্ট - যা খালি জায়গা ফিলাপ করবে */
     #recent-list { 
       flex: 1; 
       display: flex; 
@@ -132,7 +131,7 @@
 </head>
 <body>
 
-<div id="refresh-indicator">🔄 রিফ্রেশ হচ্ছে...</div>
+<div id="refresh-indicator">🔄 রিফ্রেশ করতে আরও নিচে টানুন...</div>
 
 <div id="top-section">
   <div id="player">
@@ -147,10 +146,7 @@
     <header>
       <div class="header-top">
         <div class="brand-title">Avia<br>Tv</div>
-        
-        <div id="recent-list">
-          </div>
-
+        <div id="recent-list"></div>
         <div class="action-btns">
           <a href="https://telegram.dog/techbd_group" target="_blank" class="circle-btn btn-tg">📩</a>
           <a href="https://www.mediafire.com/file/2c8yvb7c9dw2abz/Avia_Tv.apk/file" target="_blank" class="circle-btn btn-apk">📥</a>
@@ -204,21 +200,42 @@ let recentChannels = JSON.parse(localStorage.getItem('recentCh')) || [];
 let currentCategory = 'all', hls = null, selectedId = null;
 const video = document.getElementById("video");
 const contentArea = document.getElementById("content-area");
+const refreshIndicator = document.getElementById('refresh-indicator');
 
-// Pull to refresh
+// Pull to refresh modified logic
 let touchStart = 0;
-contentArea.addEventListener('touchstart', (e) => { touchStart = e.touches[0].pageY; }, {passive: true});
+const REFRESH_THRESHOLD = 180; // রিফ্রেশ হওয়ার জন্য পিক্সেল দূরত্ব (আগে ৭০ ছিল)
+
+contentArea.addEventListener('touchstart', (e) => { 
+  touchStart = e.touches[0].pageY; 
+}, {passive: true});
+
 contentArea.addEventListener('touchmove', (e) => {
   const touchMove = e.touches[0].pageY;
-  if (contentArea.scrollTop <= 0 && touchMove > touchStart + 70) {
-    document.getElementById('refresh-indicator').style.top = '20px';
+  const distance = touchMove - touchStart;
+  
+  if (contentArea.scrollTop <= 0 && distance > 0) {
+    // ইন্ডিকেটরটি আস্তে আস্তে নিচে নামবে
+    let topPos = Math.min(distance / 2, 80) - 60;
+    refreshIndicator.style.top = topPos + 'px';
+    
+    if (distance > REFRESH_THRESHOLD) {
+      refreshIndicator.innerText = "🔄 এখন ছেড়ে দিন...";
+      refreshIndicator.style.background = "var(--accent)";
+    } else {
+      refreshIndicator.innerText = "🔄 রিফ্রেশ করতে আরও নিচে টানুন...";
+      refreshIndicator.style.background = "var(--primary)";
+    }
   }
 }, {passive: true});
+
 contentArea.addEventListener('touchend', (e) => {
-  if (contentArea.scrollTop <= 0 && e.changedTouches[0].pageY > touchStart + 70) {
+  const touchEnd = e.changedTouches[0].pageY;
+  if (contentArea.scrollTop <= 0 && (touchEnd - touchStart) > REFRESH_THRESHOLD) {
+    refreshIndicator.innerText = "⏳ রিফ্রেশ হচ্ছে...";
     location.reload();
   } else {
-    document.getElementById('refresh-indicator').style.top = '-50px';
+    refreshIndicator.style.top = '-60px';
   }
 });
 
@@ -293,7 +310,7 @@ function playFromUrl(url, name, logo, updateRecent = true) {
   if (updateRecent) {
     recentChannels = recentChannels.filter(c => c.url !== url);
     recentChannels.unshift({name, url, logo});
-    if (recentChannels.length > 8) recentChannels.pop(); // সর্বোচ্চ ৮টি লোগো রাখবে
+    if (recentChannels.length > 8) recentChannels.pop(); 
     localStorage.setItem('recentCh', JSON.stringify(recentChannels));
     renderRecent();
   }
