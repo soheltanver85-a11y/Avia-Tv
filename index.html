@@ -18,25 +18,24 @@
     :root { 
       --primary: #00e5ff; --bg: #0a0a0a; --card: rgba(255, 255, 255, 0.05); 
       --focus: #00e5ff; --accent: #ff4081; --star: #ffd700; 
-      --tg: #24A1DE; --apk: #3DDC84; 
+      --tg: #24A1DE; --apk: #3DDC84; --online: #4CAF50;
     }
 
     html, body { 
       margin: 0; padding: 0; width: 100%; height: 100%; 
       overflow: hidden; background: var(--bg); font-family: 'Segoe UI', sans-serif;
-      overscroll-behavior-y: contain; /* ডিফল্ট পুল-টু-রিফ্রেশ বন্ধ */
+      overscroll-behavior: none !important;
     }
 
-    /* Chrome স্টাইল লোডার */
+    /* Chrome Style Refresh Loader */
     #ptr-loader {
       position: fixed; top: -60px; left: 50%; transform: translateX(-50%);
-      width: 40px; height: 40px; background: #fff; border-radius: 50%;
+      width: 42px; height: 42px; background: #fff; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.5); z-index: 9999;
-      transition: top 0.2s cubic-bezier(0,0,0.2,1);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.6); z-index: 9999;
+      transition: top 0.2s cubic-bezier(0, 0, 0.2, 1);
     }
-    #ptr-loader svg { width: 24px; height: 24px; stroke: var(--primary); fill: none; stroke-width: 3; stroke-dasharray: 60; stroke-dashoffset: 60; transition: transform 0.1s linear; }
-    
+    #ptr-loader svg { width: 24px; height: 24px; stroke: var(--primary); fill: none; stroke-width: 3; stroke-dasharray: 60; stroke-dashoffset: 60; }
     .ptr-loading svg { animation: ptr-rotate 0.8s linear infinite; stroke-dashoffset: 0 !important; }
     @keyframes ptr-rotate { 100% { transform: rotate(360deg); } }
 
@@ -44,10 +43,11 @@
     #player { width:100%; background:black; }
     .video-container { width: 100%; aspect-ratio: 16/9; max-width: 1200px; margin: 0 auto; }
     video { width:100%; height:100%; display: block; object-fit: contain; }
-    header { padding: 8px 12px; background: #111; }
     
+    header { padding: 8px 12px; background: #111; }
     .header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; height: 40px; }
     .brand-title { font-size: 10px; font-weight: 800; color: var(--primary); letter-spacing: 0.5px; opacity: 0.8; }
+    
     #recent-list { flex: 1; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; align-items: center; }
     .recent-item { min-width: 32px; height: 32px; background: rgba(255,255,255,0.05); border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid #333; flex-shrink: 0; cursor: pointer; }
     .recent-item img { width: 75%; height: 75%; object-fit: contain; }
@@ -60,10 +60,12 @@
 
     .search-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
     #search { flex: 1; background:#1a1a1a; border:1px solid #333; color:white; padding: 6px 12px; border-radius: 6px; font-size: 11px; outline: none; }
+    .stats-box { display: flex; gap: 4px; align-items: center; }
     #count { font-size: 9px; color: var(--primary); font-weight: bold; background: rgba(0, 229, 255, 0.1); padding: 3px 6px; border-radius: 4px; }
+    #online-count { font-size: 9px; color: var(--online); font-weight: bold; background: rgba(76, 175, 80, 0.1); padding: 3px 6px; border-radius: 4px; }
 
     .tabs { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
-    .tab-btn { padding: 5px 12px; background: #1a1a1a; border: 1px solid #333; color: #bbb; border-radius: 5px; font-size: 10px; white-space: nowrap; cursor: pointer; }
+    .tab-btn { padding: 5px 10px; background: #1a1a1a; border: 1px solid #333; color: #bbb; border-radius: 5px; font-size: 10px; white-space: nowrap; cursor: pointer; }
     .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
 
     #ticker { background: #001a1a; color: #fff; padding: 3px 0; font-size: 9px; border-bottom: 1px solid var(--primary); }
@@ -72,14 +74,16 @@
 
     #content-area { position: absolute; width: 100%; left: 0; overflow-y: auto; background: var(--bg); -webkit-overflow-scrolling: touch; }
     #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; padding: 15px; }
-    .channel-card { background: var(--card); border-radius: 10px; padding: 10px 5px; text-align: center; border: 1px solid rgba(255,255,255,0.05); height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; }
-    .channel-logo { max-width: 60%; height: 32px; object-fit: contain; margin-bottom: 5px; pointer-events: none;}
-    .channel-name { font-size: 9px; color: #ccc; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; width: 90%; }
+    
+    /* চ্যানেল কার্ড এবং স্টার বাটন */
+    .channel-card { background: var(--card); border-radius: 10px; padding: 10px 5px; text-align: center; border: 1px solid rgba(255,255,255,0.05); height: 85px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; user-select: none; }
+    .fav-star { position: absolute; top: 6px; right: 6px; font-size: 16px; color: rgba(255,255,255,0.2); z-index: 5; transition: 0.2s; padding: 2px; }
+    .fav-star.active { color: var(--star); text-shadow: 0 0 5px rgba(255, 215, 0, 0.5); }
+    
+    .channel-logo { max-width: 60%; height: 32px; object-fit: contain; margin-bottom: 5px; pointer-events: none; }
+    .channel-name { font-size: 9px; color: #ccc; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; width: 90%; pointer-events: none; }
 
-    .dev-footer { padding: 20px 0 40px 0; text-align: center; font-size: 9px; }
-    .dev-link { text-decoration: none; color: rgba(255, 255, 255, 0.4); padding: 5px 12px; border-radius: 50px; border: 1px solid rgba(0, 229, 255, 0.15); }
-
-    #confirm-box { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1a1a1a; border: 1px solid var(--focus); padding: 20px; border-radius: 10px; text-align: center; display: none; z-index: 3000; width: 220px; }
+    .footer-credit { padding: 20px 0 60px 0; text-align: center; color: #555; font-size: 10px; letter-spacing: 1px; }
   </style>
 </head>
 <body>
@@ -109,10 +113,15 @@
           <button onclick="shareApp()" class="circle-btn btn-share">🔗</button>
         </div>
       </div>
+      
       <div class="search-row">
         <input type="text" id="search" placeholder="সার্চ চ্যানেল...">
-        <span id="count">0 CH</span>
+        <div class="stats-box">
+          <span id="count">0 CH</span>
+          <span id="online-count">... Online</span>
+        </div>
       </div>
+
       <div class="tabs">
         <button class="tab-btn active" onclick="filterCat('all', this)">All</button>
         <button class="tab-btn" onclick="filterCat('sports', this)">Live Sports</button>
@@ -125,83 +134,57 @@
 
 <div id="content-area">
   <div id="channelList">লোডিং...</div>
-  <div class="dev-footer">
-    <a href="https://telegram.dog/techbd_group" target="_blank" class="dev-link">Developed by <b>SOHEL TANVER</b></a>
-  </div>
-</div>
-
-<div id="confirm-box">
-  <p id="confirm-text" style="color: white; font-size: 13px; margin-bottom: 15px;"></p>
-  <button id="btn-yes" style="background:var(--accent); color:white; padding:8px 20px; border:none; border-radius:5px; margin-right:10px;">হ্যাঁ</button>
-  <button onclick="closeConfirm()" style="background:#333; color:white; padding:8px 20px; border:none; border-radius:5px;">না</button>
+  <div class="footer-credit">DEVELOPED BY <b style="color:var(--primary)">SOHEL TANVER</b></div>
 </div>
 
 <script>
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let recentChannels = JSON.parse(localStorage.getItem('recentCh')) || [];
-let currentCategory = 'all', hls = null, selectedId = null;
+let currentCategory = 'all', hls = null;
 const video = document.getElementById("video");
 const contentArea = document.getElementById("content-area");
 
-/* --- স্মার্ট রিফ্রেশ লজিক (Chrome Style) --- */
-let startY = 0;
-let isPulling = false;
-const PULL_THRESHOLD = 150; // ১৫০ পিক্সেল টানলে রিফ্রেশ হবে
+/* --- স্মার্ট রিফ্রেশ --- */
+let startY = 0, isTop = false;
+const REFRESH_DIST = 200; 
 const loader = document.getElementById('ptr-loader');
 const path = document.getElementById('ptr-path');
 
 contentArea.addEventListener('touchstart', (e) => {
-  // শুধুমাত্র তখনই কাজ করবে যখন ইউজার একদম উপরে (Top) আছে
-  if (contentArea.scrollTop <= 0) {
-    startY = e.touches[0].pageY;
-    isPulling = true;
-  } else {
-    isPulling = false;
-  }
+    if (contentArea.scrollTop <= 5) { startY = e.touches[0].pageY; isTop = true; } 
+    else { isTop = false; }
 }, {passive: true});
 
 contentArea.addEventListener('touchmove', (e) => {
-  if (!isPulling) return;
-  
-  const moveY = e.touches[0].pageY;
-  const diff = moveY - startY;
-
-  // যদি ইউজার নিচে স্ক্রল করার পরিবর্তে উপরে টান দেয়
-  if (diff > 0 && contentArea.scrollTop <= 0) {
-    // স্ক্রলিং রেজিস্ট্যান্স (টানলে যেন একটু শক্ত লাগে)
-    const pullDistance = Math.min(diff * 0.4, 100); 
-    loader.style.top = (pullDistance + 20) + 'px';
-    
-    // আইকন এনিমেশন
-    const dashOffset = Math.max(60 - (diff / PULL_THRESHOLD) * 60, 0);
-    path.style.strokeDashoffset = dashOffset;
-    loader.querySelector('svg').style.transform = `rotate(${diff * 2}deg)`;
-  } else {
-    // যদি ভুল করে নিচে স্ক্রল শুরু করে দেয়, পুলিং বন্ধ করে দাও
-    isPulling = false;
-    loader.style.top = '-60px';
-  }
+    if (!isTop) return;
+    let moveY = e.touches[0].pageY, diff = moveY - startY;
+    if (diff > 50 && contentArea.scrollTop <= 5) {
+        let visualDiff = Math.min(diff * 0.35, 100);
+        loader.style.top = (visualDiff + 10) + 'px';
+        path.style.strokeDashoffset = Math.max(60 - (diff / REFRESH_DIST) * 60, 0);
+        loader.querySelector('svg').style.transform = `rotate(${diff * 1.5}deg)`;
+    }
 }, {passive: true});
 
 contentArea.addEventListener('touchend', (e) => {
-  if (!isPulling) return;
-  
-  const endY = e.changedTouches[0].pageY;
-  const finalDiff = endY - startY;
-
-  if (finalDiff > PULL_THRESHOLD && contentArea.scrollTop <= 0) {
-    loader.classList.add('ptr-loading');
-    loader.style.top = '100px';
-    setTimeout(() => { location.reload(); }, 600);
-  } else {
-    loader.style.top = '-60px';
-    path.style.strokeDashoffset = 60;
-  }
-  isPulling = false;
+    if (!isTop) return;
+    let finalDiff = e.changedTouches[0].pageY - startY;
+    if (finalDiff > REFRESH_DIST && contentArea.scrollTop <= 5) {
+        loader.classList.add('ptr-loading'); loader.style.top = '100px';
+        setTimeout(() => { location.reload(); }, 600);
+    } else {
+        loader.style.top = '-60px'; path.style.strokeDashoffset = 60;
+    }
+    isTop = false;
 });
 
-/* ------------------------------------------- */
+/* --- অনলাইন কাউন্টার --- */
+function updateOnline() {
+    const online = Math.floor(Math.random() * (30 - 10 + 1)) + 10;
+    document.getElementById("online-count").innerText = online + " Online";
+}
+setInterval(updateOnline, 12000);
 
 function adjustLayout() {
   const topH = document.getElementById('top-section').offsetHeight;
@@ -212,6 +195,7 @@ window.addEventListener('resize', adjustLayout);
 
 async function init() {
   try {
+    updateOnline();
     const res = await fetch(playlistUrl);
     const data = await res.text();
     allChannels = parseM3U(data);
@@ -219,9 +203,7 @@ async function init() {
     renderRecent();
     adjustLayout();
     if(allChannels.length > 0) playFromUrl(allChannels[0].url, allChannels[0].name, allChannels[0].logo, false);
-  } catch(e) {
-    document.getElementById("channelList").innerText = "Error Loading Channels.";
-  }
+  } catch(e) { document.getElementById("channelList").innerText = "Error Loading."; }
 }
 
 function parseM3U(data) {
@@ -234,9 +216,7 @@ function parseM3U(data) {
       cur.logo = l.match(/tvg-logo="([^"]+)"/)?.[1] || "";
       cur.cat = (l.match(/group-title="([^"]+)"/)?.[1] || "").toLowerCase();
       cur.id = btoa(unescape(encodeURIComponent(cur.name)));
-    } else if (l.startsWith("http")) {
-      cur.url = l; list.push({...cur}); cur = {};
-    }
+    } else if (l.startsWith("http")) { cur.url = l; list.push({...cur}); cur = {}; }
   });
   return list;
 }
@@ -244,22 +224,44 @@ function parseM3U(data) {
 function render(list) {
   const grid = document.getElementById("channelList");
   if(list.length === 0) { grid.innerHTML = "No Channels Found."; return; }
-  grid.innerHTML = list.map(ch => `
-    <div class="channel-card" onclick="playFromUrl('${ch.url}', '${ch.name}', '${ch.logo}')" oncontextmenu="event.preventDefault(); askFav('${ch.id}')">
-      ${favorites.includes(ch.id) ? '<span style="position:absolute;top:5px;right:5px;color:var(--star);font-size:10px;">★</span>' : ''}
-      <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://via.placeholder.com/50x30?text=TV'">
-      <div class="channel-name">${ch.name}</div>
-    </div>
-  `).join('');
+  
+  grid.innerHTML = list.map(ch => {
+    const isFav = favorites.includes(ch.id);
+    return `
+      <div class="channel-card" onclick="playFromUrl('${ch.url}', '${ch.name}', '${ch.logo}')">
+        <span class="fav-star ${isFav ? 'active' : ''}" onclick="toggleFav(event, '${ch.id}')">★</span>
+        <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://via.placeholder.com/50x30?text=TV'">
+        <div class="channel-name">${ch.name}</div>
+      </div>
+    `;
+  }).join('');
   document.getElementById("count").textContent = list.length + " CH";
+}
+
+// ফেভারিট টগল করার ফাংশন
+function toggleFav(event, id) {
+  event.stopPropagation(); // কার্ডের ক্লিক ইভেন্ট বন্ধ করার জন্য
+  const star = event.target;
+  
+  if (favorites.includes(id)) {
+    favorites = favorites.filter(f => f !== id);
+    star.classList.remove('active');
+  } else {
+    favorites.push(id);
+    star.classList.add('active');
+  }
+  
+  localStorage.setItem('myFavs', JSON.stringify(favorites));
+  
+  // যদি বর্তমানে ফেভারিট ট্যাব খোলা থাকে, তবে লিস্ট আপডেট করো
+  if (currentCategory === 'fav') {
+    filterCat('fav', document.querySelector('.tab-btn[onclick*="fav"]'));
+  }
 }
 
 function renderRecent() {
   const listEl = document.getElementById("recent-list");
-  if (recentChannels.length === 0) {
-    listEl.innerHTML = '<span style="color:#333; font-size:9px; margin-left:10px;">সাম্প্রতিক নেই</span>';
-    return;
-  }
+  if (recentChannels.length === 0) { listEl.innerHTML = '<span style="color:#333; font-size:9px; margin-left:10px;">সাম্প্রতিক নেই</span>'; return; }
   listEl.innerHTML = recentChannels.map(ch => `
     <div class="recent-item" onclick="playFromUrl('${ch.url}', '${ch.name}', '${ch.logo}')">
       <img src="${ch.logo}" onerror="this.src='https://via.placeholder.com/20x20?text=TV'">
@@ -296,29 +298,9 @@ function filterCat(cat, btn) {
 }
 
 function shareApp() {
-  if (navigator.share) {
-    navigator.share({ title: 'Avia Tv', text: 'লাইভ টিভি দেখুন এখানে!', url: window.location.href });
-  } else {
-    navigator.clipboard.writeText(window.location.href);
-    alert("Link Copied!");
-  }
+  if (navigator.share) { navigator.share({ title: 'Avia Tv', text: 'লাইভ টিভি দেখুন!', url: window.location.href }); }
+  else { navigator.clipboard.writeText(window.location.href); alert("Link Copied!"); }
 }
-
-function askFav(id) {
-  selectedId = id;
-  document.getElementById("confirm-box").style.display = "block";
-  document.getElementById("confirm-text").innerText = favorites.includes(id) ? "ফেভারিট থেকে বাদ দিবেন?" : "ফেভারিটে যোগ করবেন?";
-}
-
-document.getElementById("btn-yes").onclick = function() {
-  if (favorites.includes(selectedId)) favorites = favorites.filter(f => f !== selectedId);
-  else favorites.push(selectedId);
-  localStorage.setItem('myFavs', JSON.stringify(favorites));
-  document.getElementById("confirm-box").style.display = "none";
-  filterCat(currentCategory, document.querySelector('.tab-btn.active'));
-};
-
-function closeConfirm() { document.getElementById("confirm-box").style.display = "none"; }
 
 document.getElementById("search").addEventListener('input', (e) => {
   const q = e.target.value.toLowerCase();
