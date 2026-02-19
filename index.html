@@ -24,19 +24,20 @@
     html, body { 
       margin: 0; padding: 0; width: 100%; height: 100%; 
       overflow: hidden; background: var(--bg); font-family: 'Segoe UI', sans-serif;
-      overscroll-behavior: none !important;
+      overscroll-behavior: none;
     }
 
-    /* Chrome Style Refresh Loader */
+    /* --- স্ট্যান্ডার্ড রিফ্রেশ লোডার স্টাইল --- */
     #ptr-loader {
-      position: fixed; top: -60px; left: 50%; transform: translateX(-50%);
-      width: 42px; height: 42px; background: #fff; border-radius: 50%;
+      position: fixed; top: -50px; left: 50%; transform: translateX(-50%);
+      width: 40px; height: 40px; background: #fff; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.6); z-index: 9999;
-      transition: top 0.2s cubic-bezier(0, 0, 0.2, 1);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.3); z-index: 9999;
+      transition: transform 0.1s linear, top 0.2s ease;
+      pointer-events: none;
     }
-    #ptr-loader svg { width: 24px; height: 24px; stroke: var(--primary); fill: none; stroke-width: 3; stroke-dasharray: 60; stroke-dashoffset: 60; }
-    .ptr-loading svg { animation: ptr-rotate 0.8s linear infinite; stroke-dashoffset: 0 !important; }
+    #ptr-loader svg { width: 22px; height: 22px; stroke: var(--primary); fill: none; stroke-width: 3; }
+    .ptr-loading svg { animation: ptr-rotate 0.8s linear infinite; }
     @keyframes ptr-rotate { 100% { transform: rotate(360deg); } }
 
     #top-section { position: fixed; top: 0; left: 0; width: 100%; background: #111; z-index: 1000; border-bottom: 1px solid #222; }
@@ -80,7 +81,6 @@
     .channel-logo { max-width: 60%; height: 32px; object-fit: contain; margin-bottom: 5px; pointer-events: none; }
     .channel-name { font-size: 9px; color: #ccc; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; width: 90%; pointer-events: none; }
 
-    /* Footer Section */
     .footer-area { padding: 30px 0 60px 0; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; }
     #online-status { font-size: 10px; color: var(--online); font-weight: bold; background: rgba(76, 175, 80, 0.1); padding: 4px 12px; border-radius: 50px; border: 1px solid rgba(76, 175, 80, 0.2); display: inline-flex; align-items: center; gap: 5px; }
     #online-status::before { content: ""; width: 6px; height: 6px; background: var(--online); border-radius: 50%; display: inline-block; animation: blink 1s infinite; }
@@ -92,7 +92,8 @@
 
 <div id="ptr-loader">
   <svg viewBox="0 0 30 30">
-    <path id="ptr-path" d="M15,3 A12,12 0 1,1 14.99,3"></path>
+    <path d="M15,5 A10,10 0 1,1 14.99,5" stroke-linecap="round"></path>
+    <polyline points="15,2 18,5 15,8" fill="none" stroke-linecap="round" stroke-linejoin="round"></polyline>
   </svg>
 </div>
 
@@ -147,46 +148,60 @@ let currentCategory = 'all', hls = null;
 const video = document.getElementById("video");
 const contentArea = document.getElementById("content-area");
 
-/* --- স্মার্ট রিফ্রেশ --- */
-let startY = 0, isTop = false;
-const REFRESH_DIST = 200; 
+/* --- স্ট্যান্ডার্ড পুল টু রিফ্রেশ লজিক --- */
+let startY = 0, pulling = false;
 const loader = document.getElementById('ptr-loader');
-const path = document.getElementById('ptr-path');
+const PULL_THRESHOLD = 150; // কতটুকু নিচে টানলে রিফ্রেশ হবে
 
 contentArea.addEventListener('touchstart', (e) => {
-    if (contentArea.scrollTop <= 5) { startY = e.touches[0].pageY; isTop = true; } 
-    else { isTop = false; }
+    if (contentArea.scrollTop <= 0) {
+        startY = e.touches[0].pageY;
+        pulling = true;
+    }
 }, {passive: true});
 
 contentArea.addEventListener('touchmove', (e) => {
-    if (!isTop) return;
-    let moveY = e.touches[0].pageY, diff = moveY - startY;
-    if (diff > 50 && contentArea.scrollTop <= 5) {
-        let visualDiff = Math.min(diff * 0.35, 100);
-        loader.style.top = (visualDiff + 10) + 'px';
-        path.style.strokeDashoffset = Math.max(60 - (diff / REFRESH_DIST) * 60, 0);
-        loader.querySelector('svg').style.transform = `rotate(${diff * 1.5}deg)`;
+    if (!pulling) return;
+    const currentY = e.touches[0].pageY;
+    const diff = currentY - startY;
+
+    if (diff > 0 && contentArea.scrollTop <= 0) {
+        // Resistance (টানলে বাধা অনুভব হবে)
+        const move = Math.pow(diff, 0.8); 
+        loader.style.top = (move - 40) + 'px';
+        loader.style.transform = `translateX(-50%) rotate(${diff * 2}deg)`;
+        
+        // নির্দিষ্ট লিমিটের পর থামিয়ে দেওয়া
+        if (diff > PULL_THRESHOLD) {
+            loader.style.background = "#e0f7fa";
+        } else {
+            loader.style.background = "#fff";
+        }
+    } else {
+        pulling = false;
     }
 }, {passive: true});
 
 contentArea.addEventListener('touchend', (e) => {
-    if (!isTop) return;
-    let finalDiff = e.changedTouches[0].pageY - startY;
-    if (finalDiff > REFRESH_DIST && contentArea.scrollTop <= 5) {
-        loader.classList.add('ptr-loading'); loader.style.top = '100px';
-        setTimeout(() => { location.reload(); }, 600);
+    if (!pulling) return;
+    const diff = e.changedTouches[0].pageY - startY;
+    
+    if (diff > PULL_THRESHOLD && contentArea.scrollTop <= 0) {
+        // রিফ্রেশ শুরু
+        loader.classList.add('ptr-loading');
+        loader.style.top = '80px';
+        setTimeout(() => {
+            location.reload();
+        }, 800);
     } else {
-        loader.style.top = '-60px'; path.style.strokeDashoffset = 60;
+        // রিফ্রেশ ক্যান্সেল
+        loader.style.top = '-50px';
     }
-    isTop = false;
+    pulling = false;
 });
 
-/* --- জেনুইন অনলাইন কাউন্টার সিমুলেশন (Analytics এর সাথে সামঞ্জস্যপূর্ণ) --- */
 function updateOnlineStatus() {
-    // এটি যেহেতু স্ট্যাটিক ফাইল, আমরা ভিজিটর সেশন বা সহজ ট্র্যাকিং লজিক ব্যবহার করছি
-    // রিয়েল-টাইম নির্ভুল ডেটা সাধারণত গুগল এনালিটিক্স ড্যাশবোর্ডে দেখা যায়।
-    // এখানে আমরা একটি বেস ভ্যালু রাখছি যা সাইটে অ্যাক্টিভিটি বাড়লে সামান্য বাড়ে।
-    let baseOnline = Math.floor(Math.random() * 3) + 1; // উদাহরণ: ১-৩ জন
+    let baseOnline = Math.floor(Math.random() * 3) + 1;
     document.getElementById("online-status").innerText = baseOnline + " Online Now";
 }
 
