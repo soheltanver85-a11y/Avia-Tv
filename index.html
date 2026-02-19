@@ -24,7 +24,6 @@
     html, body { 
       margin: 0; padding: 0; width: 100%; height: 100%; 
       background: var(--bg); font-family: 'Segoe UI', sans-serif;
-      /* স্ট্যান্ডার্ড রিফ্রেশ এনাবল করা হয়েছে কিন্তু জোরপূর্বক কোনো স্ক্রিপ্ট নেই */
       overscroll-behavior-y: contain; 
     }
 
@@ -63,8 +62,6 @@
     #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; padding: 15px; }
     
     .channel-card { background: var(--card); border-radius: 10px; padding: 10px 5px; text-align: center; border: 1px solid rgba(255,255,255,0.05); height: 85px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; user-select: none; }
-    
-    /* Favorite Star Option - সংরক্ষিত */
     .fav-star { position: absolute; top: 6px; right: 6px; font-size: 16px; color: rgba(255,255,255,0.2); z-index: 5; transition: 0.2s; padding: 2px; }
     .fav-star.active { color: var(--star); text-shadow: 0 0 5px rgba(255, 215, 0, 0.5); }
     
@@ -131,16 +128,6 @@ let currentCategory = 'all', hls = null;
 const video = document.getElementById("video");
 const contentArea = document.getElementById("content-area");
 
-/* --- রিফ্রেশ লজিক পরিবর্তন --- 
-Rivo TV-তে কোনো কাস্টম Pull-to-refresh কোড নেই, তাই আপনার কোড থেকেও 
-বিরক্তিকর টাচ ইভেন্টগুলো সরিয়ে ফেলা হয়েছে। এখন এটি একদম স্মুথলি কাজ করবে। 
-*/
-
-function updateOnlineStatus() {
-    let baseOnline = Math.floor(Math.random() * 3) + 1;
-    document.getElementById("online-status").innerText = baseOnline + " Online Now";
-}
-
 function adjustLayout() {
   const topH = document.getElementById('top-section').offsetHeight;
   contentArea.style.marginTop = topH + 'px';
@@ -150,7 +137,6 @@ window.addEventListener('resize', adjustLayout);
 
 async function init() {
   try {
-    updateOnlineStatus();
     const res = await fetch(playlistUrl);
     const data = await res.text();
     allChannels = parseM3U(data);
@@ -258,6 +244,32 @@ document.getElementById("search").addEventListener('input', (e) => {
 });
 
 init();
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+  import { getDatabase, ref, onValue, push, set, onDisconnect } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+
+  const firebaseConfig = {
+    databaseURL: "https://avia-tv-default-rtdb.firebaseio.com/" 
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const onlineUsersRef = ref(db, 'online_users');
+  const myUserRef = push(onlineUsersRef);
+
+  set(myUserRef, true);
+  onDisconnect(myUserRef).remove();
+
+  onValue(onlineUsersRef, (snapshot) => {
+    const data = snapshot.val();
+    const count = data ? Object.keys(data).length : 0;
+    const statusEl = document.getElementById("online-status");
+    if (statusEl) {
+      statusEl.innerText = count + " Real-time Online";
+    }
+  });
 </script>
 </body>
 </html>
