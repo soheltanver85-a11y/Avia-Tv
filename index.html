@@ -9,9 +9,8 @@
     gtag('config', 'G-99V1DXBKKT');
   </script>
 
-  <script src="https://pl28744070.effectivegatecpm.com/d0/6e/79/d06e79767e37c835c1f36cc898ad6320.js"></script>
-  
-  <script src="https://pl28744078.effectivegatecpm.com/77/45/12/774512aa06cc31fabddd395b71e127b6.js"></script>
+  <script defer src="https://pl28744070.effectivegatecpm.com/d0/6e/79/d06e79767e37c835c1f36cc898ad6320.js"></script>
+  <script defer src="https://pl28744078.effectivegatecpm.com/77/45/12/774512aa06cc31fabddd395b71e127b6.js"></script>
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -33,7 +32,7 @@
 
     #top-section { position: fixed; top: 0; left: 0; width: 100%; background: #111; z-index: 1000; border-bottom: 1px solid #222; }
     #player { width:100%; background:black; }
-    .video-container { width: 100%; aspect-ratio: 16/9; max-width: 1200px; margin: 0 auto; }
+    .video-container { width: 100%; aspect-ratio: 16/9; max-width: 1200px; margin: 0 auto; background: #000; }
     video { width:100%; height:100%; display: block; object-fit: contain; }
     
     header { padding: 8px 12px; background: #111; }
@@ -64,7 +63,6 @@
 
     #content-area { position: relative; width: 100%; overflow-y: auto; background: var(--bg); -webkit-overflow-scrolling: touch; }
     
-    /* Ad Container Style */
     .ad-slot { width: 100%; display: flex; justify-content: center; padding: 10px 0; background: rgba(255,255,255,0.02); border-bottom: 1px solid #222; margin-bottom: 10px; }
 
     #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; padding: 15px; }
@@ -87,7 +85,9 @@
 
 <div id="top-section">
   <div id="player">
-    <div class="video-container"><video id="video" controls autoplay playsinline muted></video></div>
+    <div class="video-container">
+      <video id="video" controls playsinline></video>
+    </div>
     <div id="ticker">
       <div class="ticker-content">
         <span id="now-playing-text" style="color: var(--primary); font-weight: bold;">চ্যানেল নির্বাচন করুন...</span>
@@ -121,7 +121,6 @@
 </div>
 
 <div id="content-area">
-  
   <div class="ad-slot">
     <script async="async" data-cfasync="false" src="https://pl28744080.effectivegatecpm.com/4b387a67d1966ab2108cd89fa1dd0a8a/invoke.js"></script>
     <div id="container-4b387a67d1966ab2108cd89fa1dd0a8a"></div>
@@ -146,12 +145,9 @@ const contentArea = document.getElementById("content-area");
 function adjustLayout() {
   const topH = document.getElementById('top-section').offsetHeight;
   contentArea.style.marginTop = topH + 'px';
-  // Adjust min-height taking account of ads
   contentArea.style.minHeight = (window.innerHeight - topH) + 'px';
 }
 window.addEventListener('resize', adjustLayout);
-// Re-adjust after a short delay to ensure header height is calculated correctly
-setTimeout(adjustLayout, 1000);
 
 async function init() {
   try {
@@ -161,7 +157,8 @@ async function init() {
     render(allChannels);
     renderRecent();
     adjustLayout();
-    if(allChannels.length > 0) playFromUrl(allChannels[0].url, allChannels[0].name, allChannels[0].logo, false);
+    // প্রথম চ্যানেল লোড হবে কিন্তু অটো-প্লে হবে না
+    if(allChannels.length > 0) playFromUrl(allChannels[0].url, allChannels[0].name, allChannels[0].logo, false, false);
   } catch(e) { document.getElementById("channelList").innerText = "Error Loading."; }
 }
 
@@ -189,7 +186,7 @@ function render(list) {
     return `
       <div class="channel-card" onclick="playFromUrl('${ch.url}', '${ch.name}', '${ch.logo}')">
         <span class="fav-star ${isFav ? 'active' : ''}" onclick="toggleFav(event, '${ch.id}')">★</span>
-        <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://via.placeholder.com/50x30?text=TV'">
+        <img src="${ch.logo}" class="channel-logo" loading="lazy" onerror="this.src='https://via.placeholder.com/50x30?text=TV'">
         <div class="channel-name">${ch.name}</div>
       </div>
     `;
@@ -223,7 +220,8 @@ function renderRecent() {
   `).join('');
 }
 
-function playFromUrl(url, name, logo, updateRecent = true) {
+// play function updated with shouldPlay param
+function playFromUrl(url, name, logo, updateRecent = true, shouldPlay = true) {
   document.getElementById("now-playing-text").innerText = "দেখছেন: " + name + " | ";
   if (updateRecent) {
     recentChannels = recentChannels.filter(c => c.url !== url);
@@ -235,8 +233,13 @@ function playFromUrl(url, name, logo, updateRecent = true) {
   if (hls) hls.destroy();
   if (Hls.isSupported()) {
     hls = new Hls(); hls.loadSource(url); hls.attachMedia(video);
-    hls.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(() => { video.muted = true; video.play(); }));
-  } else if (video.canPlayType('application/vnd.apple.mpegurl')) { video.src = url; }
+    if(shouldPlay) {
+      hls.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(() => { video.muted = true; video.play(); }));
+    }
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) { 
+    video.src = url; 
+    if(shouldPlay) video.play();
+  }
 }
 
 function filterCat(cat, btn) {
