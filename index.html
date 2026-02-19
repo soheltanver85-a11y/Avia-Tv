@@ -28,16 +28,14 @@
     html, body { 
       margin: 0; padding: 0; width: 100%; height: 100%; 
       background: var(--bg); font-family: 'Segoe UI', sans-serif;
-      overscroll-behavior-y: contain; 
     }
 
+    /* Fixed Top Section */
     #top-section { position: fixed; top: 0; left: 0; width: 100%; background: #111; z-index: 1000; border-bottom: 1px solid #222; }
     
-    /* স্থির প্লেয়ার স্টাইল */
     .video-container { 
       width: 100%; aspect-ratio: 16/9; max-width: 1200px; margin: 0 auto; 
-      background: #000 url('https://via.placeholder.com/800x450/000?text=Avia+Tv+Live') no-repeat center; 
-      background-size: contain;
+      background: #000;
     }
     video { width:100%; height:100%; display: block; object-fit: contain; }
     
@@ -67,25 +65,24 @@
     .ticker-content { display: inline-block; animation: marquee 20s linear infinite; white-space: nowrap; }
     @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
-    #content-area { position: relative; width: 100%; overflow-y: auto; background: var(--bg); -webkit-overflow-scrolling: touch; }
+    #content-area { position: relative; width: 100%; background: var(--bg); }
     
-    /* অ্যাড এরিয়া স্টাইল */
     .ad-slot { width: 100%; display: flex; flex-direction: column; align-items: center; padding: 10px 0; background: rgba(255,255,255,0.02); border-bottom: 1px solid #222; margin-bottom: 10px; }
 
     #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; padding: 15px; }
     
-    .channel-card { background: var(--card); border-radius: 10px; padding: 10px 5px; text-align: center; border: 1px solid rgba(255,255,255,0.05); height: 85px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; user-select: none; }
+    .channel-card { background: var(--card); border-radius: 10px; padding: 10px 5px; text-align: center; border: 1px solid rgba(255,255,255,0.05); height: 85px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; }
+    .channel-card:active { border-color: var(--primary); background: rgba(0, 229, 255, 0.05); }
+    
     .fav-star { position: absolute; top: 6px; right: 6px; font-size: 16px; color: rgba(255,255,255,0.2); z-index: 5; transition: 0.2s; padding: 2px; }
     .fav-star.active { color: var(--star); text-shadow: 0 0 5px rgba(255, 215, 0, 0.5); }
     
     .channel-logo { max-width: 60%; height: 32px; object-fit: contain; margin-bottom: 5px; pointer-events: none; }
     .channel-name { font-size: 9px; color: #ccc; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; width: 90%; pointer-events: none; }
 
-    .footer-area { padding: 30px 0 60px 0; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .footer-area { padding: 30px 0 60px 0; text-align: center; }
     #online-status { font-size: 10px; color: var(--online); font-weight: bold; background: rgba(76, 175, 80, 0.1); padding: 4px 12px; border-radius: 50px; border: 1px solid rgba(76, 175, 80, 0.2); display: inline-flex; align-items: center; gap: 5px; }
-    #online-status::before { content: ""; width: 6px; height: 6px; background: var(--online); border-radius: 50%; display: inline-block; animation: blink 1s infinite; }
-    @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-    .footer-credit { color: #555; font-size: 10px; letter-spacing: 1px; }
+    .footer-credit { color: #555; font-size: 10px; letter-spacing: 1px; margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -152,7 +149,6 @@ const contentArea = document.getElementById("content-area");
 function adjustLayout() {
   const topH = document.getElementById('top-section').offsetHeight;
   contentArea.style.marginTop = topH + 'px';
-  contentArea.style.minHeight = (window.innerHeight - topH) + 'px';
 }
 window.addEventListener('resize', adjustLayout);
 
@@ -164,7 +160,7 @@ async function init() {
     render(allChannels);
     renderRecent();
     adjustLayout();
-    // প্রথমবার স্থির থাকবে, লোডিং স্পিনার আসবে না
+    // Default স্থির থাকবে, স্ক্রল হবে না
     if(allChannels.length > 0) playFromUrl(allChannels[0].url, allChannels[0].name, allChannels[0].logo, false, false);
   } catch(e) { document.getElementById("channelList").innerText = "Error Loading."; }
 }
@@ -186,8 +182,6 @@ function parseM3U(data) {
 
 function render(list) {
   const grid = document.getElementById("channelList");
-  if(list.length === 0) { grid.innerHTML = "No Channels Found."; return; }
-  
   grid.innerHTML = list.map(ch => {
     const isFav = favorites.includes(ch.id);
     return `
@@ -212,9 +206,7 @@ function toggleFav(event, id) {
     star.classList.add('active');
   }
   localStorage.setItem('myFavs', JSON.stringify(favorites));
-  if (currentCategory === 'fav') {
-    filterCat('fav', document.querySelector('.tab-btn[onclick*="fav"]'));
-  }
+  if (currentCategory === 'fav') filterCat('fav', document.querySelector('.tab-btn[style*="star"]'));
 }
 
 function renderRecent() {
@@ -227,6 +219,7 @@ function renderRecent() {
   `).join('');
 }
 
+// play function updated to REMOVE scroll behavior
 function playFromUrl(url, name, logo, updateRecent = true, shouldPlay = true) {
   document.getElementById("now-playing-text").innerText = "দেখছেন: " + name + " | ";
   
@@ -239,7 +232,6 @@ function playFromUrl(url, name, logo, updateRecent = true, shouldPlay = true) {
   }
   
   if (hls) hls.destroy();
-  
   if (Hls.isSupported()) {
     hls = new Hls(); hls.loadSource(url); hls.attachMedia(video);
     if(shouldPlay) {
@@ -249,9 +241,7 @@ function playFromUrl(url, name, logo, updateRecent = true, shouldPlay = true) {
     video.src = url; 
     if(shouldPlay) video.play();
   }
-  
-  // ভিডিও প্লে হলে স্ক্রল করে উপরে নিয়ে যাবে
-  if(shouldPlay) window.scrollTo({top: 0, behavior: 'smooth'});
+  // নোট: এখানে কোনো window.scrollTo রাখা হয়নি, তাই ফোকাস চ্যানেলেই থাকবে।
 }
 
 function filterCat(cat, btn) {
@@ -282,26 +272,18 @@ init();
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
   import { getDatabase, ref, onValue, push, set, onDisconnect } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
-
-  const firebaseConfig = {
-    databaseURL: "https://avia-tv-default-rtdb.firebaseio.com/" 
-  };
-
+  const firebaseConfig = { databaseURL: "https://avia-tv-default-rtdb.firebaseio.com/" };
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
   const onlineUsersRef = ref(db, 'online_users');
   const myUserRef = push(onlineUsersRef);
-
   set(myUserRef, true);
   onDisconnect(myUserRef).remove();
-
   onValue(onlineUsersRef, (snapshot) => {
     const data = snapshot.val();
     const count = data ? Object.keys(data).length : 0;
     const statusEl = document.getElementById("online-status");
-    if (statusEl) {
-      statusEl.innerText = count + " Real-time Online";
-    }
+    if (statusEl) statusEl.innerText = count + " Real-time Online";
   });
 </script>
 </body>
