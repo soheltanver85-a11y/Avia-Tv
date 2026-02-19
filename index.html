@@ -9,6 +9,10 @@
     gtag('config', 'G-99V1DXBKKT');
   </script>
 
+  <script src="https://pl28744070.effectivegatecpm.com/d0/6e/79/d06e79767e37c835c1f36cc898ad6320.js"></script>
+  
+  <script src="https://pl28744078.effectivegatecpm.com/77/45/12/774512aa06cc31fabddd395b71e127b6.js"></script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Avia Tv</title>
@@ -59,6 +63,10 @@
     @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
     #content-area { position: relative; width: 100%; overflow-y: auto; background: var(--bg); -webkit-overflow-scrolling: touch; }
+    
+    /* Ad Container Style */
+    .ad-slot { width: 100%; display: flex; justify-content: center; padding: 10px 0; background: rgba(255,255,255,0.02); border-bottom: 1px solid #222; margin-bottom: 10px; }
+
     #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; padding: 15px; }
     
     .channel-card { background: var(--card); border-radius: 10px; padding: 10px 5px; text-align: center; border: 1px solid rgba(255,255,255,0.05); height: 85px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; user-select: none; }
@@ -113,7 +121,14 @@
 </div>
 
 <div id="content-area">
+  
+  <div class="ad-slot">
+    <script async="async" data-cfasync="false" src="https://pl28744080.effectivegatecpm.com/4b387a67d1966ab2108cd89fa1dd0a8a/invoke.js"></script>
+    <div id="container-4b387a67d1966ab2108cd89fa1dd0a8a"></div>
+  </div>
+
   <div id="channelList">লোডিং...</div>
+
   <div class="footer-area">
     <div id="online-status">Loading Online...</div>
     <div class="footer-credit">DEVELOPED BY <b style="color:var(--primary)">SOHEL TANVER</b></div>
@@ -131,9 +146,12 @@ const contentArea = document.getElementById("content-area");
 function adjustLayout() {
   const topH = document.getElementById('top-section').offsetHeight;
   contentArea.style.marginTop = topH + 'px';
+  // Adjust min-height taking account of ads
   contentArea.style.minHeight = (window.innerHeight - topH) + 'px';
 }
 window.addEventListener('resize', adjustLayout);
+// Re-adjust after a short delay to ensure header height is calculated correctly
+setTimeout(adjustLayout, 1000);
 
 async function init() {
   try {
