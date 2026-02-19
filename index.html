@@ -24,21 +24,21 @@
     html, body { 
       margin: 0; padding: 0; width: 100%; height: 100%; 
       overflow: hidden; background: var(--bg); font-family: 'Segoe UI', sans-serif;
-      overscroll-behavior-y: contain; /* ডিফল্ট ব্রাউজার রিফ্রেশ বন্ধ */
+      overscroll-behavior-y: contain; /* ডিফল্ট পুল-টু-রিফ্রেশ বন্ধ */
     }
 
-    /* --- ইউনিক রিফ্রেশ লোডার স্টাইল --- */
+    /* Chrome স্টাইল লোডার */
     #ptr-loader {
-      position: fixed; top: -50px; left: 50%; transform: translateX(-50%);
-      width: 45px; height: 45px; background: #fff; border-radius: 50%;
+      position: fixed; top: -60px; left: 50%; transform: translateX(-50%);
+      width: 40px; height: 40px; background: #fff; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 9999;
-      transition: transform 0.1s linear, top 0.2s ease;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.5); z-index: 9999;
+      transition: top 0.2s cubic-bezier(0,0,0.2,1);
     }
-    #ptr-loader svg { width: 25px; height: 25px; stroke: var(--primary); fill: none; stroke-width: 3; stroke-linecap: round; transform: rotate(0deg); }
-    .ptr-spinning svg { animation: ptr-rotate 0.8s linear infinite; }
+    #ptr-loader svg { width: 24px; height: 24px; stroke: var(--primary); fill: none; stroke-width: 3; stroke-dasharray: 60; stroke-dashoffset: 60; transition: transform 0.1s linear; }
+    
+    .ptr-loading svg { animation: ptr-rotate 0.8s linear infinite; stroke-dashoffset: 0 !important; }
     @keyframes ptr-rotate { 100% { transform: rotate(360deg); } }
-    /* ------------------------------ */
 
     #top-section { position: fixed; top: 0; left: 0; width: 100%; background: #111; z-index: 1000; border-bottom: 1px solid #222; }
     #player { width:100%; background:black; }
@@ -49,7 +49,7 @@
     .header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; height: 40px; }
     .brand-title { font-size: 10px; font-weight: 800; color: var(--primary); letter-spacing: 0.5px; opacity: 0.8; }
     #recent-list { flex: 1; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; align-items: center; }
-    .recent-item { min-width: 32px; height: 32px; background: rgba(255,255,255,0.05); border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid #333; flex-shrink: 0; }
+    .recent-item { min-width: 32px; height: 32px; background: rgba(255,255,255,0.05); border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid #333; flex-shrink: 0; cursor: pointer; }
     .recent-item img { width: 75%; height: 75%; object-fit: contain; }
 
     .action-btns { display: flex; gap: 5px; }
@@ -63,14 +63,14 @@
     #count { font-size: 9px; color: var(--primary); font-weight: bold; background: rgba(0, 229, 255, 0.1); padding: 3px 6px; border-radius: 4px; }
 
     .tabs { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
-    .tab-btn { padding: 5px 12px; background: #1a1a1a; border: 1px solid #333; color: #bbb; border-radius: 5px; font-size: 10px; white-space: nowrap; }
+    .tab-btn { padding: 5px 12px; background: #1a1a1a; border: 1px solid #333; color: #bbb; border-radius: 5px; font-size: 10px; white-space: nowrap; cursor: pointer; }
     .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
 
     #ticker { background: #001a1a; color: #fff; padding: 3px 0; font-size: 9px; border-bottom: 1px solid var(--primary); }
     .ticker-content { display: inline-block; animation: marquee 20s linear infinite; white-space: nowrap; }
     @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
-    #content-area { position: absolute; width: 100%; left: 0; overflow-y: auto; background: var(--bg); }
+    #content-area { position: absolute; width: 100%; left: 0; overflow-y: auto; background: var(--bg); -webkit-overflow-scrolling: touch; }
     #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; padding: 15px; }
     .channel-card { background: var(--card); border-radius: 10px; padding: 10px 5px; text-align: center; border: 1px solid rgba(255,255,255,0.05); height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; }
     .channel-logo { max-width: 60%; height: 32px; object-fit: contain; margin-bottom: 5px; pointer-events: none;}
@@ -86,7 +86,7 @@
 
 <div id="ptr-loader">
   <svg viewBox="0 0 30 30">
-    <path d="M15,3 A12,12 0 1,1 14.99,3" id="ptr-path"></path>
+    <path id="ptr-path" d="M15,3 A12,12 0 1,1 14.99,3"></path>
   </svg>
 </div>
 
@@ -144,47 +144,64 @@ let currentCategory = 'all', hls = null, selectedId = null;
 const video = document.getElementById("video");
 const contentArea = document.getElementById("content-area");
 
-/* --- ইউনিক রিফ্রেশ লজিক (Custom Unique Refresh) --- */
+/* --- স্মার্ট রিফ্রেশ লজিক (Chrome Style) --- */
 let startY = 0;
-const pullLimit = 180; // ১৮০ পিক্সেল টানলে তবেই রিফ্রেশ হবে (খুব অল্প টানে হবে না)
+let isPulling = false;
+const PULL_THRESHOLD = 150; // ১৫০ পিক্সেল টানলে রিফ্রেশ হবে
 const loader = document.getElementById('ptr-loader');
 const path = document.getElementById('ptr-path');
 
 contentArea.addEventListener('touchstart', (e) => {
-  if (contentArea.scrollTop === 0) startY = e.touches[0].pageY;
+  // শুধুমাত্র তখনই কাজ করবে যখন ইউজার একদম উপরে (Top) আছে
+  if (contentArea.scrollTop <= 0) {
+    startY = e.touches[0].pageY;
+    isPulling = true;
+  } else {
+    isPulling = false;
+  }
 }, {passive: true});
 
 contentArea.addEventListener('touchmove', (e) => {
-  let moveY = e.touches[0].pageY;
-  let diff = moveY - startY;
+  if (!isPulling) return;
+  
+  const moveY = e.touches[0].pageY;
+  const diff = moveY - startY;
 
-  if (contentArea.scrollTop === 0 && diff > 0) {
-    let pullDistance = Math.min(diff, pullLimit + 50);
-    // লোডারটি নামানো হচ্ছে
-    loader.style.top = (pullDistance / 2.5) + 'px';
-    // আইকন ঘোরানো হচ্ছে
+  // যদি ইউজার নিচে স্ক্রল করার পরিবর্তে উপরে টান দেয়
+  if (diff > 0 && contentArea.scrollTop <= 0) {
+    // স্ক্রলিং রেজিস্ট্যান্স (টানলে যেন একটু শক্ত লাগে)
+    const pullDistance = Math.min(diff * 0.4, 100); 
+    loader.style.top = (pullDistance + 20) + 'px';
+    
+    // আইকন এনিমেশন
+    const dashOffset = Math.max(60 - (diff / PULL_THRESHOLD) * 60, 0);
+    path.style.strokeDashoffset = dashOffset;
     loader.querySelector('svg').style.transform = `rotate(${diff * 2}deg)`;
-    // সীমার কাছাকাছি গেলে রঙ পরিবর্তন
-    path.style.stroke = diff > pullLimit ? 'var(--accent)' : 'var(--primary)';
+  } else {
+    // যদি ভুল করে নিচে স্ক্রল শুরু করে দেয়, পুলিং বন্ধ করে দাও
+    isPulling = false;
+    loader.style.top = '-60px';
   }
 }, {passive: true});
 
 contentArea.addEventListener('touchend', (e) => {
-  let endY = e.changedTouches[0].pageY;
-  let finalDiff = endY - startY;
+  if (!isPulling) return;
+  
+  const endY = e.changedTouches[0].pageY;
+  const finalDiff = endY - startY;
 
-  if (contentArea.scrollTop === 0 && finalDiff > pullLimit) {
-    // রিফ্রেশ শুরু
-    loader.classList.add('ptr-spinning');
-    loader.style.top = '80px';
-    setTimeout(() => { location.reload(); }, 800);
+  if (finalDiff > PULL_THRESHOLD && contentArea.scrollTop <= 0) {
+    loader.classList.add('ptr-loading');
+    loader.style.top = '100px';
+    setTimeout(() => { location.reload(); }, 600);
   } else {
-    // রিফ্রেশ বাতিল, লোডার উপরে চলে যাবে
     loader.style.top = '-60px';
+    path.style.strokeDashoffset = 60;
   }
-  startY = 0;
+  isPulling = false;
 });
-/* ---------------------------------------------- */
+
+/* ------------------------------------------- */
 
 function adjustLayout() {
   const topH = document.getElementById('top-section').offsetHeight;
