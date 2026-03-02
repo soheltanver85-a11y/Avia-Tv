@@ -23,27 +23,20 @@
       --focus: #00e5ff; --accent: #ff4081; --star: #ffd700; 
     }
 
-    /* ডিফল্ট রিফ্রেশ বন্ধ করে কাস্টম রিফ্রেশ লজিক চালানো */
+    /* স্ক্রল সমস্যার সমাধান */
     html, body { 
         margin: 0; padding: 0; background: var(--bg); 
         font-family: 'Segoe UI', sans-serif; color: white; 
-        overflow-x: hidden;
-        overscroll-behavior-y: none; /* ব্রাউজারের অটো রিফ্রেশ বন্ধ */
-    }
-
-    /* রিফ্রেশ ইন্ডিকেটর স্টাইল */
-    #refresh-loader {
-        position: fixed; top: -50px; left: 50%; transform: translateX(-50%);
-        width: 40px; height: 40px; background: var(--primary);
-        border-radius: 50%; display: flex; align-items: center; justify-content: center;
-        z-index: 10000; transition: transform 0.2s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        overflow-y: auto; /* স্ক্রল নিশ্চিত করা */
+        height: 100%;
+        -webkit-overflow-scrolling: touch;
     }
 
     #top-section { position: fixed; top: 0; left: 0; width: 100%; background: #111; z-index: 1000; border-bottom: 1px solid #222; }
     .video-container { width: 100%; aspect-ratio: 16/9; background: #000; position: relative; }
     .video-js { width: 100% !important; height: 100% !important; }
 
-    /* Gesture Overlay */
+    /* Gesture UI */
     .gesture-indicator {
       position: absolute; top: 50%; transform: translateY(-50%);
       padding: 10px 15px; background: rgba(0,0,0,0.8); border-radius: 20px;
@@ -54,7 +47,7 @@
 
     header { padding: 8px 12px; background: #111; }
     .header-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-    .brand-title { font-size: 10px; font-weight: 800; color: var(--primary); text-transform: uppercase; line-height: 1; }
+    .brand-title { font-size: 10px; font-weight: 800; color: var(--primary); text-transform: uppercase; }
     
     #recent-list { flex: 1; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
     .recent-item { min-width: 32px; height: 32px; background: var(--card); border-radius: 8px; border: 1px solid #333; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
@@ -64,7 +57,7 @@
     .circle-btn { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 12px; background: rgba(255,255,255,0.05); border: 1px solid #333; color: white; cursor: pointer; }
 
     .search-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
-    #search { flex: 1; background:#1a1a1a; border:1px solid #333; color:white; padding: 8px 12px; border-radius: 8px; font-size: 13px; outline: none; }
+    #search { flex: 1; background:#1a1a1a; border:1px solid #333; color:white; padding: 10px 12px; border-radius: 8px; font-size: 13px; outline: none; }
     #count { font-size: 10px; color: var(--primary); background: rgba(0,229,255,0.1); padding: 4px 8px; border-radius: 4px; }
 
     .tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 5px; }
@@ -75,18 +68,22 @@
     .ticker-content { display: inline-block; white-space: nowrap; animation: marquee 20s linear infinite; }
     @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
-    #content-area { padding-top: 10px; }
-    #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; padding: 12px; padding-bottom: 100px; }
+    /* কন্টেন্ট এরিয়া স্ক্রলযোগ্য করা */
+    #content-area { 
+        padding-top: 320px; /* প্লেয়ারের জন্য জায়গা */
+        min-height: 100vh;
+    }
+    #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; padding: 12px; padding-bottom: 120px; }
     
-    .channel-card { background: var(--card); border-radius: 12px; padding: 12px 6px; text-align: center; border: 1.5px solid transparent; position: relative; cursor: pointer; transition: 0.3s; }
-    .channel-card.active-playing { border-color: var(--primary); background: rgba(0, 229, 255, 0.15); transform: scale(1.02); }
+    .channel-card { background: var(--card); border-radius: 12px; padding: 12px 6px; text-align: center; border: 1.5px solid transparent; position: relative; cursor: pointer; transition: 0.3s; height: 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .channel-card.active-playing { border-color: var(--primary); background: rgba(0, 229, 255, 0.15); }
     
-    .fav-star { position: absolute; top: 5px; right: 5px; font-size: 16px; color: rgba(255,255,255,0.2); z-index: 10; }
+    .fav-star { position: absolute; top: 5px; right: 5px; font-size: 16px; color: rgba(255,255,255,0.2); }
     .fav-star.active { color: var(--star); }
     .channel-logo { width: 45px; height: 35px; object-fit: contain; margin-bottom: 6px; pointer-events: none; }
-    .channel-name { font-size: 10px; color: #ccc; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; pointer-events: none; }
+    .channel-name { font-size: 10px; color: #ccc; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; pointer-events: none; }
 
-    .footer-area { padding: 20px 0 80px 0; text-align: center; }
+    .footer-area { padding: 20px 0 100px 0; text-align: center; }
     #online-status { font-size: 10px; color: #4CAF50; background: rgba(76,175,80,0.1); padding: 5px 12px; border-radius: 20px; display: inline-block; }
 
     #brightness-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; pointer-events: none; z-index: 9999; opacity: 0; }
@@ -94,7 +91,6 @@
 </head>
 <body>
 
-<div id="refresh-loader">🔄</div>
 <div id="brightness-overlay"></div>
 
 <div id="top-section">
@@ -111,7 +107,7 @@
     </div>
   </div>
 
-  <header>
+  <header id="header-area">
     <div class="header-top">
       <div class="brand-title">AVIA TV</div>
       <div id="recent-list"></div>
@@ -122,20 +118,20 @@
       </div>
     </div>
     <div class="search-row">
-      <input type="text" id="search" placeholder="সার্চ চ্যানেল...">
+      <input type="text" id="search-input" placeholder="সার্চ চ্যানেল (যেমন: T Sports)..." onkeyup="doSearch()">
       <span id="count">0 CH</span>
     </div>
     <div class="tabs">
-      <button id="tab-all" class="tab-btn active" onclick="filterCat('all')">All</button>
-      <button id="tab-sports" class="tab-btn" onclick="filterCat('sports')">Sports</button>
-      <button id="tab-bangla" class="tab-btn" onclick="filterCat('bangla')">Bangla</button>
-      <button id="tab-fav" class="tab-btn" onclick="filterCat('fav')" style="color:var(--star)">★ Fav</button>
+      <button class="tab-btn active" onclick="filterCat('all', this)">All</button>
+      <button class="tab-btn" onclick="filterCat('sports', this)">Sports</button>
+      <button class="tab-btn" onclick="filterCat('bangla', this)">Bangla</button>
+      <button class="tab-btn" onclick="filterCat('fav', this)" style="color:var(--star)">★ Fav</button>
     </div>
   </header>
 </div>
 
 <div id="content-area">
-  <div id="channelList">লোডিং...</div>
+  <div id="channelList">চ্যানেল লোড হচ্ছে...</div>
   <div class="footer-area">
     <div id="online-status">Connecting...</div>
     <div style="font-size: 10px; color: #555; margin-top: 10px;">DEVELOPED BY SOHEL TANVER</div>
@@ -149,40 +145,10 @@
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let recentChannels = JSON.parse(localStorage.getItem('recentCh')) || [];
-let currentFilter = 'all';
 let player = videojs('my-video', { fluid: true });
 player.mobileUi();
 
-// --- কাস্টম রিফ্রেশ লজিক (Custom Pull-to-refresh) ---
-let startY = 0;
-const refreshThreshold = 180; // অন্তত ১৮০ পিক্সেল টানলে রিফ্রেশ হবে
-const loader = document.getElementById('refresh-loader');
-
-window.addEventListener('touchstart', (e) => {
-    if (window.scrollY === 0) startY = e.touches[0].pageY;
-}, {passive: true});
-
-window.addEventListener('touchmove', (e) => {
-    if (window.scrollY === 0) {
-        let moveY = e.touches[0].pageY - startY;
-        if (moveY > 0) {
-            let pos = Math.min(moveY / 2, 80); // লোডার সর্বোচ্চ ৮০ পিক্সেল নামবে
-            loader.style.transform = `translate(-50%, ${pos}px)`;
-        }
-    }
-}, {passive: true});
-
-window.addEventListener('touchend', (e) => {
-    let moveY = e.changedTouches[0].pageY - startY;
-    if (window.scrollY === 0 && moveY > refreshThreshold) {
-        location.reload(); // পেজ রিফ্রেশ হবে
-    } else {
-        loader.style.transform = `translate(-50%, -50px)`; // লোডার উপরে চলে যাবে
-    }
-});
-// ------------------------------------------------
-
-// Gesture Control (Volume/Brightness)
+// Gesture Control
 const playerWrapper = document.getElementById('player-wrapper');
 let pTouchStartY;
 let isRightSide = false;
@@ -214,7 +180,7 @@ function showIndicator(id, text) {
     el.timer = setTimeout(() => el.style.display = 'none', 600);
 }
 
-// App Core
+// App Logic
 async function init() {
     try {
         const res = await fetch(playlistUrl);
@@ -224,7 +190,7 @@ async function init() {
         renderRecent();
         adjustLayout();
         if(allChannels.length > 0) playChannel(allChannels[0].url, allChannels[0].name, allChannels[0].logo, false, allChannels[0].id);
-    } catch(e) { console.error("Error loading channels"); }
+    } catch(e) { console.error("Load Error"); }
 }
 
 function parseM3U(data) {
@@ -235,7 +201,7 @@ function parseM3U(data) {
             cur.name = l.split(",")[1]?.trim();
             cur.logo = l.match(/tvg-logo="([^"]+)"/)?.[1] || "";
             cur.cat = (l.match(/group-title="([^"]+)"/)?.[1] || "").toLowerCase();
-            cur.id = btoa(unescape(encodeURIComponent(cur.name)));
+            cur.id = btoa(unescape(encodeURIComponent(cur.name))).replace(/=/g, "");
         } else if (l.startsWith("http")) { cur.url = l.trim(); list.push({...cur}); cur = {}; }
     });
     return list;
@@ -243,6 +209,8 @@ function parseM3U(data) {
 
 function render(list) {
     const grid = document.getElementById("channelList");
+    if(list.length === 0) { grid.innerHTML = "<p>কোনো চ্যানেল পাওয়া যায়নি</p>"; return; }
+    
     grid.innerHTML = list.map(ch => `
         <div class="channel-card" id="ch-${ch.id}" onclick="playChannel('${ch.url}', '${ch.name}', '${ch.logo}', true, '${ch.id}')">
             <span class="fav-star ${favorites.includes(ch.id) ? 'active' : ''}" onclick="toggleFav(event, '${ch.id}')">★</span>
@@ -272,18 +240,18 @@ function playChannel(url, name, logo, updateRecent = true, id = '') {
     player.play().catch(() => player.muted(true) && player.play());
 }
 
-// Search (Working)
-document.getElementById("search").addEventListener('input', (e) => {
-    const q = e.target.value.toLowerCase();
+// সার্চ ফাংশন ঠিক করা হয়েছে
+function doSearch() {
+    const q = document.getElementById("search-input").value.toLowerCase();
     const filtered = allChannels.filter(ch => ch.name.toLowerCase().includes(q));
     render(filtered);
-});
+}
 
 function toggleFav(e, id) {
     e.stopPropagation();
     favorites = favorites.includes(id) ? favorites.filter(f => f !== id) : [...favorites, id];
     localStorage.setItem('myFavs', JSON.stringify(favorites));
-    filterCat(currentFilter);
+    render(allChannels);
 }
 
 function renderRecent() {
@@ -294,14 +262,9 @@ function renderRecent() {
     `).join('');
 }
 
-function filterCat(cat) {
-    currentFilter = cat;
+function filterCat(cat, btn) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    if(cat === 'all') document.getElementById('tab-all').classList.add('active');
-    if(cat === 'sports') document.getElementById('tab-sports').classList.add('active');
-    if(cat === 'bangla') document.getElementById('tab-bangla').classList.add('active');
-    if(cat === 'fav') document.getElementById('tab-fav').classList.add('active');
-
+    btn.classList.add('active');
     const filtered = allChannels.filter(ch => {
         if(cat === 'all') return true;
         if(cat === 'fav') return favorites.includes(ch.id);
@@ -316,9 +279,11 @@ function shareApp() {
 }
 
 function adjustLayout() {
-    document.getElementById('content-area').style.marginTop = document.getElementById('top-section').offsetHeight + 'px';
+    const h = document.getElementById('top-section').offsetHeight;
+    document.getElementById('content-area').style.paddingTop = (h + 10) + 'px';
 }
 
+window.addEventListener('load', adjustLayout);
 window.addEventListener('resize', adjustLayout);
 init();
 </script>
