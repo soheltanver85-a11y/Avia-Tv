@@ -12,7 +12,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   
-  <title>Avia TV - Live TV & Sports</title>
+  <title>Avia TV - Fixed Search & Scroll</title>
 
   <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
   <link href="https://unpkg.com/videojs-mobile-ui/dist/videojs-mobile-ui.css" rel="stylesheet">
@@ -23,27 +23,17 @@
       --focus: #00e5ff; --accent: #ff4081; --star: #ffd700; 
     }
 
-    /* স্ক্রল সমস্যার সমাধান */
     html, body { 
         margin: 0; padding: 0; background: var(--bg); 
         font-family: 'Segoe UI', sans-serif; color: white; 
-        overflow-y: auto; /* স্ক্রল নিশ্চিত করা */
-        height: 100%;
+        overflow-y: auto; height: 100%;
         -webkit-overflow-scrolling: touch;
     }
 
-    #top-section { position: fixed; top: 0; left: 0; width: 100%; background: #111; z-index: 1000; border-bottom: 1px solid #222; }
+    /* Top Section Fixed */
+    #top-section { position: fixed; top: 0; left: 0; width: 100%; background: #111; z-index: 2000; border-bottom: 1px solid #222; }
     .video-container { width: 100%; aspect-ratio: 16/9; background: #000; position: relative; }
     .video-js { width: 100% !important; height: 100% !important; }
-
-    /* Gesture UI */
-    .gesture-indicator {
-      position: absolute; top: 50%; transform: translateY(-50%);
-      padding: 10px 15px; background: rgba(0,0,0,0.8); border-radius: 20px;
-      display: none; pointer-events: none; z-index: 2000; font-size: 12px; color: var(--primary); border: 1px solid var(--primary);
-    }
-    #brightness-status { left: 20px; }
-    #volume-status { right: 20px; }
 
     header { padding: 8px 12px; background: #111; }
     .header-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
@@ -54,10 +44,15 @@
     .recent-item img { width: 70%; height: 70%; object-fit: contain; }
 
     .action-btns { display: flex; gap: 5px; }
-    .circle-btn { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 12px; background: rgba(255,255,255,0.05); border: 1px solid #333; color: white; cursor: pointer; }
+    .circle-btn { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 12px; background: rgba(255,255,255,0.05); border: 1px solid #333; color: white; }
 
+    /* Search Bar - High Priority */
     .search-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
-    #search { flex: 1; background:#1a1a1a; border:1px solid #333; color:white; padding: 10px 12px; border-radius: 8px; font-size: 13px; outline: none; }
+    #search-box { 
+        flex: 1; background:#1a1a1a; border:1px solid #444; color:white; 
+        padding: 12px; border-radius: 8px; font-size: 14px; outline: none; 
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+    }
     #count { font-size: 10px; color: var(--primary); background: rgba(0,229,255,0.1); padding: 4px 8px; border-radius: 4px; }
 
     .tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 5px; }
@@ -68,36 +63,25 @@
     .ticker-content { display: inline-block; white-space: nowrap; animation: marquee 20s linear infinite; }
     @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
-    /* কন্টেন্ট এরিয়া স্ক্রলযোগ্য করা */
-    #content-area { 
-        padding-top: 320px; /* প্লেয়ারের জন্য জায়গা */
-        min-height: 100vh;
-    }
-    #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; padding: 12px; padding-bottom: 120px; }
+    /* Content Area with dynamic padding */
+    #content-area { padding-top: 330px; min-height: 100vh; }
+    #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; padding: 15px; padding-bottom: 150px; }
     
-    .channel-card { background: var(--card); border-radius: 12px; padding: 12px 6px; text-align: center; border: 1.5px solid transparent; position: relative; cursor: pointer; transition: 0.3s; height: 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .channel-card { background: var(--card); border-radius: 12px; padding: 12px 6px; text-align: center; border: 1.5px solid transparent; cursor: pointer; transition: 0.3s; height: 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     .channel-card.active-playing { border-color: var(--primary); background: rgba(0, 229, 255, 0.15); }
     
-    .fav-star { position: absolute; top: 5px; right: 5px; font-size: 16px; color: rgba(255,255,255,0.2); }
-    .fav-star.active { color: var(--star); }
     .channel-logo { width: 45px; height: 35px; object-fit: contain; margin-bottom: 6px; pointer-events: none; }
     .channel-name { font-size: 10px; color: #ccc; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; pointer-events: none; }
 
     .footer-area { padding: 20px 0 100px 0; text-align: center; }
     #online-status { font-size: 10px; color: #4CAF50; background: rgba(76,175,80,0.1); padding: 5px 12px; border-radius: 20px; display: inline-block; }
-
-    #brightness-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; pointer-events: none; z-index: 9999; opacity: 0; }
   </style>
 </head>
 <body>
 
-<div id="brightness-overlay"></div>
-
 <div id="top-section">
-  <div class="video-container" id="player-wrapper">
+  <div class="video-container">
     <video id="my-video" class="video-js vjs-big-play-centered" controls playsinline preload="auto"></video>
-    <div id="brightness-status" class="gesture-indicator">☀️ 100%</div>
-    <div id="volume-status" class="gesture-indicator">🔊 100%</div>
   </div>
 
   <div id="ticker">
@@ -107,7 +91,7 @@
     </div>
   </div>
 
-  <header id="header-area">
+  <header>
     <div class="header-top">
       <div class="brand-title">AVIA TV</div>
       <div id="recent-list"></div>
@@ -117,10 +101,12 @@
         <button onclick="shareApp()" class="circle-btn">🔗</button>
       </div>
     </div>
+    
     <div class="search-row">
-      <input type="text" id="search-input" placeholder="সার্চ চ্যানেল (যেমন: T Sports)..." onkeyup="doSearch()">
+      <input type="text" id="search-box" placeholder="এখানে চ্যানেলের নাম লিখুন..." autocomplete="off">
       <span id="count">0 CH</span>
     </div>
+
     <div class="tabs">
       <button class="tab-btn active" onclick="filterCat('all', this)">All</button>
       <button class="tab-btn" onclick="filterCat('sports', this)">Sports</button>
@@ -131,7 +117,7 @@
 </div>
 
 <div id="content-area">
-  <div id="channelList">চ্যানেল লোড হচ্ছে...</div>
+  <div id="channelList">লোডিং হচ্ছে...</div>
   <div class="footer-area">
     <div id="online-status">Connecting...</div>
     <div style="font-size: 10px; color: #555; margin-top: 10px;">DEVELOPED BY SOHEL TANVER</div>
@@ -139,48 +125,22 @@
 </div>
 
 <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
-<script src="https://unpkg.com/videojs-mobile-ui/dist/videojs-mobile-ui.min.js"></script>
 
 <script>
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let recentChannels = JSON.parse(localStorage.getItem('recentCh')) || [];
 let player = videojs('my-video', { fluid: true });
-player.mobileUi();
 
-// Gesture Control
-const playerWrapper = document.getElementById('player-wrapper');
-let pTouchStartY;
-let isRightSide = false;
+// --- সার্চ অপশন ঠিক করার প্রধান ফাংশন ---
+document.getElementById('search-box').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const filtered = allChannels.filter(ch => 
+        ch.name.toLowerCase().includes(searchTerm)
+    );
+    render(filtered);
+});
 
-playerWrapper.addEventListener('touchstart', e => {
-    pTouchStartY = e.touches[0].clientY;
-    isRightSide = e.touches[0].clientX > (window.innerWidth / 2);
-}, {passive: true});
-
-playerWrapper.addEventListener('touchmove', e => {
-    const diffY = pTouchStartY - e.touches[0].clientY;
-    if (isRightSide) {
-        let v = Math.max(0, Math.min(1, player.volume() + (diffY * 0.005)));
-        player.volume(v);
-        showIndicator('volume-status', `🔊 ${Math.round(v * 100)}%`);
-    } else {
-        let o = Math.max(0, Math.min(0.85, (parseFloat(document.getElementById('brightness-overlay').style.opacity) || 0) - (diffY * 0.005)));
-        document.getElementById('brightness-overlay').style.opacity = o;
-        showIndicator('brightness-status', `☀️ ${Math.round((1 - o) * 100)}%`);
-    }
-    pTouchStartY = e.touches[0].clientY;
-    e.preventDefault();
-}, { passive: false });
-
-function showIndicator(id, text) {
-    const el = document.getElementById(id);
-    el.innerText = text; el.style.display = 'block';
-    clearTimeout(el.timer);
-    el.timer = setTimeout(() => el.style.display = 'none', 600);
-}
-
-// App Logic
 async function init() {
     try {
         const res = await fetch(playlistUrl);
@@ -198,10 +158,10 @@ function parseM3U(data) {
     let cur = {};
     data.split("\n").forEach(l => {
         if (l.startsWith("#EXTINF")) {
-            cur.name = l.split(",")[1]?.trim();
+            cur.name = l.split(",")[1]?.trim() || "Unknown";
             cur.logo = l.match(/tvg-logo="([^"]+)"/)?.[1] || "";
             cur.cat = (l.match(/group-title="([^"]+)"/)?.[1] || "").toLowerCase();
-            cur.id = btoa(unescape(encodeURIComponent(cur.name))).replace(/=/g, "");
+            cur.id = btoa(unescape(encodeURIComponent(cur.name))).replace(/[^a-zA-Z0-9]/g, "");
         } else if (l.startsWith("http")) { cur.url = l.trim(); list.push({...cur}); cur = {}; }
     });
     return list;
@@ -209,11 +169,8 @@ function parseM3U(data) {
 
 function render(list) {
     const grid = document.getElementById("channelList");
-    if(list.length === 0) { grid.innerHTML = "<p>কোনো চ্যানেল পাওয়া যায়নি</p>"; return; }
-    
     grid.innerHTML = list.map(ch => `
         <div class="channel-card" id="ch-${ch.id}" onclick="playChannel('${ch.url}', '${ch.name}', '${ch.logo}', true, '${ch.id}')">
-            <span class="fav-star ${favorites.includes(ch.id) ? 'active' : ''}" onclick="toggleFav(event, '${ch.id}')">★</span>
             <img src="${ch.logo}" class="channel-logo" loading="lazy" onerror="this.src='https://via.placeholder.com/50?text=TV'">
             <div class="channel-name">${ch.name}</div>
         </div>
@@ -223,13 +180,9 @@ function render(list) {
 
 function playChannel(url, name, logo, updateRecent = true, id = '') {
     document.getElementById("now-playing-text").innerText = "দেখছেন: " + name;
-    
     document.querySelectorAll('.channel-card').forEach(c => c.classList.remove('active-playing'));
     const activeCard = document.getElementById('ch-' + id);
-    if(activeCard) {
-        activeCard.classList.add('active-playing');
-        activeCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+    if(activeCard) activeCard.classList.add('active-playing');
 
     if (updateRecent) {
         recentChannels = [{name, url, logo}, ...recentChannels.filter(c => c.url !== url)].slice(0, 8);
@@ -237,21 +190,7 @@ function playChannel(url, name, logo, updateRecent = true, id = '') {
         renderRecent();
     }
     player.src({ type: 'application/x-mpegURL', src: url });
-    player.play().catch(() => player.muted(true) && player.play());
-}
-
-// সার্চ ফাংশন ঠিক করা হয়েছে
-function doSearch() {
-    const q = document.getElementById("search-input").value.toLowerCase();
-    const filtered = allChannels.filter(ch => ch.name.toLowerCase().includes(q));
-    render(filtered);
-}
-
-function toggleFav(e, id) {
-    e.stopPropagation();
-    favorites = favorites.includes(id) ? favorites.filter(f => f !== id) : [...favorites, id];
-    localStorage.setItem('myFavs', JSON.stringify(favorites));
-    render(allChannels);
+    player.play();
 }
 
 function renderRecent() {
@@ -267,7 +206,6 @@ function filterCat(cat, btn) {
     btn.classList.add('active');
     const filtered = allChannels.filter(ch => {
         if(cat === 'all') return true;
-        if(cat === 'fav') return favorites.includes(ch.id);
         return (ch.cat && ch.cat.includes(cat)) || ch.name.toLowerCase().includes(cat);
     });
     render(filtered);
@@ -275,7 +213,7 @@ function filterCat(cat, btn) {
 
 function shareApp() {
     if (navigator.share) { navigator.share({ title: 'Avia TV', url: window.location.href }); }
-    else { navigator.clipboard.writeText(window.location.href); alert("Link Copied!"); }
+    else { alert("লিঙ্ক কপি করা হয়েছে!"); }
 }
 
 function adjustLayout() {
@@ -303,9 +241,6 @@ init();
     document.getElementById("online-status").innerText = count + " Real-time Online";
   });
 </script>
-
-<script src="https://pl28744078.effectivegatecpm.com/77/45/12/774512aa06cc31fabddd395b71e127b6.js"></script>
-<script src="https://pl28744070.effectivegatecpm.com/d0/6e/79/d06e79767e37c835c1f36cc898ad6320.js"></script>
 
 </body>
 </html>
