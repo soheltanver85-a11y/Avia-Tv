@@ -23,11 +23,10 @@
       --focus: #00e5ff; --accent: #ff4081; --star: #ffd700; 
     }
 
-    /* স্ক্রল সমস্যার সমাধান */
     html, body { 
         margin: 0; padding: 0; background: var(--bg); 
         font-family: 'Segoe UI', sans-serif; color: white; 
-        overflow-y: auto; /* স্ক্রল নিশ্চিত করা */
+        overflow-y: auto;
         height: 100%;
         -webkit-overflow-scrolling: touch;
     }
@@ -36,7 +35,6 @@
     .video-container { width: 100%; aspect-ratio: 16/9; background: #000; position: relative; }
     .video-js { width: 100% !important; height: 100% !important; }
 
-    /* Gesture UI */
     .gesture-indicator {
       position: absolute; top: 50%; transform: translateY(-50%);
       padding: 10px 15px; background: rgba(0,0,0,0.8); border-radius: 20px;
@@ -57,7 +55,7 @@
     .circle-btn { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 12px; background: rgba(255,255,255,0.05); border: 1px solid #333; color: white; cursor: pointer; }
 
     .search-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
-    #search { flex: 1; background:#1a1a1a; border:1px solid #333; color:white; padding: 10px 12px; border-radius: 8px; font-size: 13px; outline: none; }
+    #search-input { flex: 1; background:#1a1a1a; border:1px solid #333; color:white; padding: 10px 12px; border-radius: 8px; font-size: 13px; outline: none; }
     #count { font-size: 10px; color: var(--primary); background: rgba(0,229,255,0.1); padding: 4px 8px; border-radius: 4px; }
 
     .tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 5px; }
@@ -68,11 +66,7 @@
     .ticker-content { display: inline-block; white-space: nowrap; animation: marquee 20s linear infinite; }
     @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
-    /* কন্টেন্ট এরিয়া স্ক্রলযোগ্য করা */
-    #content-area { 
-        padding-top: 320px; /* প্লেয়ারের জন্য জায়গা */
-        min-height: 100vh;
-    }
+    #content-area { padding-top: 320px; min-height: 100vh; }
     #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; padding: 12px; padding-bottom: 120px; }
     
     .channel-card { background: var(--card); border-radius: 12px; padding: 12px 6px; text-align: center; border: 1.5px solid transparent; position: relative; cursor: pointer; transition: 0.3s; height: 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
@@ -118,7 +112,7 @@
       </div>
     </div>
     <div class="search-row">
-      <input type="text" id="search-input" placeholder="সার্চ চ্যানেল (যেমন: T Sports)..." onkeyup="doSearch()">
+      <input type="text" id="search-input" placeholder="সার্চ চ্যানেল (যেমন: T Sports)..." oninput="doSearch()">
       <span id="count">0 CH</span>
     </div>
     <div class="tabs">
@@ -189,6 +183,7 @@ async function init() {
         render(allChannels);
         renderRecent();
         adjustLayout();
+        // প্রথম লোডে সাউন্ড অন রাখার চেষ্টা
         if(allChannels.length > 0) playChannel(allChannels[0].url, allChannels[0].name, allChannels[0].logo, false, allChannels[0].id);
     } catch(e) { console.error("Load Error"); }
 }
@@ -212,7 +207,7 @@ function render(list) {
     if(list.length === 0) { grid.innerHTML = "<p>কোনো চ্যানেল পাওয়া যায়নি</p>"; return; }
     
     grid.innerHTML = list.map(ch => `
-        <div class="channel-card" id="ch-${ch.id}" onclick="playChannel('${ch.url}', '${ch.name}', '${ch.logo}', true, '${ch.id}')">
+        <div class="channel-card ${player.src() === ch.url ? 'active-playing' : ''}" id="ch-${ch.id}" onclick="playChannel('${ch.url}', '${ch.name}', '${ch.logo}', true, '${ch.id}')">
             <span class="fav-star ${favorites.includes(ch.id) ? 'active' : ''}" onclick="toggleFav(event, '${ch.id}')">★</span>
             <img src="${ch.logo}" class="channel-logo" loading="lazy" onerror="this.src='https://via.placeholder.com/50?text=TV'">
             <div class="channel-name">${ch.name}</div>
@@ -228,7 +223,6 @@ function playChannel(url, name, logo, updateRecent = true, id = '') {
     const activeCard = document.getElementById('ch-' + id);
     if(activeCard) {
         activeCard.classList.add('active-playing');
-        activeCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
     if (updateRecent) {
@@ -236,11 +230,25 @@ function playChannel(url, name, logo, updateRecent = true, id = '') {
         localStorage.setItem('recentCh', JSON.stringify(recentChannels));
         renderRecent();
     }
+
     player.src({ type: 'application/x-mpegURL', src: url });
-    player.play().catch(() => player.muted(true) && player.play());
+    
+    // সাউন্ড অন রেখে প্লে করার জন্য muted(false) করা হয়েছে
+    player.muted(false); 
+    player.volume(1.0); 
+    
+    let playPromise = player.play();
+    if (playPromise !== undefined) {
+        playPromise.catch(error => {
+            // যদি ব্রাউজার অটো-প্লে ব্লক করে (সাউন্ডের কারণে), তবে মিউট করে প্লে করবে
+            console.log("Autoplay with sound blocked, trying muted...");
+            player.muted(true);
+            player.play();
+        });
+    }
 }
 
-// সার্চ ফাংশন ঠিক করা হয়েছে
+// সার্চ ফাংশন: 't' লিখলে 'T' সম্বলিত সব চ্যানেল আসবে
 function doSearch() {
     const q = document.getElementById("search-input").value.toLowerCase();
     const filtered = allChannels.filter(ch => ch.name.toLowerCase().includes(q));
@@ -251,7 +259,8 @@ function toggleFav(e, id) {
     e.stopPropagation();
     favorites = favorites.includes(id) ? favorites.filter(f => f !== id) : [...favorites, id];
     localStorage.setItem('myFavs', JSON.stringify(favorites));
-    render(allChannels);
+    // রেন্ডার করার সময় বর্তমান সার্চ বা ক্যাটাগরি বজায় রাখার জন্য সাধারণ রেন্ডার
+    doSearch(); 
 }
 
 function renderRecent() {
@@ -303,9 +312,6 @@ init();
     document.getElementById("online-status").innerText = count + " Real-time Online";
   });
 </script>
-
-<script src="https://pl28744078.effectivegatecpm.com/77/45/12/774512aa06cc31fabddd395b71e127b6.js"></script>
-<script src="https://pl28744070.effectivegatecpm.com/d0/6e/79/d06e79767e37c835c1f36cc898ad6320.js"></script>
 
 </body>
 </html>
