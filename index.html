@@ -14,12 +14,11 @@
       --accent: #ff4081; --star: #ffd700; 
     }
 
-    /* রিফ্রেশ সমস্যা সমাধানের জন্য CSS */
     html, body { 
         margin: 0; padding: 0; background: var(--bg); 
         font-family: 'Segoe UI', sans-serif; color: white; 
         overflow-y: auto; height: 100%;
-        overscroll-behavior-y: contain; /* টানলে রিফ্রেশ হওয়া বন্ধ করবে */
+        overscroll-behavior-y: contain; 
         -webkit-overflow-scrolling: touch;
     }
 
@@ -27,7 +26,6 @@
     .video-container { width: 100%; aspect-ratio: 16/9; background: #000; position: relative; touch-action: none; }
     .video-js { width: 100% !important; height: 100% !important; }
 
-    /* জেসচার ইন্ডিকেটর */
     .gesture-indicator {
       position: absolute; top: 50%; transform: translateY(-50%);
       padding: 10px 15px; background: rgba(0,0,0,0.8); border-radius: 20px;
@@ -45,14 +43,12 @@
     .recent-item img { width: 75%; height: 75%; object-fit: contain; }
 
     .action-btns { display: flex; gap: 8px; }
-    .circle-btn { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 14px; background: rgba(255,255,255,0.05); border: 1px solid #333; color: white; }
+    .circle-btn { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 14px; background: rgba(255,255,255,0.05); border: 1px solid #333; color: white; cursor: pointer; }
 
-    /* উন্নত সার্চ বক্স */
     .search-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
     #search-input { flex: 1; background:#1a1a1a; border:1px solid #333; color:white; padding: 10px 15px; border-radius: 8px; font-size: 14px; outline: none; }
     #count { font-size: 10px; color: var(--primary); background: rgba(0,229,255,0.1); padding: 4px 8px; border-radius: 4px; }
 
-    /* ক্যাটাগরি বাটন */
     .tabs { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 5px; }
     .tab-btn { padding: 8px 15px; background: #1a1a1a; border: 1px solid #333; color: #bbb; border-radius: 20px; font-size: 12px; white-space: nowrap; cursor: pointer; }
     .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
@@ -103,10 +99,11 @@
       <div class="action-btns">
         <a href="https://telegram.dog/techbd_group" target="_blank" class="circle-btn" style="color:#24A1DE">📩</a>
         <a href="https://www.mediafire.com/file/2c8yvb7c9dw2abz/Avia_Tv.apk/file" target="_blank" class="circle-btn" style="color:#3DDC84">📥</a>
+        <button onclick="shareApp()" class="circle-btn" style="color:#00e5ff">🔗</button>
       </div>
     </div>
     <div class="search-row">
-      <input type="text" id="search-input" placeholder="চ্যানেল খুঁজুন (যেমন: t)" oninput="doSearch()">
+      <input type="text" id="search-input" placeholder="সার্চ চ্যানেল (যেমন: t)" oninput="doSearch()">
       <span id="count">0 CH</span>
     </div>
     <div class="tabs">
@@ -136,7 +133,7 @@ let recentChannels = JSON.parse(localStorage.getItem('recentCh')) || [];
 let player = videojs('my-video', { fluid: true });
 player.mobileUi();
 
-// ১. ভলিউম ও ব্রাইটনেস জেসচার (রিফ্রেশ সমস্যা সমাধানসহ)
+// জেসচার কন্ট্রোল (রিফ্রেশ সমস্যা ছাড়া)
 const playerWrapper = document.getElementById('player-wrapper');
 let pStartY, isRight;
 
@@ -146,7 +143,7 @@ playerWrapper.addEventListener('touchstart', e => {
 }, {passive: false});
 
 playerWrapper.addEventListener('touchmove', e => {
-    e.preventDefault(); // এই লাইনটি রিফ্রেশ হওয়া আটকাবে
+    e.preventDefault(); 
     const currentY = e.touches[0].clientY;
     const diff = pStartY - currentY;
 
@@ -169,7 +166,7 @@ function showInd(id, text) {
     el.timer = setTimeout(() => el.style.display = 'none', 600);
 }
 
-// ২. অ্যাপ লজিক ও সাউন্ড অন রেখে প্লে
+// অ্যাপ শুরু এবং ডেটা লোড
 async function init() {
     try {
         const res = await fetch(playlistUrl);
@@ -187,10 +184,11 @@ function parseM3U(data) {
     let cur = {};
     data.split("\n").forEach(l => {
         if (l.startsWith("#EXTINF")) {
-            cur.name = l.split(",")[1]?.trim() || "No Name";
+            cur.name = l.split(",")[1]?.trim() || "Unknown";
             cur.logo = l.match(/tvg-logo="([^"]+)"/)?.[1] || "";
             cur.cat = (l.match(/group-title="([^"]+)"/)?.[1] || "").toLowerCase();
-            cur.id = btoa(unescape(encodeURIComponent(cur.name))).substring(0,10);
+            // ID তৈরির নিয়ম আরও সহজ করা হলো যাতে সার্চে সমস্যা না হয়
+            cur.id = encodeURIComponent(cur.name).replace(/%/g, "");
         } else if (l.startsWith("http")) { 
             cur.url = l.trim(); 
             list.push({...cur}); 
@@ -202,26 +200,31 @@ function parseM3U(data) {
 
 function render(list) {
     const grid = document.getElementById("channelList");
+    grid.innerHTML = "";
     if(list.length === 0) { grid.innerHTML = "<p>চ্যানেল পাওয়া যায়নি</p>"; return; }
     
-    grid.innerHTML = list.map(ch => `
-        <div class="channel-card" id="ch-${ch.id}" onclick="playChannel('${ch.url}', '${ch.name}', '${ch.logo}', true, '${ch.id}')">
+    list.forEach(ch => {
+        const card = document.createElement('div');
+        card.className = "channel-card";
+        card.id = "ch-" + ch.id;
+        card.innerHTML = `
             <span class="fav-star ${favorites.includes(ch.id) ? 'active' : ''}" onclick="toggleFav(event, '${ch.id}')">★</span>
             <img src="${ch.logo}" class="channel-logo" loading="lazy" onerror="this.src='https://via.placeholder.com/50'">
             <div class="channel-name">${ch.name}</div>
-        </div>
-    `).join('');
+        `;
+        card.onclick = () => playChannel(ch.url, ch.name, ch.logo, true, ch.id);
+        grid.appendChild(card);
+    });
     document.getElementById("count").textContent = list.length + " CH";
 }
 
 function playChannel(url, name, logo, updateRecent = true, id = '') {
     document.getElementById("now-playing-text").innerText = "দেখছেন: " + name;
-    
     document.querySelectorAll('.channel-card').forEach(c => c.classList.remove('active-playing'));
     const activeCard = document.getElementById('ch-' + id);
     if(activeCard) activeCard.classList.add('active-playing');
 
-    if (updateRecent && name !== "Avia TV") {
+    if (updateRecent) {
         recentChannels = [{name, url, logo}, ...recentChannels.filter(c => c.url !== url)].slice(0, 8);
         localStorage.setItem('recentCh', JSON.stringify(recentChannels));
         renderRecent();
@@ -233,7 +236,7 @@ function playChannel(url, name, logo, updateRecent = true, id = '') {
     player.play().catch(() => { player.muted(true); player.play(); });
 }
 
-// ৩. রিয়েল-টাইম সার্চ
+// রিয়েল-টাইম সার্চ ফাংশন (১০০% ফিক্সড)
 function doSearch() {
     const q = document.getElementById("search-input").value.toLowerCase();
     const filtered = allChannels.filter(ch => ch.name.toLowerCase().includes(q));
@@ -266,6 +269,16 @@ function filterCat(cat, btn) {
     render(filtered);
 }
 
+// শেয়ার ফাংশন
+function shareApp() {
+    if (navigator.share) {
+        navigator.share({ title: 'Avia TV', text: 'লাইভ টিভি দেখুন Avia TV-তে', url: window.location.href });
+    } else {
+        navigator.clipboard.writeText(window.location.href);
+        alert("লিঙ্ক কপি করা হয়েছে!");
+    }
+}
+
 function adjustLayout() {
     const h = document.getElementById('top-section').offsetHeight;
     document.getElementById('content-area').style.paddingTop = (h + 5) + 'px';
@@ -275,22 +288,5 @@ window.addEventListener('load', adjustLayout);
 window.addEventListener('resize', adjustLayout);
 init();
 </script>
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-  import { getDatabase, ref, onValue, push, set, onDisconnect } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
-  const firebaseConfig = { databaseURL: "https://avia-tv-default-rtdb.firebaseio.com/" };
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-  const onlineUsersRef = ref(db, 'online_users');
-  const myUserRef = push(onlineUsersRef);
-  set(myUserRef, true);
-  onDisconnect(myUserRef).remove();
-  onValue(onlineUsersRef, (snapshot) => {
-    const count = snapshot.val() ? Object.keys(snapshot.val()).length : 0;
-    document.getElementById("online-status").innerText = count + " Real-time Online";
-  });
-</script>
-
 </body>
 </html>
