@@ -11,8 +11,25 @@
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Avia Tv</title>
   
+  <title>Avia TV - Live TV Channels & Sports Online Free</title>
+  <meta name="title" content="Avia TV - Live TV Channels & Sports Online Free">
+  <meta name="description" content="Avia TV-তে বাফারিং ছাড়াই দেখুন দেশি-বিদেশি সব লাইভ টিভি চ্যানেল ও খেলাধুলা। এখনই Avia TV APK ডাউনলোড করুন এবং ফ্রিতে এইচডি স্ট্রিমিং উপভোগ করুন।">
+  <meta name="keywords" content="Avia TV, Avia TV APK, Live TV Bangladesh, BD Live TV, Sports Live Streaming, Avia TV App Download, Sohel Tanver">
+  <meta name="author" content="Sohel Tanver">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://bd-live-tv-xi.vercel.app/">
+  <meta property="og:title" content="Avia TV - সব লাইভ টিভি চ্যানেল এখন আপনার হাতের মুঠোয়">
+  <meta property="og:description" content="কোনো সাবস্ক্রিপশন ছাড়াই দেখুন লাইভ ক্রিকেট, ফুটবল এবং দেশি চ্যানেল।">
+  <meta property="og:image" content="https://i.postimg.cc/j2BTK6qp/Gallery-1772440959377.png">
+
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://bd-live-tv-xi.vercel.app/">
+  <meta property="twitter:title" content="Avia TV - Live TV & APK Download">
+  <meta property="twitter:description" content="বেস্ট লাইভ টিভি স্ট্রিমিং অভিজ্ঞতা পান Avia TV-তে।">
+  <meta property="twitter:image" content="https://i.postimg.cc/j2BTK6qp/Gallery-1772440959377.png">
+
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
     :root { 
@@ -57,7 +74,8 @@
     @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
     #content-area { position: relative; width: 100%; background: var(--bg); }
-    
+    .ad-slot { width: 100%; display: flex; flex-direction: column; align-items: center; padding: 10px 0; background: rgba(255,255,255,0.02); border-bottom: 1px solid #222; margin-bottom: 10px; }
+
     #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; padding: 15px; }
     .channel-card { background: var(--card); border-radius: 10px; padding: 10px 5px; text-align: center; border: 1px solid rgba(255,255,255,0.05); height: 85px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; }
     .channel-card:active { border-color: var(--primary); }
@@ -89,9 +107,9 @@
         <div class="brand-title">Avia<br>Tv</div>
         <div id="recent-list"></div>
         <div class="action-btns">
-          <a href="https://telegram.dog/techbd_group" target="_blank" class="circle-btn btn-tg">📩</a>
-          <a href="https://www.mediafire.com/file/2c8yvb7c9dw2abz/Avia_Tv.apk/file" target="_blank" class="circle-btn btn-apk">📥</a>
-          <button onclick="shareApp()" class="circle-btn btn-share">🔗</button>
+          <a href="https://telegram.dog/techbd_group" target="_blank" class="circle-btn btn-tg" title="Telegram">📩</a>
+          <a href="https://www.mediafire.com/file/2c8yvb7c9dw2abz/Avia_Tv.apk/file" target="_blank" class="circle-btn btn-apk" title="Download APK">📥</a>
+          <button onclick="shareApp()" class="circle-btn btn-share" title="Share">🔗</button>
         </div>
       </div>
       <div class="search-row">
@@ -109,6 +127,11 @@
 </div>
 
 <div id="content-area">
+  <div class="ad-slot">
+    <script async="async" data-cfasync="false" src="https://pl28744080.effectivegatecpm.com/4b387a67d1966ab2108cd89fa1dd0a8a/invoke.js"></script>
+    <div id="container-4b387a67d1966ab2108cd89fa1dd0a8a"></div>
+  </div>
+
   <div id="channelList">লোডিং...</div>
 
   <div class="footer-area">
