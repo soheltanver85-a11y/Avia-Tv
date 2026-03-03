@@ -23,7 +23,6 @@
       --primary: #00e5ff; --bg: #0a0a0a; --card: rgba(255, 255, 255, 0.05); 
       --focus: #00e5ff; --accent: #ff4081; --star: #ffd700; 
       --tg: #24A1DE; --apk: #3DDC84; --online: #4CAF50;
-      /* নতুন ডিজাইন কালার */
       --brand-gradient: linear-gradient(45deg, #ffd700, #ff8c00);
     }
 
@@ -43,7 +42,6 @@
     .vjs-loading-spinner { display: none !important; }
     .manual-loading .vjs-loading-spinner { display: block !important; }
 
-    /* আপডেট করা ব্র্যান্ড হেডারের ডিজাইন */
     .brand-header { padding: 10px 15px; background: #111; display: flex; align-items: center; justify-content: center; }
     .brand-title-new { 
       font-size: 20px; 
@@ -53,7 +51,6 @@
       -webkit-text-fill-color: transparent;
       letter-spacing: 2px;
       text-transform: uppercase;
-      text-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
     }
 
     #ticker { background: #001a1a; color: #fff; padding: 5px 0; font-size: 12px; border-bottom: 1px solid var(--primary); overflow: hidden; }
@@ -88,7 +85,6 @@
     .channel-logo { height: 35px; object-fit: contain; margin-bottom: 8px; }
     .channel-name { font-size: 10px; color: #ccc; }
 
-    .ad-slot { margin: 15px auto; text-align: center; width: 100%; overflow: hidden; }
     .footer-area { padding: 40px 0 80px 0; text-align: center; }
     #online-status { font-size: 11px; color: var(--online); font-weight: bold; background: rgba(76, 175, 80, 0.1); padding: 5px 15px; border-radius: 50px; display: inline-flex; align-items: center; gap: 5px; border: 1px solid rgba(76, 175, 80, 0.2); }
   </style>
@@ -128,24 +124,16 @@
       <span id="count">0 CH</span>
     </div>
     <div class="tabs">
-      <button class="tab-btn active" id="tab-all" onclick="filterCat('all', this)">All</button>
-      <button class="tab-btn" id="tab-sports" onclick="filterCat('sports', this)">Sports</button>
-      <button class="tab-btn" id="tab-bangla" onclick="filterCat('bangla', this)">Bangla</button>
-      <button class="tab-btn" id="tab-fav" style="color:var(--star)" onclick="filterCat('fav', this)">★ Fav</button>
+      <button class="tab-btn active" onclick="filterCat('all', this)">All</button>
+      <button class="tab-btn" onclick="filterCat('sports', this)">Sports</button>
+      <button class="tab-btn" onclick="filterCat('bangla', this)">Bangla</button>
+      <button class="tab-btn" style="color:var(--star)" onclick="filterCat('fav', this)">★ Fav</button>
     </div>
   </header>
 </div>
 
 <div id="content-area">
-  <div class="ad-slot">
-    <script type="text/javascript">
-      atOptions = { 'key' : '774512aa06cc31fabddd395b71e127b6', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
-    </script>
-    <script type="text/javascript" src="//www.highperformanceformat.com/774512aa06cc31fabddd395b71e127b6/invoke.js"></script>
-  </div>
-
   <div id="channelList">লোডিং...</div>
-
   <div class="footer-area">
     <div id="online-status">Online...</div>
     <div style="color:#555; font-size:11px; margin-top:10px;">DEVELOPED BY SOHEL TANVER</div>
@@ -158,38 +146,31 @@
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let recentChannels = JSON.parse(localStorage.getItem('recentCh')) || [];
-let player;
-let currentCategory = 'all';
+let player, currentCategory = 'all';
 
-// --- 🔎 Smart Search ---
+// --- জেস্টার ভেরিয়েবল ---
+let startY, startVal, isBrightness;
+const wrapper = document.getElementById('player-wrapper');
+const briOverlay = document.getElementById('brightness-overlay');
+const volInd = document.getElementById('vol-indicator');
+const briInd = document.getElementById('bri-indicator');
+
+// --- 🔎 স্মার্ট সার্চ ---
 document.getElementById("search").addEventListener("input", function() {
   const searchValue = this.value.toLowerCase().trim();
-  if (!searchValue) {
-    applyCurrentFilter();
-    return;
-  }
+  if (!searchValue) { applyCurrentFilter(); return; }
   const filtered = allChannels.filter(ch => ch.name && ch.name.toLowerCase().includes(searchValue));
   renderChannels(filtered);
 });
 
-// --- ওরিয়েন্টেশন এবং রোটেট ---
-window.screen.orientation.addEventListener('change', function() {
-  if (window.screen.orientation.type.startsWith('landscape')) {
-    if (player && !player.isFullscreen()) player.requestFullscreen().catch(() => {});
-  } else if (window.screen.orientation.type.startsWith('portrait')) {
-    if (player && player.isFullscreen()) player.exitFullscreen().catch(() => {});
-  }
-});
-
+// --- রোটেট লজিক ---
 async function toggleRotateManual() {
   if (!player) return;
   try {
     if (!player.isFullscreen()) {
       await player.requestFullscreen();
       if (screen.orientation && screen.orientation.lock) await screen.orientation.lock('landscape').catch(() => {});
-    } else {
-      await player.exitFullscreen();
-    }
+    } else { await player.exitFullscreen(); }
   } catch (err) {}
 }
 
@@ -207,7 +188,6 @@ function toggleFav(event, id) {
   if (currentCategory === 'fav') applyCurrentFilter();
 }
 
-// --- ক্যাটাগরি ফিল্টার ---
 function filterCat(cat, btn) {
   currentCategory = cat;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -216,29 +196,58 @@ function filterCat(cat, btn) {
 }
 
 function applyCurrentFilter() {
-  let list = [];
-  if (currentCategory === 'all') list = allChannels;
-  else if (currentCategory === 'fav') list = allChannels.filter(ch => favorites.includes(ch.id));
-  else if (currentCategory === 'sports') list = allChannels.filter(ch => ch.name.toLowerCase().includes('sports') || ch.name.toLowerCase().includes('t sport') || ch.name.toLowerCase().includes('sony'));
-  else if (currentCategory === 'bangla') list = allChannels.filter(ch => !ch.name.toLowerCase().includes('sports')); // সাধারণ ফিল্টার
-
+  let list = allChannels;
+  if (currentCategory === 'fav') list = allChannels.filter(ch => favorites.includes(ch.id));
+  else if (currentCategory === 'sports') list = allChannels.filter(ch => ch.name.toLowerCase().includes('sports') || ch.name.toLowerCase().includes('t sport'));
   renderChannels(list);
 }
 
-// --- প্লেয়ার ও ডাটা ইনিশিয়ালাইজেশন ---
+// --- প্লেয়ার এবং জেস্টার ইনিশিয়ালাইজেশন ---
 async function init() {
   player = videojs('v-player', { fluid: true });
-  
+
+  player.on('fullscreenchange', () => {
+    const el = player.el();
+    el.appendChild(briOverlay);
+    el.appendChild(briInd);
+    el.appendChild(volInd);
+  });
+
+  // জেস্টার কন্ট্রোল লজিক (ভলিউম ও ব্রাইটনেস)
+  wrapper.addEventListener('touchstart', (e) => {
+    startY = e.touches[0].pageY;
+    const rect = wrapper.getBoundingClientRect();
+    isBrightness = (e.touches[0].pageX - rect.left) < rect.width / 2;
+    startVal = isBrightness ? (1 - parseFloat(briOverlay.style.opacity || 0)) : player.volume();
+  });
+
+  wrapper.addEventListener('touchmove', (e) => {
+    if (e.touches.length > 1) return;
+    const diff = (startY - e.touches[0].pageY) / 180; 
+    let newVal = Math.min(Math.max(startVal + diff, 0), 1);
+    if (isBrightness) {
+      briOverlay.style.opacity = 1 - newVal;
+      briInd.innerText = `☀️ ${Math.round(newVal * 100)}%`;
+      briInd.style.display = 'block';
+    } else {
+      player.volume(newVal);
+      volInd.innerText = `🔊 ${Math.round(newVal * 100)}%`;
+      volInd.style.display = 'block';
+    }
+  });
+
+  wrapper.addEventListener('touchend', () => {
+    setTimeout(() => { volInd.style.display = 'none'; briInd.style.display = 'none'; }, 800);
+  });
+
   try {
     const res = await fetch(playlistUrl);
     const data = await res.text();
     allChannels = parseM3U(data);
     renderChannels(allChannels);
     renderRecent();
-    setTimeout(() => {
-        const topH = document.getElementById('top-section').offsetHeight;
-        document.getElementById("content-area").style.marginTop = topH + 'px';
-    }, 500);
+    const topH = document.getElementById('top-section').offsetHeight;
+    document.getElementById("content-area").style.marginTop = topH + 'px';
     if(allChannels.length > 0) playStream(allChannels[0].url, allChannels[0].name, allChannels[0].logo, false, false);
   } catch(e) {}
 }
@@ -259,18 +268,14 @@ function parseM3U(data) {
 
 function renderChannels(list) {
   const grid = document.getElementById("channelList");
-  if(list.length === 0) {
-    grid.innerHTML = "<div style='color:gray; padding:20px; text-align:center; grid-column: 1/-1;'>কোনো চ্যানেল পাওয়া যায়নি!</div>";
-  } else {
-    grid.innerHTML = list.map(ch => {
-      const isFav = favorites.includes(ch.id);
-      return `<div class="channel-card" onclick="playStream('${ch.url}', '${ch.name}', '${ch.logo}', true, true)">
-        <span class="fav-star ${isFav ? 'active' : ''}" onclick="toggleFav(event, '${ch.id}')">★</span>
-        <img src="${ch.logo}" class="channel-logo" loading="lazy">
-        <div class="channel-name">${ch.name}</div>
-      </div>`;
-    }).join('');
-  }
+  grid.innerHTML = list.map(ch => {
+    const isFav = favorites.includes(ch.id);
+    return `<div class="channel-card" onclick="playStream('${ch.url}', '${ch.name}', '${ch.logo}', true, true)">
+      <span class="fav-star ${isFav ? 'active' : ''}" onclick="toggleFav(event, '${ch.id}')">★</span>
+      <img src="${ch.logo}" class="channel-logo" loading="lazy">
+      <div class="channel-name">${ch.name}</div>
+    </div>`;
+  }).join('');
   document.getElementById("count").textContent = list.length + " CH";
 }
 
