@@ -36,6 +36,10 @@
     .video-container { position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1200px; margin: 0 auto; background: #000; overflow: hidden; }
     .video-js { width: 100% !important; height: 100% !important; }
     
+    /* লোডিং স্পিনার কন্ট্রোল */
+    .vjs-loading-spinner { display: none !important; }
+    .vjs-waiting .vjs-loading-spinner, .vjs-seeking .vjs-loading-spinner { display: block !important; }
+
     #brightness-overlay {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
       background: black; opacity: 0; pointer-events: none; z-index: 1;
@@ -208,6 +212,7 @@ async function init() {
     renderChannels(allChannels);
     renderRecent();
     setTimeout(adjustLayout, 500);
+    // শুরুতে ১ম চ্যানেল চালানোর সময় স্পিনার দেখাবে না
     if(allChannels.length > 0) playStream(allChannels[0].url, allChannels[0].name, allChannels[0].logo, false);
   } catch(e) { document.getElementById("channelList").innerText = "Error Loading."; }
 }
@@ -244,6 +249,10 @@ function renderChannels(list) {
 
 function playStream(url, name, logo, updateRecent = true) {
   document.getElementById("now-playing-text").innerText = "দেখছেন: " + name + " | ";
+  
+  // চ্যানেলে ক্লিক করলে শুধুমাত্র লোডিং এর সময় স্পিনার দেখাবে
+  player.addClass('vjs-waiting');
+
   if (updateRecent) {
     recentChannels = recentChannels.filter(c => c.url !== url);
     recentChannels.unshift({name, url, logo});
