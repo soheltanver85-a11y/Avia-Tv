@@ -31,20 +31,22 @@
       overflow-x: hidden;
     }
 
-    #top-section { position: fixed; top: 0; left: 0; width: 100%; background: #111; z-index: 1000; border-bottom: 1px solid #222; }
+    #top-section { position: fixed; top: 0; left: 0; width: 100%; background: #111; z-index: 1000; border-bottom: 1px solid #222; transition: 0.3s; }
     
-    .video-container { position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1200px; margin: 0 auto; background: #000; overflow: hidden; }
+    .video-container { position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1200px; margin: 0 auto; background: #000; overflow: hidden; z-index: 1001; }
     .video-js { width: 100% !important; height: 100% !important; }
     
-    /* লোডিং স্পিনার কন্ট্রোল: ডিফল্টভাবে বন্ধ */
-    .vjs-loading-spinner { 
+    /* ফুলস্ক্রিন মোডে অন্য সব লুকানোর ম্যাজিক */
+    body.vjs-full-window #brand-header, 
+    body.vjs-full-window #ticker, 
+    body.vjs-full-window header, 
+    body.vjs-full-window #content-area { 
       display: none !important; 
     }
-    
-    /* শুধুমাত্র যখন 'manual-loading' ক্লাস থাকবে তখন দেখাবে */
-    .manual-loading .vjs-loading-spinner { 
-      display: block !important; 
-    }
+
+    /* লোডিং স্পিনার কন্ট্রোল */
+    .vjs-loading-spinner { display: none !important; }
+    .manual-loading .vjs-loading-spinner { display: block !important; }
 
     #brightness-overlay {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -55,7 +57,7 @@
       position: absolute; top: 50%; transform: translateY(-50%);
       background: rgba(0,0,0,0.7); color: #fff; padding: 10px 15px;
       border-radius: 10px; font-size: 14px; font-weight: bold;
-      z-index: 10; display: none; pointer-events: none;
+      z-index: 2000; display: none; pointer-events: none;
       border: 1px solid var(--primary);
     }
     #vol-indicator { right: 20px; }
@@ -105,7 +107,7 @@
 <body>
 
 <div id="top-section">
-  <div class="brand-header">
+  <div id="brand-header" class="brand-header">
     <div class="brand-title-new">AVIA TV</div>
   </div>
 
@@ -124,7 +126,7 @@
     <video id="v-player" class="video-js vjs-big-play-centered" controls preload="auto" playsinline></video>
   </div>
 
-  <header>
+  <header id="main-header">
     <div class="header-top">
       <div id="recent-list"></div>
       <div class="action-btns">
@@ -175,18 +177,21 @@ function adjustLayout() {
 window.addEventListener('resize', adjustLayout);
 
 async function init() {
-  player = videojs('v-player', { fluid: true });
-
-  // ভিডিও চলতে শুরু করলে স্পিনার বন্ধ করে দেওয়া
-  player.on('playing', function() {
-    player.removeClass('manual-loading');
+  player = videojs('v-player', { 
+    fluid: true,
+    userActions: {
+      doubleClick: true
+    }
   });
-  
+
+  player.on('playing', () => player.removeClass('manual-loading'));
+
+  // জেশ্চার কন্ট্রোল (ব্রাইটনেস বামে, ভলিউম ডানে)
   wrapper.addEventListener('touchstart', (e) => {
     startY = e.touches[0].pageY;
     const rect = wrapper.getBoundingClientRect();
     const x = e.touches[0].pageX - rect.left;
-    isBrightness = x < rect.width / 2;
+    isBrightness = x < rect.width / 2; // বাম পাশ ব্রাইটনেস
     startVal = isBrightness ? (1 - parseFloat(briOverlay.style.opacity || 0)) : player.volume();
   });
 
@@ -223,7 +228,6 @@ async function init() {
     renderChannels(allChannels);
     renderRecent();
     setTimeout(adjustLayout, 500);
-    // সরাসরি ওয়েবসাইটে ঢোকার সময় স্পিনার ছাড়াই ১ম চ্যানেল চলবে
     if(allChannels.length > 0) playStream(allChannels[0].url, allChannels[0].name, allChannels[0].logo, false, false);
   } catch(e) { document.getElementById("channelList").innerText = "Error Loading."; }
 }
@@ -258,15 +262,10 @@ function renderChannels(list) {
   document.getElementById("count").textContent = list.length + " CH";
 }
 
-// playStream ফাংশনে showSpinner প্যারামিটার যোগ করা হয়েছে
 function playStream(url, name, logo, updateRecent = true, showSpinner = true) {
   document.getElementById("now-playing-text").innerText = "দেখছেন: " + name + " | ";
-  
-  if (showSpinner) {
-    player.addClass('manual-loading'); // শুধুমাত্র ক্লিক করলে ক্লাস যোগ হবে
-  } else {
-    player.removeClass('manual-loading'); // শুরুতে এটা থাকবে না
-  }
+  if (showSpinner) player.addClass('manual-loading');
+  else player.removeClass('manual-loading');
 
   if (updateRecent) {
     recentChannels = recentChannels.filter(c => c.url !== url);
