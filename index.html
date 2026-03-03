@@ -13,39 +13,43 @@
       --primary: #00e5ff; --bg: #0a0a0a; --accent: #ff4081; --tg: #24A1DE; --apk: #3DDC84; 
     }
 
+    /* পেজ রিফ্রেশ হওয়া বন্ধ করার জন্য */
     html, body { 
       margin: 0; padding: 0; background: var(--bg); color: #fff; 
       font-family: 'Segoe UI', sans-serif; overflow-x: hidden;
-      touch-action: pan-y; /* পেজ রিফ্রেশ হওয়া বন্ধ করতে */
+      overscroll-behavior-y: contain; 
     }
 
-    /* ১. ইউনিক AVIA TV লোগো */
+    /* ব্র্যান্ড লোগো ডিজাইন */
     .brand-header { padding: 15px; background: #000; border-bottom: 1px solid #222; }
     .brand-title-new { 
-      font-size: 20px; font-weight: 900; 
-      background: linear-gradient(to right, #00e5ff, #00ff88);
+      font-size: 22px; font-weight: 900; 
+      background: linear-gradient(90deg, #00e5ff, #00ff88);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      letter-spacing: 2px; text-transform: uppercase;
-      border-left: 5px solid var(--accent);
-      padding-left: 10px;
-      display: inline-block;
+      letter-spacing: 1.5px; border-left: 4px solid var(--accent);
+      padding-left: 10px; text-transform: uppercase;
     }
 
     #top-section { position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; background: #111; }
-    .video-container { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; touch-action: none; }
+    
+    /* ভিডিও কন্টেইনার */
+    .video-container { 
+      position: relative; width: 100%; aspect-ratio: 16/9; 
+      background: #000; touch-action: none; 
+    }
     .video-js { width: 100% !important; height: 100% !important; }
 
     /* স্পিনার ডিলিট */
     .vjs-loading-spinner { display: none !important; }
 
-    /* জেস্টার ইনডিকেটর */
+    /* জেস্টার ইনডিকেটর স্টাইল */
     #brightness-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: black; opacity: 0; pointer-events: none; z-index: 5; }
     .gesture-indicator { 
       position: absolute; top: 50%; transform: translateY(-50%); 
-      background: rgba(0,0,0,0.8); color: var(--primary); 
-      padding: 15px 25px; border-radius: 50px; font-size: 18px; 
-      font-weight: bold; z-index: 10000; display: none; 
-      pointer-events: none; border: 2px solid var(--primary); 
+      background: rgba(0,0,0,0.85); color: var(--primary); 
+      padding: 12px 25px; border-radius: 50px; font-size: 16px; 
+      font-weight: bold; z-index: 99999; display: none; 
+      pointer-events: none; border: 1px solid var(--primary); 
     }
     #vol-indicator { right: 20px; }
     #bri-indicator { left: 20px; }
@@ -53,33 +57,30 @@
     header { padding: 10px; background: #111; }
 
     /* চ্যাপ্টা বাটন */
-    .action-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
+    .action-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
     .rect-btn { 
-      height: 40px; border-radius: 5px; display: flex; align-items: center; justify-content: center; 
-      text-decoration: none; font-size: 18px; color: #fff; border: 1px solid rgba(255,255,255,0.1);
+      height: 42px; border-radius: 4px; display: flex; align-items: center; justify-content: center; 
+      text-decoration: none; font-size: 18px; color: #fff; background: rgba(255,255,255,0.1);
     }
     .btn-tg { background: var(--tg); }
     .btn-apk { background: var(--apk); }
-    .btn-share { background: #333; }
     .btn-rotate { background: var(--accent); }
 
-    /* সার্চ অপশন */
+    /* সার্চ বক্স */
     .search-row { position: relative; margin-bottom: 10px; }
     #search { 
       width: 100%; background: #1a1a1a; border: 1px solid #333; color: white; 
-      padding: 12px 15px; border-radius: 8px; font-size: 14px; outline: none; box-sizing: border-box;
+      padding: 10px 15px; border-radius: 6px; font-size: 14px; outline: none;
     }
-    #search:focus { border-color: var(--primary); }
 
     #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; padding: 15px; }
-    .channel-card { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px; text-align: center; cursor: pointer; }
+    .channel-card { background: rgba(255,255,255,0.05); border-radius: 8px; padding: 10px; text-align: center; cursor: pointer; border: 1px solid #1a1a1a; }
     .channel-logo { height: 35px; max-width: 90%; object-fit: contain; margin-bottom: 5px; }
-    .channel-name { font-size: 10px; color: #ccc; }
+    .channel-name { font-size: 10px; color: #ccc; font-weight: 500; }
 
     .footer { padding: 30px 0 100px 0; text-align: center; }
-    .dev-name { color: var(--primary); font-weight: bold; font-size: 14px; border-bottom: 2px solid var(--accent); }
+    .dev-name { color: var(--primary); font-weight: bold; font-size: 14px; border-bottom: 2px solid var(--accent); padding-bottom: 2px; }
 
-    .vjs-fullscreen .vjs-control-bar { display: flex !important; }
   </style>
 </head>
 <body>
@@ -98,21 +99,21 @@
     <div class="action-btns">
       <a href="https://t.me/techbd_group" class="rect-btn btn-tg"><i class="fab fa-telegram-plane"></i></a>
       <a href="https://www.mediafire.com/file/2c8yvb7c9dw2abz/Avia_Tv.apk/file" class="rect-btn btn-apk"><i class="fas fa-download"></i></a>
-      <button onclick="shareApp()" class="rect-btn btn-share"><i class="fas fa-share-alt"></i></button>
-      <button onclick="toggleRotate()" class="rect-btn btn-rotate"><i class="fas fa-sync-alt"></i></button>
+      <button onclick="shareApp()" class="rect-btn"><i class="fas fa-share-alt"></i></button>
+      <button onclick="toggleFS()" class="rect-btn btn-rotate"><i class="fas fa-expand"></i></button>
     </div>
     
     <div class="search-row">
-      <input type="text" id="search" placeholder="সার্চ চ্যানেল..." onkeyup="smartSearch()">
+      <input type="text" id="search" placeholder="সার্চ চ্যানেল এখানে..." oninput="smartSearch()">
     </div>
   </header>
 </div>
 
-<div id="content-area" style="margin-top: 350px;">
-  <div id="channelList">লোডিং...</div>
+<div id="content-area" style="margin-top: 360px;">
+  <div id="channelList">লোডিং হচ্ছে...</div>
   <div class="footer">
-    <div id="online-status" style="font-size:12px; margin-bottom:10px; color:var(--apk)">Online...</div>
-    <div style="font-size:10px; color:#555">DEVELOPED BY</div>
+    <div id="online-status" style="font-size:11px; margin-bottom:10px; color:var(--apk)">Online...</div>
+    <div style="font-size:9px; color:#555">DEVELOPED BY</div>
     <div class="dev-name">SOHEL TANVER</div>
   </div>
 </div>
@@ -123,7 +124,7 @@
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 let allChannels = [], player;
 
-// জেস্টার কন্ট্রোল (ফুল স্ক্রিন সাপোর্ট সহ)
+// ফুল স্ক্রিন জেস্টার কন্ট্রোল লজিক
 let startY, startVal, isBrightness;
 const wrapper = document.getElementById('player-wrapper');
 const briOverlay = document.getElementById('brightness-overlay');
@@ -132,15 +133,17 @@ const briInd = document.getElementById('bri-indicator');
 
 function initGestures() {
     wrapper.addEventListener('touchstart', (e) => {
-        startY = e.touches[0].pageY;
+        const touch = e.touches[0];
+        startY = touch.pageY;
         const rect = wrapper.getBoundingClientRect();
-        isBrightness = e.touches[0].pageX - rect.left < rect.width / 2;
+        isBrightness = touch.pageX - rect.left < rect.width / 2;
         startVal = isBrightness ? (1 - parseFloat(briOverlay.style.opacity || 0)) : player.volume();
     }, { passive: false });
 
     wrapper.addEventListener('touchmove', (e) => {
-        e.preventDefault(); // রিফ্রেশ হওয়া বন্ধ করতে
-        const diff = (startY - e.touches[0].pageY) / 200;
+        e.preventDefault(); 
+        const touch = e.touches[0];
+        const diff = (startY - touch.pageY) / 150;
         let newVal = Math.min(Math.max(startVal + diff, 0), 1);
         
         if (isBrightness) {
@@ -155,11 +158,14 @@ function initGestures() {
     }, { passive: false });
 
     wrapper.addEventListener('touchend', () => {
-        setTimeout(() => { volInd.style.display = 'none'; briInd.style.display = 'none'; }, 800);
+        setTimeout(() => { 
+            volInd.style.display = 'none'; 
+            briInd.style.display = 'none'; 
+        }, 1000);
     });
 }
 
-// স্মার্ট সার্চ
+// স্মার্ট সার্চ ফাংশন
 function smartSearch() {
   const query = document.getElementById("search").value.toLowerCase();
   const filtered = allChannels.filter(ch => ch.name.toLowerCase().includes(query));
@@ -169,13 +175,14 @@ function smartSearch() {
 async function init() {
   player = videojs('v-player', { fluid: true });
   initGestures();
+  
   try {
     const res = await fetch(playlistUrl);
     const data = await res.text();
     allChannels = parseM3U(data);
     renderChannels(allChannels);
     if(allChannels.length > 0) playStream(allChannels[0].url, allChannels[0].name);
-  } catch(e) { console.error(e); }
+  } catch(e) { console.log(e); }
 }
 
 function parseM3U(data) {
@@ -209,7 +216,7 @@ function playStream(url, name) {
   player.play().catch(() => {});
 }
 
-function toggleRotate() {
+function toggleFS() {
   if (!player.isFullscreen()) player.requestFullscreen();
   else player.exitFullscreen();
 }
@@ -234,7 +241,8 @@ init();
   onDisconnect(myRef).remove();
   onValue(onlineRef, (s) => {
     const count = s.val() ? Object.keys(s.val()).length : 0;
-    document.getElementById("online-status").innerText = "Online Users: " + count;
+    const el = document.getElementById("online-status");
+    if(el) el.innerText = "Online Users: " + count;
   });
 </script>
 </body>
