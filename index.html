@@ -1,9 +1,18 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-99V1DXBKKT"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-99V1DXBKKT');
+  </script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Avia TV - Live TV & Sports</title>
+  
+  <title>Avia TV - Live TV Channels & Sports Online Free</title>
   
   <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
   
@@ -15,188 +24,228 @@
 
     body { margin: 0; background: var(--bg); font-family: 'Segoe UI', sans-serif; color: white; overflow-x: hidden; }
 
-    /* Sticky Player Fix */
-    #top-section { position: sticky; top: 0; width: 100%; background: #111; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+    #top-section { position: sticky; top: 0; width: 100%; background: #111; z-index: 1000; border-bottom: 1px solid #222; }
     .video-container { width: 100%; aspect-ratio: 16/9; background: #000; }
     .video-js { width: 100% !important; height: 100% !important; }
 
-    header { padding: 10px; background: #111; border-bottom: 1px solid #222; }
+    header { padding: 8px 12px; background: #111; }
     .header-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-    .brand-title { font-size: 14px; font-weight: 800; color: var(--primary); line-height: 1; }
+    .brand-title { font-size: 10px; font-weight: 800; color: var(--primary); text-transform: uppercase; }
     
     #recent-list { flex: 1; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
-    .recent-item { min-width: 35px; height: 35px; background: var(--card); border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid #333; flex-shrink: 0; cursor: pointer; }
-    .recent-item img { width: 80%; height: 80%; object-fit: contain; }
+    .recent-item { min-width: 32px; height: 32px; background: var(--card); border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid #333; flex-shrink: 0; cursor: pointer; }
+    .recent-item img { width: 75%; height: 75%; object-fit: contain; }
 
-    .circle-btn { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; border: none; cursor: pointer; }
+    .circle-btn { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 12px; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; }
     .btn-tg { color: var(--tg); background: rgba(36, 161, 222, 0.1); }
     .btn-apk { color: var(--apk); background: rgba(61, 220, 132, 0.1); }
 
-    .search-row { display: flex; gap: 10px; margin-bottom: 10px; }
-    #search { flex: 1; background:#1a1a1a; border:1px solid #333; color:white; padding: 10px; border-radius: 8px; font-size: 14px; outline: none; }
-    #count { font-size: 12px; color: var(--primary); background: rgba(0,229,255,0.1); padding: 5px 10px; border-radius: 5px; align-self: center; }
+    .search-row { display: flex; gap: 8px; margin-bottom: 8px; }
+    #search { flex: 1; background:#1a1a1a; border:1px solid #333; color:white; padding: 6px 12px; border-radius: 6px; font-size: 12px; outline: none; }
+    #count { font-size: 9px; color: var(--primary); background: rgba(0, 229, 255, 0.1); padding: 3px 6px; border-radius: 4px; align-self: center; }
 
-    .tabs { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 5px; }
-    .tab-btn { padding: 8px 15px; background: #1a1a1a; border: 1px solid #333; color: #bbb; border-radius: 20px; font-size: 12px; white-space: nowrap; cursor: pointer; }
+    .tabs { display: flex; gap: 5px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+    .tab-btn { padding: 5px 12px; background: #1a1a1a; border: 1px solid #333; color: #bbb; border-radius: 5px; font-size: 10px; white-space: nowrap; cursor: pointer; }
     .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
 
-    #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; padding: 15px; }
-    .channel-card { background: var(--card); border-radius: 12px; padding: 15px 5px; text-align: center; border: 1px solid rgba(255,255,255,0.05); position: relative; cursor: pointer; transition: 0.2s; }
-    .channel-card:active { transform: scale(0.95); border-color: var(--primary); }
-    .fav-star { position: absolute; top: 5px; right: 5px; font-size: 18px; color: rgba(255,255,255,0.2); }
+    #ticker { background: #001a1a; color: #fff; padding: 3px 0; font-size: 9px; border-bottom: 1px solid var(--primary); overflow: hidden; }
+    .ticker-content { display: inline-block; white-space: nowrap; animation: marquee 20s linear infinite; }
+    @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+
+    #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; padding: 15px; min-height: 400px; }
+    .channel-card { background: var(--card); border-radius: 10px; padding: 10px 5px; text-align: center; border: 1px solid rgba(255,255,255,0.05); height: 85px; position: relative; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .fav-star { position: absolute; top: 5px; right: 5px; font-size: 16px; color: rgba(255,255,255,0.2); }
     .fav-star.active { color: var(--star); }
-    .channel-logo { height: 40px; max-width: 80%; object-fit: contain; margin-bottom: 8px; }
-    .channel-name { font-size: 11px; color: #eee; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .channel-logo { height: 32px; max-width: 70%; object-fit: contain; margin-bottom: 5px; }
+    .channel-name { font-size: 9px; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 90%; }
 
-    #ticker { background: #001a1a; color: #00e5ff; font-size: 11px; padding: 5px; overflow: hidden; border-bottom: 1px solid #00e5ff; }
-    .ticker-move { display: inline-block; white-space: nowrap; animation: move 15s linear infinite; }
-    @keyframes move { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
-
-    .footer { text-align: center; padding: 20px; font-size: 12px; color: #666; }
+    .footer-area { padding: 20px 0 60px 0; text-align: center; }
+    #online-status { font-size: 10px; color: var(--online); font-weight: bold; background: rgba(76, 175, 80, 0.1); padding: 4px 12px; border-radius: 50px; border: 1px solid rgba(76, 175, 80, 0.2); display: inline-flex; align-items: center; gap: 5px; color: #4CAF50; }
   </style>
 </head>
 <body>
 
 <div id="top-section">
   <div class="video-container">
-    <video id="avia-player" class="video-js vjs-big-play-centered" controls preload="auto" playsinline></video>
+    <video id="player" class="video-js vjs-big-play-centered" controls preload="auto" playsinline></video>
   </div>
   
-  <div id="ticker"><div class="ticker-move" id="status-text">চ্যানেল লোড হচ্ছে, অপেক্ষা করুন...</div></div>
+  <div id="ticker">
+    <div class="ticker-content">
+      <span id="now-playing-text" style="color: var(--primary); font-weight: bold;">চ্যানেল নির্বাচন করুন...</span>
+      <span style="margin-left: 20px;">📢 পরামর্শ বা অভিযোগ: <a href="https://telegram.dog/techbd_group" target="_blank" style="color:#ffd700; text-decoration:none;">TECH BD GROUP</a></span>
+    </div>
+  </div>
 
   <header>
     <div class="header-top">
-      <div class="brand-title">AVIA<br>TV</div>
+      <div class="brand-title">Avia<br>Tv</div>
       <div id="recent-list"></div>
-      <a href="https://telegram.dog/techbd_group" class="circle-btn btn-tg">📩</a>
-      <a href="#" class="circle-btn btn-apk">📥</a>
+      <div class="action-btns" style="display:flex; gap:5px;">
+        <a href="https://telegram.dog/techbd_group" target="_blank" class="circle-btn btn-tg">📩</a>
+        <a href="https://www.mediafire.com/file/2c8yvb7c9dw2abz/Avia_Tv.apk/file" target="_blank" class="circle-btn btn-apk">📥</a>
+        <button onclick="shareApp()" class="circle-btn" style="background:rgba(255,255,255,0.05); color:#fff;">🔗</button>
+      </div>
     </div>
-    
     <div class="search-row">
-      <input type="text" id="search" placeholder="চ্যানেলের নাম লিখুন...">
-      <span id="count">0</span>
+      <input type="text" id="search" placeholder="সার্চ চ্যানেল...">
+      <span id="count">0 CH</span>
     </div>
-
     <div class="tabs">
-      <button class="tab-btn active" onclick="applyFilter('all', this)">All</button>
-      <button class="tab-btn" onclick="applyFilter('sports', this)">Sports</button>
-      <button class="tab-btn" onclick="applyFilter('bangla', this)">Bangla</button>
-      <button class="tab-btn" onclick="applyFilter('fav', this)" style="color:var(--star)">★ Fav</button>
+      <button class="tab-btn active" onclick="filterCat('all', this)">All</button>
+      <button class="tab-btn" onclick="filterCat('sports', this)">Sports</button>
+      <button class="tab-btn" onclick="filterCat('bangla', this)">Bangla</button>
+      <button class="tab-btn" style="color:var(--star)" onclick="filterCat('fav', this)">★ Fav</button>
     </div>
   </header>
 </div>
 
 <div id="channelList">লোডিং...</div>
 
-<div class="footer">
-  <div id="online-count">Online: 0</div>
-  <p>DEVELOPED BY SOHEL TANVER</p>
+<div class="footer-area">
+  <div id="online-status">Online: 0</div>
+  <div style="color: #555; font-size: 10px; margin-top: 10px;">DEVELOPED BY <b style="color:var(--primary)">SOHEL TANVER</b></div>
 </div>
 
 <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
 
 <script>
-  const m3uUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
-  let player;
-  let allData = [];
-  let favorites = JSON.parse(localStorage.getItem('avia_fav')) || [];
-  let currentCat = 'all';
+const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
+let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
+let recentChannels = JSON.parse(localStorage.getItem('recentCh')) || [];
+let currentCategory = 'all', searchQuery = '', vPlayer;
 
-  // ১. প্লেয়ার সেটআপ
-  document.addEventListener('DOMContentLoaded', () => {
-    player = videojs('avia-player', {
-      fluid: true,
-      html5: { vhs: { overrideNative: true }, nativeAudioTracks: false, nativeVideoTracks: false }
-    });
-    fetchChannels();
-  });
+document.addEventListener('DOMContentLoaded', () => {
+    vPlayer = videojs('player', { fluid: true });
+    init();
+});
 
-  // ২. ডাটা ফেচিং (চ্যানেল না আসার সমাধান এখানে)
-  async function fetchChannels() {
+async function init() {
     try {
-      const response = await fetch(m3uUrl);
-      const data = await response.text();
-      allData = parseM3U(data);
-      renderChannels(allData);
-      if(allData.length > 0) playStream(allData[0].url, allData[0].name);
-    } catch (err) {
-      document.getElementById('channelList').innerHTML = "চ্যানেল লোড করা যায়নি। ইন্টারনেট চেক করুন।";
-    }
-  }
+        const res = await fetch(playlistUrl);
+        const data = await res.text();
+        allChannels = parseM3U(data);
+        render();
+        renderRecent();
+        if(allChannels.length > 0) playStream(allChannels[0].url, allChannels[0].name, allChannels[0].logo, false);
+    } catch(e) { document.getElementById("channelList").innerText = "Error Loading Channels."; }
+}
 
-  function parseM3U(content) {
-    const lines = content.split('\n');
-    const result = [];
-    let obj = {};
-    lines.forEach(line => {
-      if (line.startsWith('#EXTINF')) {
-        obj.name = line.split(',')[1].trim();
-        obj.logo = line.match(/tvg-logo="([^"]+)"/)?.[1] || "";
-        obj.group = line.match(/group-title="([^"]+)"/)?.[1]?.toLowerCase() || "others";
-        obj.id = btoa(obj.name);
-      } else if (line.startsWith('http')) {
-        obj.url = line.trim();
-        result.push(obj);
-        obj = {};
-      }
+function parseM3U(data) {
+    const lines = data.split("\n"), list = [];
+    let cur = {};
+    lines.forEach(l => {
+        l = l.trim();
+        if (l.startsWith("#EXTINF")) {
+            cur.name = l.split(",")[1]?.trim() || "Unknown";
+            cur.logo = l.match(/tvg-logo="([^"]+)"/)?.[1] || "";
+            cur.cat = (l.match(/group-title="([^"]+)"/)?.[1] || "").toLowerCase();
+            cur.id = btoa(unescape(encodeURIComponent(cur.name)));
+        } else if (l.startsWith("http")) { 
+            cur.url = l; 
+            list.push({...cur}); 
+            cur = {}; 
+        }
     });
-    return result;
-  }
+    return list;
+}
 
-  // ৩. রেন্ডারিং এবং সার্চ (সার্চ ফিক্সড)
-  function renderChannels(list) {
-    const container = document.getElementById('channelList');
-    container.innerHTML = "";
-    
-    list.forEach(ch => {
-      const isFav = favorites.includes(ch.id);
-      const card = document.createElement('div');
-      card.className = 'channel-card';
-      card.innerHTML = `
-        <span class="fav-star ${isFav ? 'active' : ''}" onclick="toggleFav(event, '${ch.id}')">★</span>
-        <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://via.placeholder.com/50'">
-        <div class="channel-name">${ch.name}</div>
-      `;
-      card.onclick = () => playStream(ch.url, ch.name);
-      container.appendChild(card);
+// মাস্টার রেন্ডার ফাংশন (সার্চ এবং ফিল্টার ফিক্সড)
+function render() {
+    const grid = document.getElementById("channelList");
+    const filtered = allChannels.filter(ch => {
+        const matchesSearch = ch.name.toLowerCase().includes(searchQuery.toLowerCase());
+        let matchesCat = true;
+        if(currentCategory === 'fav') matchesCat = favorites.includes(ch.id);
+        else if(currentCategory !== 'all') matchesCat = (ch.cat && ch.cat.includes(currentCategory)) || ch.name.toLowerCase().includes(currentCategory);
+        return matchesSearch && matchesCat;
     });
-    document.getElementById('count').innerText = list.length;
-  }
 
-  // সার্চ ফাংশন ঠিক করা হয়েছে
-  document.getElementById('search').addEventListener('input', (e) => {
-    const query = e.target.value.toLowerCase();
-    const filtered = allData.filter(ch => ch.name.toLowerCase().includes(query));
-    renderChannels(filtered);
-  });
+    grid.innerHTML = filtered.map(ch => {
+        const isFav = favorites.includes(ch.id);
+        return `
+            <div class="channel-card" onclick="playStream('${ch.url}', '${ch.name}', '${ch.logo}')">
+                <span class="fav-star ${isFav ? 'active' : ''}" onclick="toggleFav(event, '${ch.id}')">★</span>
+                <img src="${ch.logo}" class="channel-logo" loading="lazy" onerror="this.src='https://via.placeholder.com/50x30?text=TV'">
+                <div class="channel-name">${ch.name}</div>
+            </div>
+        `;
+    }).join('');
+    document.getElementById("count").textContent = filtered.length + " CH";
+}
 
-  function applyFilter(cat, btn) {
-    currentCat = cat;
+document.getElementById("search").addEventListener('input', (e) => {
+    searchQuery = e.target.value;
+    render();
+});
+
+function filterCat(cat, btn) {
+    currentCategory = cat;
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    
-    let filtered = allData;
-    if(cat === 'fav') filtered = allData.filter(ch => favorites.includes(ch.id));
-    else if(cat !== 'all') filtered = allData.filter(ch => ch.group.includes(cat) || ch.name.toLowerCase().includes(cat));
-    
-    renderChannels(filtered);
-  }
+    render();
+}
 
-  // ৪. প্লেয়ার ফাংশন (স্মুথ স্ট্রিমিং)
-  function playStream(url, name) {
-    document.getElementById('status-text').innerText = "এখন দেখছেন: " + name;
-    player.src({ src: url, type: 'application/x-mpegURL' });
-    player.play();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
+function playStream(url, name, logo, updateRecent = true) {
+    document.getElementById("now-playing-text").innerText = "দেখছেন: " + name + " | ";
+    if (updateRecent) {
+        recentChannels = recentChannels.filter(c => c.url !== url);
+        recentChannels.unshift({name, url, logo});
+        if (recentChannels.length > 8) recentChannels.pop();
+        localStorage.setItem('recentCh', JSON.stringify(recentChannels));
+        renderRecent();
+    }
+    vPlayer.src({ src: url, type: 'application/x-mpegURL' });
+    vPlayer.play();
+}
 
-  function toggleFav(e, id) {
-    e.stopPropagation();
-    if(favorites.includes(id)) favorites = favorites.filter(i => i !== id);
-    else favorites.push(id);
-    localStorage.setItem('avia_fav', JSON.stringify(favorites));
-    e.target.classList.toggle('active');
-  }
+function toggleFav(event, id) {
+    event.stopPropagation();
+    if (favorites.includes(id)) {
+        favorites = favorites.filter(f => f !== id);
+        event.target.classList.remove('active');
+    } else {
+        favorites.push(id);
+        event.target.classList.add('active');
+    }
+    localStorage.setItem('myFavs', JSON.stringify(favorites));
+    if (currentCategory === 'fav') render();
+}
+
+function renderRecent() {
+    const listEl = document.getElementById("recent-list");
+    listEl.innerHTML = recentChannels.map(ch => `
+        <div class="recent-item" onclick="playStream('${ch.url}', '${ch.name}', '${ch.logo}')">
+            <img src="${ch.logo}" onerror="this.src='https://via.placeholder.com/20x20?text=TV'">
+        </div>
+    `).join('');
+}
+
+function shareApp() {
+    if (navigator.share) { navigator.share({ title: 'Avia Tv', url: window.location.href }); }
+    else { navigator.clipboard.writeText(window.location.href); alert("Link Copied!"); }
+}
 </script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+  import { getDatabase, ref, onValue, push, set, onDisconnect } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+  const firebaseConfig = { databaseURL: "https://avia-tv-default-rtdb.firebaseio.com/" };
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const onlineUsersRef = ref(db, 'online_users');
+  const myUserRef = push(onlineUsersRef);
+  set(myUserRef, true);
+  onDisconnect(myUserRef).remove();
+  onValue(onlineUsersRef, (snapshot) => {
+    const data = snapshot.val();
+    const count = data ? Object.keys(data).length : 0;
+    document.getElementById("online-status").innerText = "Online: " + count;
+  });
+</script>
+
+<script src="https://pl28744078.effectivegatecpm.com/77/45/12/774512aa06cc31fabddd395b71e127b6.js"></script>
+<script src="https://pl28744070.effectivegatecpm.com/d0/6e/79/d06e79767e37c835c1f36cc898ad6320.js"></script>
+
 </body>
 </html>
