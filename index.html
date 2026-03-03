@@ -60,8 +60,8 @@
     .btn-tg { color: var(--tg); background: rgba(36, 161, 222, 0.1); }
     .btn-apk { color: var(--apk); background: rgba(61, 220, 132, 0.1); }
     .btn-share { color: #fff; background: rgba(255, 255, 255, 0.05); }
-    /* রোটেট বাটন স্টাইল */
-    .btn-rotate { color: #fff; background: var(--accent); border: 1px solid var(--accent) !important; font-weight: bold; }
+    /* রোটেট বাটনকে আলাদা কালার দেয়া হয়েছে */
+    .btn-rotate { color: #fff; background: var(--accent); border: 1px solid var(--accent); font-weight: bold; }
 
     .search-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
     #search { flex: 1; background:#1a1a1a; border:1px solid #333; color:white; padding: 8px; border-radius: 6px; font-size: 13px; outline: none; }
@@ -110,7 +110,7 @@
         <a href="https://t.me/techbd_group" target="_blank" class="circle-btn btn-tg">📩</a>
         <a href="https://www.mediafire.com/file/2c8yvb7c9dw2abz/Avia_Tv.apk/file" target="_blank" class="circle-btn btn-apk">📥</a>
         <button onclick="shareApp()" class="circle-btn btn-share">🔗</button>
-        <button onclick="toggleRotate()" class="circle-btn btn-rotate">🔄</button>
+        <button onclick="toggleRotateManual()" class="circle-btn btn-rotate">🔄</button>
       </div>
     </div>
     <div class="search-row">
@@ -143,7 +143,6 @@
 </div>
 
 <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
-<script type='text/javascript' src='//pl28744078.effectivegatecpm.com/77/45/12/774512aa06cc31fabddd395b71e127b6.js'></script>
 
 <script>
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
@@ -151,44 +150,50 @@ let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || 
 let recentChannels = JSON.parse(localStorage.getItem('recentCh')) || [];
 let player;
 
+// --- রোটেট লজিক (নিশ্চিত কাজ করবে) ---
+
+// ১. ফোনের ওরিয়েন্টেশন সেন্সর চেক
+window.screen.orientation.addEventListener('change', function() {
+  if (window.screen.orientation.type.startsWith('landscape')) {
+    if (player && !player.isFullscreen()) player.requestFullscreen().catch(() => {});
+  } else if (window.screen.orientation.type.startsWith('portrait')) {
+    if (player && player.isFullscreen()) player.exitFullscreen().catch(() => {});
+  }
+});
+
+// ২. ম্যানুয়াল রোটেট বাটন
+async function toggleRotateManual() {
+  if (!player) return;
+  
+  try {
+    if (!player.isFullscreen()) {
+      await player.requestFullscreen();
+      // অ্যান্ড্রয়েডে ল্যান্ডস্কেপ লক করার চেষ্টা
+      if (screen.orientation && screen.orientation.lock) {
+        await screen.orientation.lock('landscape').catch(() => {});
+      }
+    } else {
+      await player.exitFullscreen();
+    }
+  } catch (err) {
+    console.error("Rotate Error: ", err);
+  }
+}
+
+// ------------------------------------
+
 let startY, startVal, isBrightness;
 const wrapper = document.getElementById('player-wrapper');
 const briOverlay = document.getElementById('brightness-overlay');
 const volInd = document.getElementById('vol-indicator');
 const briInd = document.getElementById('bri-indicator');
 
-// ১. স্মার্ট অটো-রোটেট ফিক্স (ইভেন্ট লিসেনার আপডেট)
-window.addEventListener("orientationchange", function() {
-  if (window.orientation === 90 || window.orientation === -90) {
-    if (player && !player.isFullscreen()) {
-      player.requestFullscreen();
-    }
-  } else {
-    if (player && player.isFullscreen()) {
-      player.exitFullscreen();
-    }
-  }
-});
-
-// ২. রোটেট বাটন ফাংশন (Fix)
-function toggleRotate() {
-  if (player) {
-    if (!player.isFullscreen()) {
-      player.requestFullscreen();
-      // স্ক্রিন লক করার চেষ্টা
-      if (screen.orientation && screen.orientation.lock) {
-        screen.orientation.lock('landscape').catch(e => {
-            console.log("Lock failed, but fullscreen works.");
-        });
-      }
-    } else {
-      player.exitFullscreen();
-    }
-  }
-}
-
 async function init() {
-  player = videojs('v-player', { fluid: true });
+  player = videojs('v-player', { 
+    fluid: true,
+    html5: { vhs: { overrideNative: true }, nativeAudioTracks: false, nativeVideoTracks: false }
+  });
+  
   player.on('playing', () => player.removeClass('manual-loading'));
 
   player.on('fullscreenchange', () => {
@@ -204,6 +209,7 @@ async function init() {
     }
   });
 
+  // জেস্টার লজিক
   const handleTouchStart = (e) => {
     startY = e.touches[0].pageY;
     const rect = wrapper.getBoundingClientRect();
@@ -288,7 +294,7 @@ function playStream(url, name, logo, updateRecent = true, showSpinner = true) {
     renderRecent();
   }
   player.src({ src: url, type: 'application/x-mpegURL' });
-  player.play().catch(e => console.log("Auto-play blocked or error."));
+  player.play().catch(() => {});
 }
 
 function renderRecent() {
