@@ -23,12 +23,11 @@
       --primary: #00e5ff; --bg: #0a0a0a; --card: rgba(255, 255, 255, 0.05); 
       --focus: #00e5ff; --accent: #ff4081; --star: #ffd700; 
       --tg: #24A1DE; --apk: #3DDC84; --online: #4CAF50;
-      --brand-gradient: linear-gradient(45deg, #ffd700, #ff8c00);
     }
 
     html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--bg); font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
 
-    /* ফুলস্ক্রিন ফিক্স */
+    /* ফুলস্ক্রিন হলে সব হাইড হবে */
     .vjs-fullscreen #brand-header, .vjs-fullscreen #ticker, .vjs-fullscreen header, .vjs-fullscreen #content-area { display: none !important; }
 
     #top-section { position: fixed; top: 0; left: 0; width: 100%; background: #111; z-index: 1000; border-bottom: 1px solid #222; }
@@ -40,9 +39,11 @@
     #vol-indicator { right: 20px; }
     #bri-indicator { left: 20px; }
 
-    /* ব্র্যান্ড লোগো এক কোণায় */
-    .brand-header { padding: 12px 15px; background: #111; display: flex; align-items: center; justify-content: flex-start; }
-    .brand-title-new { font-size: 18px; font-weight: 800; background: var(--brand-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 1px; text-transform: uppercase; }
+    .vjs-loading-spinner { display: none !important; }
+    .manual-loading .vjs-loading-spinner { display: block !important; }
+
+    .brand-header { padding: 12px 15px; background: #111; display: flex; align-items: center; }
+    .brand-title-new { font-size: 26px; font-weight: 900; color: var(--primary); letter-spacing: 1.5px; }
 
     #ticker { background: #001a1a; color: #fff; padding: 5px 0; font-size: 12px; border-bottom: 1px solid var(--primary); overflow: hidden; }
     .ticker-content { display: inline-block; animation: marquee 20s linear infinite; white-space: nowrap; }
@@ -56,6 +57,9 @@
 
     .action-btns { display: flex; gap: 8px; align-items: center; }
     .circle-btn { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; font-size: 14px; outline: none; }
+    .btn-tg { color: var(--tg); background: rgba(36, 161, 222, 0.1); }
+    .btn-apk { color: var(--apk); background: rgba(61, 220, 132, 0.1); }
+    .btn-share { color: #fff; background: rgba(255, 255, 255, 0.05); }
     .btn-rotate { color: #fff; background: var(--accent); border: 1px solid var(--accent); font-weight: bold; }
 
     .search-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
@@ -68,14 +72,14 @@
 
     #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 12px; padding: 15px; }
     .channel-card { background: var(--card); border-radius: 12px; padding: 15px 5px; text-align: center; border: 1px solid rgba(255,255,255,0.05); min-height: 90px; cursor: pointer; position: relative; }
-    .fav-star { position: absolute; top: 6px; right: 8px; font-size: 20px; color: rgba(255,255,255,0.2); transition: 0.3s; z-index: 10; }
+    .fav-star { position: absolute; top: 6px; right: 8px; font-size: 18px; color: rgba(255,255,255,0.2); }
     .fav-star.active { color: var(--star); }
     .channel-logo { height: 35px; object-fit: contain; margin-bottom: 8px; }
     .channel-name { font-size: 10px; color: #ccc; }
 
+    .ad-slot { margin: 15px auto; text-align: center; width: 100%; overflow: hidden; }
     .footer-area { padding: 40px 0 80px 0; text-align: center; }
     #online-status { font-size: 11px; color: var(--online); font-weight: bold; background: rgba(76, 175, 80, 0.1); padding: 5px 15px; border-radius: 50px; display: inline-flex; align-items: center; gap: 5px; border: 1px solid rgba(76, 175, 80, 0.2); }
-    .ad-slot { margin: 10px auto; text-align: center; }
   </style>
 </head>
 <body id="main-body">
@@ -102,7 +106,9 @@
     <div class="header-top">
       <div id="recent-list"></div>
       <div class="action-btns">
-        <button onclick="shareApp()" class="circle-btn" style="background:rgba(255,255,255,0.05); color:#fff">🔗</button>
+        <a href="https://t.me/techbd_group" target="_blank" class="circle-btn btn-tg">📩</a>
+        <a href="https://www.mediafire.com/file/2c8yvb7c9dw2abz/Avia_Tv.apk/file" target="_blank" class="circle-btn btn-apk">📥</a>
+        <button onclick="shareApp()" class="circle-btn btn-share">🔗</button>
         <button onclick="toggleRotateManual()" class="circle-btn btn-rotate">🔄</button>
       </div>
     </div>
@@ -113,6 +119,7 @@
     <div class="tabs">
       <button class="tab-btn active" onclick="filterCat('all', this)">All</button>
       <button class="tab-btn" onclick="filterCat('sports', this)">Sports</button>
+      <button class="tab-btn" onclick="filterCat('bangla', this)">Bangla</button>
       <button class="tab-btn" style="color:var(--star)" onclick="filterCat('fav', this)">★ Fav</button>
     </div>
   </header>
@@ -129,7 +136,7 @@
   <div id="channelList">লোডিং...</div>
 
   <div class="footer-area">
-    <div id="online-status">Online: 0</div>
+    <div id="online-status">Online...</div>
     <div style="color:#555; font-size:11px; margin-top:10px;">DEVELOPED BY SOHEL TANVER</div>
   </div>
 </div>
@@ -140,61 +147,85 @@
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let recentChannels = JSON.parse(localStorage.getItem('recentCh')) || [];
-let player, currentCategory = 'all';
+let player;
 
+// --- 🔎 Smart Live Search Logic ---
+document.getElementById("search").addEventListener("input", function() {
+  const searchValue = this.value.toLowerCase().trim();
+
+  if (!searchValue) {
+    renderChannels(allChannels);
+    return;
+  }
+
+  const filteredChannels = allChannels.filter(channel =>
+    channel.name && channel.name.toLowerCase().includes(searchValue)
+  );
+
+  renderChannels(filteredChannels);
+});
+
+// --- ওরিয়েন্টেশন এবং রোটেট লজিক ---
+window.screen.orientation.addEventListener('change', function() {
+  if (window.screen.orientation.type.startsWith('landscape')) {
+    if (player && !player.isFullscreen()) player.requestFullscreen().catch(() => {});
+  } else if (window.screen.orientation.type.startsWith('portrait')) {
+    if (player && player.isFullscreen()) player.exitFullscreen().catch(() => {});
+  }
+});
+
+async function toggleRotateManual() {
+  if (!player) return;
+  try {
+    if (!player.isFullscreen()) {
+      await player.requestFullscreen();
+      if (screen.orientation && screen.orientation.lock) {
+        await screen.orientation.lock('landscape').catch(() => {});
+      }
+    } else {
+      await player.exitFullscreen();
+    }
+  } catch (err) { console.error("Rotate Error: ", err); }
+}
+
+// --- প্লেয়ার ইনিশিয়ালাইজেশন ---
 let startY, startVal, isBrightness;
 const wrapper = document.getElementById('player-wrapper');
 const briOverlay = document.getElementById('brightness-overlay');
 const volInd = document.getElementById('vol-indicator');
 const briInd = document.getElementById('bri-indicator');
 
-document.getElementById("search").addEventListener("input", function() {
-  const val = this.value.toLowerCase().trim();
-  if (!val) { applyCurrentFilter(); return; }
-  const filtered = allChannels.filter(ch => ch.name.toLowerCase().includes(val));
-  renderChannels(filtered);
-});
-
-function toggleFav(event, id) {
-  event.stopPropagation();
-  if (favorites.includes(id)) favorites = favorites.filter(f => f !== id);
-  else favorites.push(id);
-  localStorage.setItem('myFavs', JSON.stringify(favorites));
-  applyCurrentFilter();
-}
-
-function filterCat(cat, btn) {
-  currentCategory = cat;
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  applyCurrentFilter();
-}
-
-function applyCurrentFilter() {
-  let list = allChannels;
-  if (currentCategory === 'fav') list = allChannels.filter(ch => favorites.includes(ch.id));
-  else if (currentCategory === 'sports') list = allChannels.filter(ch => ch.name.toLowerCase().includes('sport'));
-  renderChannels(list);
-}
-
 async function init() {
-  player = videojs('v-player', { fluid: true });
+  player = videojs('v-player', { 
+    fluid: true,
+    html5: { vhs: { overrideNative: true }, nativeAudioTracks: false, nativeVideoTracks: false }
+  });
+  
+  player.on('playing', () => player.removeClass('manual-loading'));
 
   player.on('fullscreenchange', () => {
     const el = player.el();
-    el.appendChild(briOverlay); el.appendChild(briInd); el.appendChild(volInd);
+    el.appendChild(briOverlay);
+    el.appendChild(briInd);
+    el.appendChild(volInd);
+    adjustLayout();
+    if (!player.isFullscreen() && screen.orientation && screen.orientation.unlock) {
+      screen.orientation.unlock().catch(() => {});
+    }
   });
 
-  wrapper.addEventListener('touchstart', (e) => {
+  const handleTouchStart = (e) => {
     startY = e.touches[0].pageY;
     const rect = wrapper.getBoundingClientRect();
-    isBrightness = (e.touches[0].pageX - rect.left) < rect.width / 2;
+    const x = e.touches[0].pageX - rect.left;
+    isBrightness = x < rect.width / 2;
     startVal = isBrightness ? (1 - parseFloat(briOverlay.style.opacity || 0)) : player.volume();
-  });
+  };
 
-  wrapper.addEventListener('touchmove', (e) => {
+  const handleTouchMove = (e) => {
     if (e.touches.length > 1) return;
-    const diff = (startY - e.touches[0].pageY) / 180; 
+    const currentY = e.touches[0].pageY;
+    const diff = (startY - currentY) / 180; 
     let newVal = Math.min(Math.max(startVal + diff, 0), 1);
     if (isBrightness) {
       briOverlay.style.opacity = 1 - newVal;
@@ -205,8 +236,10 @@ async function init() {
       volInd.innerText = `🔊 ${Math.round(newVal * 100)}%`;
       volInd.style.display = 'block';
     }
-  });
+  };
 
+  wrapper.addEventListener('touchstart', handleTouchStart);
+  wrapper.addEventListener('touchmove', handleTouchMove);
   wrapper.addEventListener('touchend', () => {
     setTimeout(() => { volInd.style.display = 'none'; briInd.style.display = 'none'; }, 800);
   });
@@ -217,9 +250,14 @@ async function init() {
     allChannels = parseM3U(data);
     renderChannels(allChannels);
     renderRecent();
-    document.getElementById("content-area").style.marginTop = document.getElementById('top-section').offsetHeight + 'px';
+    setTimeout(adjustLayout, 500);
     if(allChannels.length > 0) playStream(allChannels[0].url, allChannels[0].name, allChannels[0].logo, false, false);
-  } catch(e) {}
+  } catch(e) { console.error("Fetch Error:", e); }
+}
+
+function adjustLayout() {
+  const topH = document.getElementById('top-section').offsetHeight;
+  document.getElementById("content-area").style.marginTop = topH + 'px';
 }
 
 function parseM3U(data) {
@@ -238,19 +276,24 @@ function parseM3U(data) {
 
 function renderChannels(list) {
   const grid = document.getElementById("channelList");
-  grid.innerHTML = list.map(ch => {
-    const isFav = favorites.includes(ch.id);
-    return `<div class="channel-card" onclick="playStream('${ch.url}', '${ch.name}', '${ch.logo}', true, true)">
-      <span class="fav-star ${isFav ? 'active' : ''}" onclick="toggleFav(event, '${ch.id}')">★</span>
-      <img src="${ch.logo}" class="channel-logo" loading="lazy">
-      <div class="channel-name">${ch.name}</div>
-    </div>`;
-  }).join('');
+  if(list.length === 0) {
+    grid.innerHTML = "<div style='color:gray; padding:20px; text-align:center; grid-column: 1/-1;'>কোনো চ্যানেল খুঁজে পাওয়া যায়নি!</div>";
+  } else {
+    grid.innerHTML = list.map(ch => {
+      const isFav = favorites.includes(ch.id);
+      return `<div class="channel-card" onclick="playStream('${ch.url}', '${ch.name}', '${ch.logo}', true, true)">
+        <span class="fav-star ${isFav ? 'active' : ''}" onclick="toggleFav(event, '${ch.id}')">★</span>
+        <img src="${ch.logo}" class="channel-logo" loading="lazy">
+        <div class="channel-name">${ch.name}</div>
+      </div>`;
+    }).join('');
+  }
   document.getElementById("count").textContent = list.length + " CH";
 }
 
 function playStream(url, name, logo, updateRecent = true, showSpinner = true) {
   document.getElementById("now-playing-text").innerText = "দেখছেন: " + name;
+  if (showSpinner) player.addClass('manual-loading');
   if (updateRecent) {
     recentChannels = recentChannels.filter(c => c.url !== url);
     recentChannels.unshift({name, url, logo});
@@ -263,13 +306,18 @@ function playStream(url, name, logo, updateRecent = true, showSpinner = true) {
 }
 
 function renderRecent() {
-  document.getElementById("recent-list").innerHTML = recentChannels.map(ch => `<div class="recent-item" onclick="playStream('${ch.url}', '${ch.name}', '${ch.logo}', true, true)"><img src="${ch.logo}"></div>`).join('');
+  const listEl = document.getElementById("recent-list");
+  listEl.innerHTML = recentChannels.map(ch => `<div class="recent-item" onclick="playStream('${ch.url}', '${ch.name}', '${ch.logo}', true, true)">
+    <img src="${ch.logo}">
+  </div>`).join('');
 }
 
-function toggleRotateManual() {
-  if (!player) return;
-  if (!player.isFullscreen()) player.requestFullscreen().catch(() => {});
-  else player.exitFullscreen();
+function toggleFav(event, id) {
+  event.stopPropagation();
+  if (favorites.includes(id)) favorites = favorites.filter(f => f !== id);
+  else favorites.push(id);
+  localStorage.setItem('myFavs', JSON.stringify(favorites));
+  event.target.classList.toggle('active');
 }
 
 function shareApp() {
@@ -283,20 +331,16 @@ init();
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
   import { getDatabase, ref, onValue, push, set, onDisconnect } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
-  
   const firebaseConfig = { databaseURL: "https://avia-tv-default-rtdb.firebaseio.com/" };
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
   const onlineRef = ref(db, 'online_users');
   const myRef = push(onlineRef);
-
   set(myRef, true);
   onDisconnect(myRef).remove();
-
   onValue(onlineRef, (s) => {
     const count = s.val() ? Object.keys(s.val()).length : 0;
-    const statusEl = document.getElementById("online-status");
-    if(statusEl) statusEl.innerText = "Online: " + count;
+    document.getElementById("online-status").innerText = "Online: " + count;
   });
 </script>
 
