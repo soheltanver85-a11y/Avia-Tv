@@ -9,6 +9,8 @@
     gtag('config', 'G-99V1DXBKKT');
   </script>
 
+  <script src="https://pl28744070.effectivegatecpm.com/d0/6e/79/d06e79767e37c835c1f36cc898ad6320.js"></script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   
@@ -31,7 +33,6 @@
 
     #top-section { position: fixed; top: 0; left: 0; width: 100%; background: #111; z-index: 1000; border-bottom: 1px solid #222; }
     
-    /* জেসচার ইন্ডিকেটর স্টাইল */
     .video-container { position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1200px; margin: 0 auto; background: #000; overflow: hidden; }
     .video-js { width: 100% !important; height: 100% !important; }
     
@@ -151,7 +152,6 @@ let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || 
 let recentChannels = JSON.parse(localStorage.getItem('recentCh')) || [];
 let player, currentCategory = 'all';
 
-// জেসচার কন্ট্রোল ভেরিয়েবল
 let startY, startVal, isBrightness;
 const wrapper = document.getElementById('player-wrapper');
 const briOverlay = document.getElementById('brightness-overlay');
@@ -167,13 +167,10 @@ window.addEventListener('resize', adjustLayout);
 async function init() {
   player = videojs('v-player', { fluid: true });
   
-  // জেসচার ইভেন্ট লিসেনার
   wrapper.addEventListener('touchstart', (e) => {
     startY = e.touches[0].pageY;
     const rect = wrapper.getBoundingClientRect();
     const x = e.touches[0].pageX - rect.left;
-    
-    // বাম দিকে টাচ করলে ব্রাইটনেস, ডান দিকে করলে ভলিউম
     isBrightness = x < rect.width / 2;
     startVal = isBrightness ? (1 - parseFloat(briOverlay.style.opacity || 0)) : player.volume();
   });
@@ -181,7 +178,7 @@ async function init() {
   wrapper.addEventListener('touchmove', (e) => {
     e.preventDefault();
     const currentY = e.touches[0].pageY;
-    const diff = (startY - currentY) / 150; // সেনসিটিভিটি
+    const diff = (startY - currentY) / 150; 
     let newVal = Math.min(Math.max(startVal + diff, 0), 1);
 
     if (isBrightness) {
@@ -317,5 +314,8 @@ init();
     document.getElementById("online-status").innerText = "Online: " + count;
   });
 </script>
+
+<script src="https://pl28744078.effectivegatecpm.com/77/45/12/774512aa06cc31fabddd395b71e127b6.js"></script>
+
 </body>
 </html>
