@@ -37,10 +37,7 @@
     
     #brightness-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: black; opacity: 0; pointer-events: none; z-index: 1; }
     .gesture-indicator { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.8); color: var(--primary); padding: 12px 20px; border-radius: 30px; font-size: 16px; font-weight: bold; z-index: 100; display: none; pointer-events: none; border: 1px solid var(--primary); }
-    #vol-indicator { right: 20px; }
-    #bri-indicator { left: 20px; }
 
-    /* ব্র্যান্ড লোগো এক কোণায় */
     .brand-header { padding: 12px 15px; background: #111; display: flex; align-items: center; justify-content: flex-start; }
     .brand-title-new { font-size: 18px; font-weight: 800; background: var(--brand-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 1px; text-transform: uppercase; }
 
@@ -48,23 +45,25 @@
     .ticker-content { display: inline-block; animation: marquee 20s linear infinite; white-space: nowrap; }
     @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
     
-    header { padding: 8px 12px; background: #111; }
-    .header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; height: 40px; }
-    #recent-list { flex: 1; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
-    .recent-item { min-width: 35px; height: 35px; background: rgba(255,255,255,0.05); border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid #333; flex-shrink: 0; cursor: pointer; }
-    .recent-item img { width: 75%; height: 75%; object-fit: contain; }
+    header { padding: 10px 12px; background: #111; }
+    
+    /* বাটনগুলো সাইডে বড় করার স্টাইল */
+    .action-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+    .wide-btn { height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; text-decoration: none; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); transition: 0.2s; background: rgba(255,255,255,0.05); }
+    .wide-btn svg, .wide-btn span { width: 20px; height: 20px; }
+    
+    .btn-tg { border-color: var(--tg); background: rgba(36, 161, 222, 0.1); }
+    .btn-apk { border-color: var(--apk); background: rgba(61, 220, 132, 0.1); }
+    .btn-rotate { background: var(--accent); border-color: var(--accent); }
+    .btn-share { color: #fff; }
 
-    .action-btns { display: flex; gap: 8px; align-items: center; }
-    .circle-btn { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; font-size: 14px; outline: none; }
-    .btn-rotate { color: #fff; background: var(--accent); border: 1px solid var(--accent); font-weight: bold; }
-
-    .search-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
-    #search { flex: 1; background:#1a1a1a; border:1px solid #333; color:white; padding: 8px; border-radius: 6px; font-size: 13px; outline: none; }
-    #count { font-size: 10px; color: var(--primary); font-weight: bold; background: rgba(0, 229, 255, 0.1); padding: 4px 8px; border-radius: 4px; }
+    .search-row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+    #search { flex: 1; background:#1a1a1a; border:1px solid #333; color:white; padding: 10px; border-radius: 8px; font-size: 14px; outline: none; }
+    #count { font-size: 11px; color: var(--primary); font-weight: bold; background: rgba(0, 229, 255, 0.1); padding: 5px 10px; border-radius: 6px; }
 
     .tabs { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
-    .tab-btn { padding: 6px 14px; background: #1a1a1a; border: 1px solid #333; color: #bbb; border-radius: 5px; font-size: 11px; cursor: pointer; }
-    .tab-btn.active { background: var(--accent); color: white; }
+    .tab-btn { padding: 8px 18px; background: #1a1a1a; border: 1px solid #333; color: #bbb; border-radius: 6px; font-size: 12px; cursor: pointer; flex-shrink: 0; }
+    .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
 
     #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 12px; padding: 15px; }
     .channel-card { background: var(--card); border-radius: 12px; padding: 15px 5px; text-align: center; border: 1px solid rgba(255,255,255,0.05); min-height: 90px; cursor: pointer; position: relative; }
@@ -75,7 +74,6 @@
 
     .footer-area { padding: 40px 0 80px 0; text-align: center; }
     #online-status { font-size: 11px; color: var(--online); font-weight: bold; background: rgba(76, 175, 80, 0.1); padding: 5px 15px; border-radius: 50px; display: inline-flex; align-items: center; gap: 5px; border: 1px solid rgba(76, 175, 80, 0.2); }
-    .ad-slot { margin: 10px auto; text-align: center; }
   </style>
 </head>
 <body id="main-body">
@@ -99,17 +97,26 @@
   </div>
 
   <header id="main-header">
-    <div class="header-top">
-      <div id="recent-list"></div>
-      <div class="action-btns">
-        <button onclick="shareApp()" class="circle-btn" style="background:rgba(255,255,255,0.05); color:#fff">🔗</button>
-        <button onclick="toggleRotateManual()" class="circle-btn btn-rotate">🔄</button>
-      </div>
+    <div class="action-btns">
+      <a href="https://t.me/techbd_group" target="_blank" class="wide-btn btn-tg">
+        <svg viewBox="0 0 24 24" fill="#24A1DE"><path d="M11.944 0C5.346 0 0 5.346 0 11.944C0 18.542 5.346 23.888 11.944 23.888C18.542 23.888 23.888 18.542 23.888 11.944C23.888 5.346 18.542 0 11.944 0ZM18.17 7.732L15.93 18.232C15.76 19.012 15.29 19.202 14.64 18.842L11.23 16.332L9.58 17.912C9.4 18.092 9.25 18.242 8.9 18.242L9.14 14.772L15.46 9.062C15.73 8.822 15.4 8.682 15.04 8.922L7.23 13.842L3.87 12.792C3.14 12.562 3.12 12.062 4.02 11.712L17.16 6.642C17.77 6.422 18.3 6.782 18.17 7.732Z"/></svg>
+      </a>
+      <a href="https://www.mediafire.com/file/2c8yvb7c9dw2abz/Avia_Tv.apk/file" target="_blank" class="wide-btn btn-apk">
+        <span style="font-size:20px;">📥</span>
+      </a>
+      <button onclick="shareApp()" class="wide-btn btn-share">
+        <span style="font-size:18px;">🔗</span>
+      </button>
+      <button onclick="toggleRotateManual()" class="wide-btn btn-rotate">
+        <span style="font-size:18px; color:#fff;">🔄</span>
+      </button>
     </div>
+
     <div class="search-row">
       <input type="text" id="search" placeholder="সার্চ চ্যানেল...">
       <span id="count">0 CH</span>
     </div>
+    
     <div class="tabs">
       <button class="tab-btn active" onclick="filterCat('all', this)">All</button>
       <button class="tab-btn" onclick="filterCat('sports', this)">Sports</button>
@@ -119,13 +126,6 @@
 </div>
 
 <div id="content-area">
-  <div class="ad-slot">
-    <script type="text/javascript">
-      atOptions = { 'key' : '774512aa06cc31fabddd395b71e127b6', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
-    </script>
-    <script type="text/javascript" src="//www.highperformanceformat.com/774512aa06cc31fabddd395b71e127b6/invoke.js"></script>
-  </div>
-
   <div id="channelList">লোডিং...</div>
 
   <div class="footer-area">
@@ -139,9 +139,9 @@
 <script>
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
-let recentChannels = JSON.parse(localStorage.getItem('recentCh')) || [];
 let player, currentCategory = 'all';
 
+// জেস্টার কন্ট্রোল ভেরিয়েবল
 let startY, startVal, isBrightness;
 const wrapper = document.getElementById('player-wrapper');
 const briOverlay = document.getElementById('brightness-overlay');
@@ -216,9 +216,8 @@ async function init() {
     const data = await res.text();
     allChannels = parseM3U(data);
     renderChannels(allChannels);
-    renderRecent();
     document.getElementById("content-area").style.marginTop = document.getElementById('top-section').offsetHeight + 'px';
-    if(allChannels.length > 0) playStream(allChannels[0].url, allChannels[0].name, allChannels[0].logo, false, false);
+    if(allChannels.length > 0) playStream(allChannels[0].url, allChannels[0].name, allChannels[0].logo);
   } catch(e) {}
 }
 
@@ -240,7 +239,7 @@ function renderChannels(list) {
   const grid = document.getElementById("channelList");
   grid.innerHTML = list.map(ch => {
     const isFav = favorites.includes(ch.id);
-    return `<div class="channel-card" onclick="playStream('${ch.url}', '${ch.name}', '${ch.logo}', true, true)">
+    return `<div class="channel-card" onclick="playStream('${ch.url}', '${ch.name}', '${ch.logo}')">
       <span class="fav-star ${isFav ? 'active' : ''}" onclick="toggleFav(event, '${ch.id}')">★</span>
       <img src="${ch.logo}" class="channel-logo" loading="lazy">
       <div class="channel-name">${ch.name}</div>
@@ -249,21 +248,10 @@ function renderChannels(list) {
   document.getElementById("count").textContent = list.length + " CH";
 }
 
-function playStream(url, name, logo, updateRecent = true, showSpinner = true) {
+function playStream(url, name, logo) {
   document.getElementById("now-playing-text").innerText = "দেখছেন: " + name;
-  if (updateRecent) {
-    recentChannels = recentChannels.filter(c => c.url !== url);
-    recentChannels.unshift({name, url, logo});
-    if (recentChannels.length > 8) recentChannels.pop();
-    localStorage.setItem('recentCh', JSON.stringify(recentChannels));
-    renderRecent();
-  }
   player.src({ src: url, type: 'application/x-mpegURL' });
   player.play().catch(() => {});
-}
-
-function renderRecent() {
-  document.getElementById("recent-list").innerHTML = recentChannels.map(ch => `<div class="recent-item" onclick="playStream('${ch.url}', '${ch.name}', '${ch.logo}', true, true)"><img src="${ch.logo}"></div>`).join('');
 }
 
 function toggleRotateManual() {
@@ -291,14 +279,3 @@ init();
   const myRef = push(onlineRef);
 
   set(myRef, true);
-  onDisconnect(myRef).remove();
-
-  onValue(onlineRef, (s) => {
-    const count = s.val() ? Object.keys(s.val()).length : 0;
-    const statusEl = document.getElementById("online-status");
-    if(statusEl) statusEl.innerText = "Online: " + count;
-  });
-</script>
-
-</body>
-</html>
