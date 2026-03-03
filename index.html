@@ -57,10 +57,11 @@
     .recent-item img { width: 75%; height: 75%; object-fit: contain; }
 
     .action-btns { display: flex; gap: 8px; }
-    .circle-btn { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; border: 1px solid rgba(255,255,255,0.1); }
+    .circle-btn { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; font-size: 16px; outline: none; }
     .btn-tg { color: var(--tg); background: rgba(36, 161, 222, 0.1); }
     .btn-apk { color: var(--apk); background: rgba(61, 220, 132, 0.1); }
-    .btn-share { color: #fff; background: rgba(255, 255, 255, 0.05); cursor: pointer; }
+    .btn-rotate { color: var(--primary); background: rgba(0, 229, 255, 0.1); border: 1px solid var(--primary) !important; }
+    .btn-share { color: #fff; background: rgba(255, 255, 255, 0.05); }
 
     .search-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
     #search { flex: 1; background:#1a1a1a; border:1px solid #333; color:white; padding: 8px; border-radius: 6px; font-size: 13px; outline: none; }
@@ -110,6 +111,7 @@
       <div class="action-btns">
         <a href="https://t.me/techbd_group" target="_blank" class="circle-btn btn-tg">📩</a>
         <a href="https://www.mediafire.com/file/2c8yvb7c9dw2abz/Avia_Tv.apk/file" target="_blank" class="circle-btn btn-apk">📥</a>
+        <button onclick="toggleRotate()" class="circle-btn btn-rotate" title="Rotate Screen">🔄</button>
         <button onclick="shareApp()" class="circle-btn btn-share">🔗</button>
       </div>
     </div>
@@ -143,11 +145,10 @@
 </div>
 
 <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
-
 <script type='text/javascript' src='//pl28744078.effectivegatecpm.com/77/45/12/774512aa06cc31fabddd395b71e127b6.js'></script>
 
 <script>
-// (এখানে আগের সব জাভাস্ক্রিপ্ট লজিক— init, parse, playStream, gesture— সব অক্ষুণ্ণ আছে)
+// কনফিগারেশন
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let recentChannels = JSON.parse(localStorage.getItem('recentCh')) || [];
@@ -159,9 +160,28 @@ const briOverlay = document.getElementById('brightness-overlay');
 const volInd = document.getElementById('vol-indicator');
 const briInd = document.getElementById('bri-indicator');
 
+// ১. অটো-রোটেট লজিক (ফোন ঘুরালে ফুলস্ক্রিন)
 window.addEventListener("orientationchange", function() {
-  if (Math.abs(window.orientation) === 90 && player && !player.isFullscreen()) player.requestFullscreen();
+  if (window.orientation === 90 || window.orientation === -90) {
+    if (player && !player.isFullscreen()) player.requestFullscreen();
+  } else {
+    if (player && player.isFullscreen()) player.exitFullscreen();
+  }
 });
+
+// ২. কাস্টম রোটেট বাটন ফাংশন
+async function toggleRotate() {
+  try {
+    if (!player.isFullscreen()) {
+      await player.requestFullscreen();
+    }
+    if (screen.orientation && screen.orientation.lock) {
+      await screen.orientation.lock('landscape').catch(e => console.log("Locking not supported without user interaction."));
+    }
+  } catch (err) {
+    alert("আপনার ফোনের অটো-রোটেট অপশনটি চালু করুন।");
+  }
+}
 
 async function init() {
   player = videojs('v-player', { fluid: true });
@@ -173,6 +193,10 @@ async function init() {
     el.appendChild(briInd);
     el.appendChild(volInd);
     adjustLayout();
+    // ফুলস্ক্রিন থেকে বের হলে ওরিয়েন্টেশন আনলক করা
+    if (!player.isFullscreen() && screen.orientation && screen.orientation.unlock) {
+      screen.orientation.unlock();
+    }
   });
 
   const handleTouchStart = (e) => {
