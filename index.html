@@ -40,6 +40,7 @@
     #vol-indicator { right: 20px; }
     #bri-indicator { left: 20px; }
 
+    /* ব্র্যান্ড লোগো এক কোণায় */
     .brand-header { padding: 12px 15px; background: #111; display: flex; align-items: center; justify-content: flex-start; }
     .brand-title-new { font-size: 18px; font-weight: 800; background: var(--brand-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 1px; text-transform: uppercase; }
 
@@ -55,8 +56,6 @@
 
     .action-btns { display: flex; gap: 8px; align-items: center; }
     .circle-btn { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; font-size: 14px; outline: none; }
-    .btn-tg { color: var(--tg); background: rgba(36, 161, 222, 0.1); border: 1px solid var(--tg); }
-    .btn-apk { color: var(--apk); background: rgba(61, 220, 132, 0.1); border: 1px solid var(--apk); }
     .btn-rotate { color: #fff; background: var(--accent); border: 1px solid var(--accent); font-weight: bold; }
 
     .search-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
@@ -103,8 +102,6 @@
     <div class="header-top">
       <div id="recent-list"></div>
       <div class="action-btns">
-        <a href="https://t.me/techbd_group" target="_blank" class="circle-btn btn-tg">📩</a>
-        <a href="https://www.mediafire.com/file/2c8yvb7c9dw2abz/Avia_Tv.apk/file" target="_blank" class="circle-btn btn-apk">📥</a>
         <button onclick="shareApp()" class="circle-btn" style="background:rgba(255,255,255,0.05); color:#fff">🔗</button>
         <button onclick="toggleRotateManual()" class="circle-btn btn-rotate">🔄</button>
       </div>
