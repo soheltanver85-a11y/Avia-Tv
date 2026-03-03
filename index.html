@@ -11,8 +11,7 @@
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  
-  <title>Avia TV - Live TV Channels & Sports Online Free</title>
+  <title>Avia TV - Live TV Channels</title>
   
   <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
   
@@ -21,46 +20,36 @@
       --primary: #00e5ff; --bg: #0a0a0a; --card: rgba(255, 255, 255, 0.05); 
       --accent: #ff4081; --star: #ffd700; --tg: #24A1DE; --apk: #3DDC84;
     }
-
-    body { margin: 0; background: var(--bg); font-family: 'Segoe UI', sans-serif; color: white; overflow-x: hidden; }
-
+    body { margin: 0; background: var(--bg); font-family: 'Segoe UI', sans-serif; color: white; }
     #top-section { position: sticky; top: 0; width: 100%; background: #111; z-index: 1000; border-bottom: 1px solid #222; }
     .video-container { width: 100%; aspect-ratio: 16/9; background: #000; }
     .video-js { width: 100% !important; height: 100% !important; }
-
     header { padding: 8px 12px; background: #111; }
     .header-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
     .brand-title { font-size: 10px; font-weight: 800; color: var(--primary); text-transform: uppercase; }
-    
     #recent-list { flex: 1; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
-    .recent-item { min-width: 32px; height: 32px; background: var(--card); border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid #333; flex-shrink: 0; cursor: pointer; }
+    .recent-item { min-width: 32px; height: 32px; background: var(--card); border-radius: 8px; border: 1px solid #333; flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     .recent-item img { width: 75%; height: 75%; object-fit: contain; }
-
-    .circle-btn { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 12px; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; }
+    .circle-btn { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 12px; border: none; cursor: pointer; }
     .btn-tg { color: var(--tg); background: rgba(36, 161, 222, 0.1); }
     .btn-apk { color: var(--apk); background: rgba(61, 220, 132, 0.1); }
-
     .search-row { display: flex; gap: 8px; margin-bottom: 8px; }
-    #search { flex: 1; background:#1a1a1a; border:1px solid #333; color:white; padding: 6px 12px; border-radius: 6px; font-size: 12px; outline: none; }
-    #count { font-size: 9px; color: var(--primary); background: rgba(0, 229, 255, 0.1); padding: 3px 6px; border-radius: 4px; align-self: center; }
-
-    .tabs { display: flex; gap: 5px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
-    .tab-btn { padding: 5px 12px; background: #1a1a1a; border: 1px solid #333; color: #bbb; border-radius: 5px; font-size: 10px; white-space: nowrap; cursor: pointer; }
+    #search { flex: 1; background:#1a1a1a; border:1px solid #333; color:white; padding: 8px 12px; border-radius: 8px; font-size: 13px; outline: none; }
+    #count { font-size: 10px; color: var(--primary); background: rgba(0, 229, 255, 0.1); padding: 4px 8px; border-radius: 5px; align-self: center; }
+    .tabs { display: flex; gap: 5px; overflow-x: auto; scrollbar-width: none; }
+    .tab-btn { padding: 6px 14px; background: #1a1a1a; border: 1px solid #333; color: #bbb; border-radius: 6px; font-size: 11px; cursor: pointer; }
     .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
-
-    #ticker { background: #001a1a; color: #fff; padding: 3px 0; font-size: 9px; border-bottom: 1px solid var(--primary); overflow: hidden; }
+    #ticker { background: #001a1a; color: #fff; padding: 4px 0; font-size: 10px; border-bottom: 1px solid var(--primary); overflow: hidden; }
     .ticker-content { display: inline-block; white-space: nowrap; animation: marquee 20s linear infinite; }
     @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-
-    #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; padding: 15px; min-height: 400px; }
-    .channel-card { background: var(--card); border-radius: 10px; padding: 10px 5px; text-align: center; border: 1px solid rgba(255,255,255,0.05); height: 85px; position: relative; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    .fav-star { position: absolute; top: 5px; right: 5px; font-size: 16px; color: rgba(255,255,255,0.2); }
+    #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; padding: 15px; }
+    .channel-card { background: var(--card); border-radius: 12px; padding: 12px 5px; text-align: center; border: 1px solid rgba(255,255,255,0.05); position: relative; cursor: pointer; }
+    .fav-star { position: absolute; top: 5px; right: 5px; font-size: 18px; color: rgba(255,255,255,0.2); }
     .fav-star.active { color: var(--star); }
-    .channel-logo { height: 32px; max-width: 70%; object-fit: contain; margin-bottom: 5px; }
-    .channel-name { font-size: 9px; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 90%; }
-
-    .footer-area { padding: 20px 0 60px 0; text-align: center; }
-    #online-status { font-size: 10px; color: var(--online); font-weight: bold; background: rgba(76, 175, 80, 0.1); padding: 4px 12px; border-radius: 50px; border: 1px solid rgba(76, 175, 80, 0.2); display: inline-flex; align-items: center; gap: 5px; color: #4CAF50; }
+    .channel-logo { height: 35px; max-width: 80%; object-fit: contain; margin-bottom: 8px; }
+    .channel-name { font-size: 10px; color: #eee; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .footer-area { padding: 30px 0; text-align: center; }
+    #online-status { font-size: 11px; color: #4CAF50; background: rgba(76, 175, 80, 0.1); padding: 5px 15px; border-radius: 50px; border: 1px solid rgba(76, 175, 80, 0.2); display: inline-flex; }
   </style>
 </head>
 <body>
@@ -69,23 +58,13 @@
   <div class="video-container">
     <video id="player" class="video-js vjs-big-play-centered" controls preload="auto" playsinline></video>
   </div>
-  
-  <div id="ticker">
-    <div class="ticker-content">
-      <span id="now-playing-text" style="color: var(--primary); font-weight: bold;">চ্যানেল নির্বাচন করুন...</span>
-      <span style="margin-left: 20px;">📢 পরামর্শ বা অভিযোগ: <a href="https://telegram.dog/techbd_group" target="_blank" style="color:#ffd700; text-decoration:none;">TECH BD GROUP</a></span>
-    </div>
-  </div>
-
+  <div id="ticker"><div class="ticker-content"><span id="now-playing">চ্যানেল নির্বাচন করুন...</span> | পরামর্শ বা অভিযোগ: TECH BD GROUP</div></div>
   <header>
     <div class="header-top">
       <div class="brand-title">Avia<br>Tv</div>
       <div id="recent-list"></div>
-      <div class="action-btns" style="display:flex; gap:5px;">
-        <a href="https://telegram.dog/techbd_group" target="_blank" class="circle-btn btn-tg">📩</a>
-        <a href="https://www.mediafire.com/file/2c8yvb7c9dw2abz/Avia_Tv.apk/file" target="_blank" class="circle-btn btn-apk">📥</a>
-        <button onclick="shareApp()" class="circle-btn" style="background:rgba(255,255,255,0.05); color:#fff;">🔗</button>
-      </div>
+      <a href="https://telegram.dog/techbd_group" target="_blank" class="circle-btn btn-tg">📩</a>
+      <a href="https://www.mediafire.com/file/2c8yvb7c9dw2abz/Avia_Tv.apk/file" target="_blank" class="circle-btn btn-apk">📥</a>
     </div>
     <div class="search-row">
       <input type="text" id="search" placeholder="সার্চ চ্যানেল...">
@@ -95,40 +74,44 @@
       <button class="tab-btn active" onclick="filterCat('all', this)">All</button>
       <button class="tab-btn" onclick="filterCat('sports', this)">Sports</button>
       <button class="tab-btn" onclick="filterCat('bangla', this)">Bangla</button>
-      <button class="tab-btn" style="color:var(--star)" onclick="filterCat('fav', this)">★ Fav</button>
+      <button class="tab-btn" onclick="filterCat('fav', this)" style="color:var(--star)">★ Fav</button>
     </div>
   </header>
 </div>
 
-<div id="channelList">লোডিং...</div>
+<div id="channelList">লোডিং হচ্ছে...</div>
 
 <div class="footer-area">
   <div id="online-status">Online: 0</div>
-  <div style="color: #555; font-size: 10px; margin-top: 10px;">DEVELOPED BY <b style="color:var(--primary)">SOHEL TANVER</b></div>
+  <div style="color:#555; font-size:10px; margin-top:10px;">DEVELOPED BY SOHEL TANVER</div>
 </div>
 
 <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
 
 <script>
-const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
+const rawUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let recentChannels = JSON.parse(localStorage.getItem('recentCh')) || [];
 let currentCategory = 'all', searchQuery = '', vPlayer;
 
 document.addEventListener('DOMContentLoaded', () => {
     vPlayer = videojs('player', { fluid: true });
-    init();
+    loadChannels();
 });
 
-async function init() {
+async function loadChannels() {
     try {
-        const res = await fetch(playlistUrl);
+        // GitHub থেকে ডাটা পাওয়ার জন্য সরাসরি রিকোয়েস্ট
+        const res = await fetch(rawUrl);
+        if (!res.ok) throw new Error();
         const data = await res.text();
         allChannels = parseM3U(data);
         render();
         renderRecent();
         if(allChannels.length > 0) playStream(allChannels[0].url, allChannels[0].name, allChannels[0].logo, false);
-    } catch(e) { document.getElementById("channelList").innerText = "Error Loading Channels."; }
+    } catch (e) {
+        document.getElementById("channelList").innerHTML = `<div style="padding:20px; color:red">ডাটা লোড হচ্ছে না! রিফ্রেশ দিন।</div>`;
+    }
 }
 
 function parseM3U(data) {
@@ -150,7 +133,6 @@ function parseM3U(data) {
     return list;
 }
 
-// মাস্টার রেন্ডার ফাংশন (সার্চ এবং ফিল্টার ফিক্সড)
 function render() {
     const grid = document.getElementById("channelList");
     const filtered = allChannels.filter(ch => {
@@ -187,7 +169,7 @@ function filterCat(cat, btn) {
 }
 
 function playStream(url, name, logo, updateRecent = true) {
-    document.getElementById("now-playing-text").innerText = "দেখছেন: " + name + " | ";
+    document.getElementById("now-playing").innerText = "দেখছেন: " + name;
     if (updateRecent) {
         recentChannels = recentChannels.filter(c => c.url !== url);
         recentChannels.unshift({name, url, logo});
@@ -201,15 +183,10 @@ function playStream(url, name, logo, updateRecent = true) {
 
 function toggleFav(event, id) {
     event.stopPropagation();
-    if (favorites.includes(id)) {
-        favorites = favorites.filter(f => f !== id);
-        event.target.classList.remove('active');
-    } else {
-        favorites.push(id);
-        event.target.classList.add('active');
-    }
+    if (favorites.includes(id)) favorites = favorites.filter(f => f !== id);
+    else favorites.push(id);
     localStorage.setItem('myFavs', JSON.stringify(favorites));
-    if (currentCategory === 'fav') render();
+    render();
 }
 
 function renderRecent() {
@@ -220,11 +197,6 @@ function renderRecent() {
         </div>
     `).join('');
 }
-
-function shareApp() {
-    if (navigator.share) { navigator.share({ title: 'Avia Tv', url: window.location.href }); }
-    else { navigator.clipboard.writeText(window.location.href); alert("Link Copied!"); }
-}
 </script>
 
 <script type="module">
@@ -233,13 +205,12 @@ function shareApp() {
   const firebaseConfig = { databaseURL: "https://avia-tv-default-rtdb.firebaseio.com/" };
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
-  const onlineUsersRef = ref(db, 'online_users');
-  const myUserRef = push(onlineUsersRef);
-  set(myUserRef, true);
-  onDisconnect(myUserRef).remove();
-  onValue(onlineUsersRef, (snapshot) => {
-    const data = snapshot.val();
-    const count = data ? Object.keys(data).length : 0;
+  const onlineRef = ref(db, 'online_users');
+  const myRef = push(onlineRef);
+  set(myRef, true);
+  onDisconnect(myRef).remove();
+  onValue(onlineRef, (s) => {
+    const count = s.val() ? Object.keys(s.val()).length : 0;
     document.getElementById("online-status").innerText = "Online: " + count;
   });
 </script>
