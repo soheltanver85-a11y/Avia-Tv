@@ -56,12 +56,12 @@
     .recent-item img { width: 75%; height: 75%; object-fit: contain; }
 
     .action-btns { display: flex; gap: 8px; align-items: center; }
-    .circle-btn { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; font-size: 14px; }
+    .circle-btn { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; font-size: 14px; outline: none; }
     .btn-tg { color: var(--tg); background: rgba(36, 161, 222, 0.1); }
     .btn-apk { color: var(--apk); background: rgba(61, 220, 132, 0.1); }
     .btn-share { color: #fff; background: rgba(255, 255, 255, 0.05); }
-    /* রোটেট বাটন হাইলাইট করা হয়েছে */
-    .btn-rotate { color: #fff; background: var(--accent); border-color: var(--accent); font-weight: bold; }
+    /* রোটেট বাটন স্টাইল */
+    .btn-rotate { color: #fff; background: var(--accent); border: 1px solid var(--accent) !important; font-weight: bold; }
 
     .search-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
     #search { flex: 1; background:#1a1a1a; border:1px solid #333; color:white; padding: 8px; border-radius: 6px; font-size: 13px; outline: none; }
@@ -109,8 +109,8 @@
       <div class="action-btns">
         <a href="https://t.me/techbd_group" target="_blank" class="circle-btn btn-tg">📩</a>
         <a href="https://www.mediafire.com/file/2c8yvb7c9dw2abz/Avia_Tv.apk/file" target="_blank" class="circle-btn btn-apk">📥</a>
-        <button onclick="shareApp()" class="circle-btn btn-share" title="Share App">🔗</button>
-        <button onclick="toggleRotate()" class="circle-btn btn-rotate" id="rotate-btn">🔄</button>
+        <button onclick="shareApp()" class="circle-btn btn-share">🔗</button>
+        <button onclick="toggleRotate()" class="circle-btn btn-rotate">🔄</button>
       </div>
     </div>
     <div class="search-row">
@@ -157,43 +157,38 @@ const briOverlay = document.getElementById('brightness-overlay');
 const volInd = document.getElementById('vol-indicator');
 const briInd = document.getElementById('bri-indicator');
 
-// ১. স্মার্ট অটো-রোটেট লজিক
-function handleOrientation() {
-  if (window.innerHeight < window.innerWidth) {
-    // ল্যান্ডস্কেপ মোড (ফোন কাত করা)
+// ১. স্মার্ট অটো-রোটেট ফিক্স (ইভেন্ট লিসেনার আপডেট)
+window.addEventListener("orientationchange", function() {
+  if (window.orientation === 90 || window.orientation === -90) {
     if (player && !player.isFullscreen()) {
-      player.requestFullscreen().catch(() => {});
+      player.requestFullscreen();
     }
   } else {
-    // পোর্ট্রেট মোড (ফোন সোজা করা)
     if (player && player.isFullscreen()) {
-      player.exitFullscreen().catch(() => {});
+      player.exitFullscreen();
     }
   }
-}
+});
 
-window.addEventListener("resize", handleOrientation);
-window.addEventListener("orientationchange", handleOrientation);
-
-// ২. রোটেট বাটন ফাংশন (ম্যানুয়াল ক্লিক)
-async function toggleRotate() {
-  try {
+// ২. রোটেট বাটন ফাংশন (Fix)
+function toggleRotate() {
+  if (player) {
     if (!player.isFullscreen()) {
-      await player.requestFullscreen();
-      // ওরিয়েন্টেশন লক করার চেষ্টা (অ্যান্ড্রয়েড ক্রোম সাপোর্ট করে)
+      player.requestFullscreen();
+      // স্ক্রিন লক করার চেষ্টা
       if (screen.orientation && screen.orientation.lock) {
-        await screen.orientation.lock('landscape').catch(() => {});
+        screen.orientation.lock('landscape').catch(e => {
+            console.log("Lock failed, but fullscreen works.");
+        });
       }
     } else {
       player.exitFullscreen();
     }
-  } catch (err) {
-    console.log("Rotate error:", err);
   }
 }
 
 async function init() {
-  player = videojs('v-player', { fluid: true, playbackRates: [0.5, 1, 1.5, 2] });
+  player = videojs('v-player', { fluid: true });
   player.on('playing', () => player.removeClass('manual-loading'));
 
   player.on('fullscreenchange', () => {
@@ -293,7 +288,7 @@ function playStream(url, name, logo, updateRecent = true, showSpinner = true) {
     renderRecent();
   }
   player.src({ src: url, type: 'application/x-mpegURL' });
-  player.play().catch(() => {});
+  player.play().catch(e => console.log("Auto-play blocked or error."));
 }
 
 function renderRecent() {
