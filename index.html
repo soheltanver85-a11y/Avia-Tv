@@ -34,7 +34,6 @@
     .video-container { position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1200px; margin: 0 auto; background: #000; overflow: hidden; }
     .video-js { width: 100% !important; height: 100% !important; }
     
-    /* MX Player Gestures */
     #brightness-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: black; opacity: 0; pointer-events: none; z-index: 1; }
     .gesture-indicator { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.8); color: var(--primary); padding: 12px 20px; border-radius: 30px; font-size: 16px; font-weight: bold; z-index: 100; display: none; pointer-events: none; border: 1px solid var(--primary); }
     #vol-indicator { right: 20px; }
@@ -56,12 +55,13 @@
     .recent-item { min-width: 35px; height: 35px; background: rgba(255,255,255,0.05); border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid #333; flex-shrink: 0; cursor: pointer; }
     .recent-item img { width: 75%; height: 75%; object-fit: contain; }
 
-    .action-btns { display: flex; gap: 8px; }
-    .circle-btn { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; font-size: 16px; outline: none; }
+    .action-btns { display: flex; gap: 8px; align-items: center; }
+    .circle-btn { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; font-size: 14px; }
     .btn-tg { color: var(--tg); background: rgba(36, 161, 222, 0.1); }
     .btn-apk { color: var(--apk); background: rgba(61, 220, 132, 0.1); }
-    .btn-rotate { color: var(--primary); background: rgba(0, 229, 255, 0.1); border: 1px solid var(--primary) !important; }
     .btn-share { color: #fff; background: rgba(255, 255, 255, 0.05); }
+    /* রোটেট বাটন হাইলাইট করা হয়েছে */
+    .btn-rotate { color: #fff; background: var(--accent); border-color: var(--accent); font-weight: bold; }
 
     .search-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
     #search { flex: 1; background:#1a1a1a; border:1px solid #333; color:white; padding: 8px; border-radius: 6px; font-size: 13px; outline: none; }
@@ -78,9 +78,7 @@
     .channel-logo { height: 35px; object-fit: contain; margin-bottom: 8px; }
     .channel-name { font-size: 10px; color: #ccc; }
 
-    /* 🔥 Ad Banner Style */
     .ad-slot { margin: 15px auto; text-align: center; width: 100%; overflow: hidden; }
-
     .footer-area { padding: 40px 0 80px 0; text-align: center; }
     #online-status { font-size: 11px; color: var(--online); font-weight: bold; background: rgba(76, 175, 80, 0.1); padding: 5px 15px; border-radius: 50px; display: inline-flex; align-items: center; gap: 5px; border: 1px solid rgba(76, 175, 80, 0.2); }
   </style>
@@ -111,8 +109,8 @@
       <div class="action-btns">
         <a href="https://t.me/techbd_group" target="_blank" class="circle-btn btn-tg">📩</a>
         <a href="https://www.mediafire.com/file/2c8yvb7c9dw2abz/Avia_Tv.apk/file" target="_blank" class="circle-btn btn-apk">📥</a>
-        <button onclick="toggleRotate()" class="circle-btn btn-rotate" title="Rotate Screen">🔄</button>
-        <button onclick="shareApp()" class="circle-btn btn-share">🔗</button>
+        <button onclick="shareApp()" class="circle-btn btn-share" title="Share App">🔗</button>
+        <button onclick="toggleRotate()" class="circle-btn btn-rotate" id="rotate-btn">🔄</button>
       </div>
     </div>
     <div class="search-row">
@@ -148,7 +146,6 @@
 <script type='text/javascript' src='//pl28744078.effectivegatecpm.com/77/45/12/774512aa06cc31fabddd395b71e127b6.js'></script>
 
 <script>
-// কনফিগারেশন
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let recentChannels = JSON.parse(localStorage.getItem('recentCh')) || [];
@@ -160,31 +157,43 @@ const briOverlay = document.getElementById('brightness-overlay');
 const volInd = document.getElementById('vol-indicator');
 const briInd = document.getElementById('bri-indicator');
 
-// ১. অটো-রোটেট লজিক (ফোন ঘুরালে ফুলস্ক্রিন)
-window.addEventListener("orientationchange", function() {
-  if (window.orientation === 90 || window.orientation === -90) {
-    if (player && !player.isFullscreen()) player.requestFullscreen();
+// ১. স্মার্ট অটো-রোটেট লজিক
+function handleOrientation() {
+  if (window.innerHeight < window.innerWidth) {
+    // ল্যান্ডস্কেপ মোড (ফোন কাত করা)
+    if (player && !player.isFullscreen()) {
+      player.requestFullscreen().catch(() => {});
+    }
   } else {
-    if (player && player.isFullscreen()) player.exitFullscreen();
+    // পোর্ট্রেট মোড (ফোন সোজা করা)
+    if (player && player.isFullscreen()) {
+      player.exitFullscreen().catch(() => {});
+    }
   }
-});
+}
 
-// ২. কাস্টম রোটেট বাটন ফাংশন
+window.addEventListener("resize", handleOrientation);
+window.addEventListener("orientationchange", handleOrientation);
+
+// ২. রোটেট বাটন ফাংশন (ম্যানুয়াল ক্লিক)
 async function toggleRotate() {
   try {
     if (!player.isFullscreen()) {
       await player.requestFullscreen();
-    }
-    if (screen.orientation && screen.orientation.lock) {
-      await screen.orientation.lock('landscape').catch(e => console.log("Locking not supported without user interaction."));
+      // ওরিয়েন্টেশন লক করার চেষ্টা (অ্যান্ড্রয়েড ক্রোম সাপোর্ট করে)
+      if (screen.orientation && screen.orientation.lock) {
+        await screen.orientation.lock('landscape').catch(() => {});
+      }
+    } else {
+      player.exitFullscreen();
     }
   } catch (err) {
-    alert("আপনার ফোনের অটো-রোটেট অপশনটি চালু করুন।");
+    console.log("Rotate error:", err);
   }
 }
 
 async function init() {
-  player = videojs('v-player', { fluid: true });
+  player = videojs('v-player', { fluid: true, playbackRates: [0.5, 1, 1.5, 2] });
   player.on('playing', () => player.removeClass('manual-loading'));
 
   player.on('fullscreenchange', () => {
@@ -193,9 +202,10 @@ async function init() {
     el.appendChild(briInd);
     el.appendChild(volInd);
     adjustLayout();
+    
     // ফুলস্ক্রিন থেকে বের হলে ওরিয়েন্টেশন আনলক করা
     if (!player.isFullscreen() && screen.orientation && screen.orientation.unlock) {
-      screen.orientation.unlock();
+      screen.orientation.unlock().catch(() => {});
     }
   });
 
@@ -283,7 +293,7 @@ function playStream(url, name, logo, updateRecent = true, showSpinner = true) {
     renderRecent();
   }
   player.src({ src: url, type: 'application/x-mpegURL' });
-  player.play();
+  player.play().catch(() => {});
 }
 
 function renderRecent() {
