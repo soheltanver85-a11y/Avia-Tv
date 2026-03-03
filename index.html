@@ -31,17 +31,28 @@
       overflow-x: hidden;
     }
 
-    #top-section { position: fixed; top: 0; left: 0; width: 100%; background: #111; z-index: 1000; border-bottom: 1px solid #222; transition: 0.3s; }
+    #top-section { position: fixed; top: 0; left: 0; width: 100%; background: #111; z-index: 1000; border-bottom: 1px solid #222; }
     
-    .video-container { position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1200px; margin: 0 auto; background: #000; overflow: hidden; z-index: 1001; }
+    .video-container { position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1200px; margin: 0 auto; background: #000; overflow: hidden; }
     .video-js { width: 100% !important; height: 100% !important; }
     
-    /* ফুলস্ক্রিন মোডে অন্য সব লুকানোর ম্যাজিক */
-    body.vjs-full-window #brand-header, 
-    body.vjs-full-window #ticker, 
-    body.vjs-full-window header, 
+    /* 🔥 ফুলস্ক্রিন ম্যাজিক: যখন প্লেয়ার ফুলস্ক্রিন হবে তখন বাকি সব গায়েব হয়ে যাবে */
+    .vjs-fullscreen #brand-header, 
+    .vjs-fullscreen #ticker, 
+    .vjs-fullscreen header, 
+    .vjs-fullscreen #content-area,
+    body.vjs-full-window #brand-header,
+    body.vjs-full-window #ticker,
+    body.vjs-full-window header,
     body.vjs-full-window #content-area { 
       display: none !important; 
+    }
+
+    /* ফুলস্ক্রিনে প্লেয়ারকে পুরো স্ক্রিন জুড়ে রাখা */
+    .vjs-fullscreen .video-container {
+      width: 100vw !important;
+      height: 100vh !important;
+      max-width: none !important;
     }
 
     /* লোডিং স্পিনার কন্ট্রোল */
@@ -64,7 +75,7 @@
     #bri-indicator { left: 20px; }
 
     .brand-header { padding: 12px 15px; background: #111; display: flex; align-items: center; }
-    .brand-title-new { font-size: 26px; font-weight: 900; color: var(--primary); text-transform: uppercase; letter-spacing: 1.5px; font-family: 'Arial Black', sans-serif; text-shadow: 0 0 15px rgba(0, 229, 255, 0.4); }
+    .brand-title-new { font-size: 26px; font-weight: 900; color: var(--primary); text-transform: uppercase; letter-spacing: 1.5px; font-family: 'Arial Black', sans-serif; }
 
     #ticker { background: #001a1a; color: #fff; padding: 5px 0; font-size: 12px; border-top: 1px solid #222; border-bottom: 1px solid var(--primary); overflow: hidden; }
     .ticker-content { display: inline-block; animation: marquee 20s linear infinite; white-space: nowrap; }
@@ -104,7 +115,7 @@
     #online-status { font-size: 10px; color: var(--online); font-weight: bold; background: rgba(76, 175, 80, 0.1); padding: 4px 12px; border-radius: 50px; border: 1px solid rgba(76, 175, 80, 0.2); display: inline-flex; align-items: center; gap: 5px; }
   </style>
 </head>
-<body>
+<body id="main-body">
 
 <div id="top-section">
   <div id="brand-header" class="brand-header">
@@ -176,22 +187,29 @@ function adjustLayout() {
 }
 window.addEventListener('resize', adjustLayout);
 
+// 📱 স্ক্রিন ঘুরালে অটো ফুলস্ক্রিন করার ফাংশন
+window.addEventListener("orientationchange", function() {
+  if (window.orientation === 90 || window.orientation === -90) {
+    if (player && !player.isFullscreen()) player.requestFullscreen();
+  } else {
+    if (player && player.isFullscreen()) player.exitFullscreen();
+  }
+});
+
 async function init() {
   player = videojs('v-player', { 
     fluid: true,
-    userActions: {
-      doubleClick: true
-    }
+    responsive: true
   });
 
   player.on('playing', () => player.removeClass('manual-loading'));
 
-  // জেশ্চার কন্ট্রোল (ব্রাইটনেস বামে, ভলিউম ডানে)
+  // MX Player স্টাইল জেশ্চার কন্ট্রোল
   wrapper.addEventListener('touchstart', (e) => {
     startY = e.touches[0].pageY;
     const rect = wrapper.getBoundingClientRect();
     const x = e.touches[0].pageX - rect.left;
-    isBrightness = x < rect.width / 2; // বাম পাশ ব্রাইটনেস
+    isBrightness = x < rect.width / 2;
     startVal = isBrightness ? (1 - parseFloat(briOverlay.style.opacity || 0)) : player.volume();
   });
 
