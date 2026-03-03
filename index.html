@@ -25,16 +25,55 @@
 
     html, body { 
       margin: 0; padding: 0; width: 100%; height: 100%; 
-      background: var(--bg); font-family: 'Segoe UI', sans-serif;
+      background: var(--bg); font-family: 'Segoe UI', Roboto, sans-serif;
     }
 
     #top-section { position: fixed; top: 0; left: 0; width: 100%; background: #111; z-index: 1000; border-bottom: 1px solid #222; }
     .video-container { width: 100%; aspect-ratio: 16/9; max-width: 1200px; margin: 0 auto; background: #000; }
     .video-js { width: 100% !important; height: 100% !important; }
     
+    /* উপরের প্রিমিয়াম ব্র্যান্ডিং */
+    .brand-header {
+      padding: 12px 15px;
+      background: #111;
+      display: flex;
+      align-items: center;
+    }
+    .brand-title-new { 
+      font-size: 26px; 
+      font-weight: 900; 
+      color: var(--primary); 
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-family: 'Arial Black', sans-serif;
+      text-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+    }
+
+    /* চলন্ত লেখা প্লেয়ারের উপরে এবং ক্লিকযোগ্য */
+    #ticker { 
+      background: #001a1a; 
+      color: #fff; 
+      padding: 5px 0; 
+      font-size: 12px; 
+      border-top: 1px solid #222;
+      border-bottom: 1px solid var(--primary); 
+      overflow: hidden;
+    }
+    .ticker-content { display: inline-block; animation: marquee 20s linear infinite; white-space: nowrap; }
+    @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+    
+    .tg-click-link { 
+      color: #fff; 
+      text-decoration: none; 
+      background: var(--tg); 
+      padding: 2px 8px; 
+      border-radius: 4px; 
+      font-weight: bold;
+      margin-left: 5px;
+    }
+
     header { padding: 8px 12px; background: #111; }
     .header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; height: 40px; }
-    .brand-title { font-size: 10px; font-weight: 800; color: var(--primary); letter-spacing: 0.5px; opacity: 0.8; }
     
     #recent-list { flex: 1; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; align-items: center; }
     .recent-item { min-width: 32px; height: 32px; background: rgba(255,255,255,0.05); border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid #333; flex-shrink: 0; cursor: pointer; }
@@ -54,10 +93,6 @@
     .tab-btn { padding: 5px 10px; background: #1a1a1a; border: 1px solid #333; color: #bbb; border-radius: 5px; font-size: 10px; white-space: nowrap; cursor: pointer; }
     .tab-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
 
-    #ticker { background: #001a1a; color: #fff; padding: 3px 0; font-size: 9px; border-bottom: 1px solid var(--primary); }
-    .ticker-content { display: inline-block; animation: marquee 20s linear infinite; white-space: nowrap; }
-    @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-
     #content-area { position: relative; width: 100%; background: var(--bg); }
     #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 10px; padding: 15px; }
     .channel-card { background: var(--card); border-radius: 10px; padding: 10px 5px; text-align: center; border: 1px solid rgba(255,255,255,0.05); height: 85px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; cursor: pointer; }
@@ -73,21 +108,27 @@
 <body>
 
 <div id="top-section">
-  <div class="video-container">
-    <video id="v-player" class="video-js vjs-big-play-centered" controls preload="auto" playsinline></video>
+  <div class="brand-header">
+    <div class="brand-title-new">AVIA TV</div>
   </div>
+
   <div id="ticker">
     <div class="ticker-content">
       <span id="now-playing-text" style="color: var(--primary); font-weight: bold;">চ্যানেল নির্বাচন করুন...</span>
-      <span style="margin-left: 20px;">📢 পরামর্শ বা অভিযোগ: TECH BD GROUP</span>
+      <span style="margin-left: 20px;">📢 পরামর্শ বা অভিযোগের জন্য এখানে ক্লিক করুন: </span>
+      <a href="https://t.me/techbd_group" target="_blank" class="tg-click-link">TECH BD GROUP</a>
     </div>
   </div>
+
+  <div class="video-container">
+    <video id="v-player" class="video-js vjs-big-play-centered" controls preload="auto" playsinline></video>
+  </div>
+
   <header>
     <div class="header-top">
-      <div class="brand-title">Avia<br>Tv</div>
       <div id="recent-list"></div>
       <div class="action-btns">
-        <a href="https://telegram.dog/techbd_group" target="_blank" class="circle-btn btn-tg">📩</a>
+        <a href="https://t.me/techbd_group" target="_blank" class="circle-btn btn-tg">📩</a>
         <a href="https://www.mediafire.com/file/2c8yvb7c9dw2abz/Avia_Tv.apk/file" target="_blank" class="circle-btn btn-apk">📥</a>
         <button onclick="shareApp()" class="circle-btn btn-share">🔗</button>
       </div>
@@ -183,7 +224,6 @@ function playStream(url, name, logo, updateRecent = true) {
   player.play();
 }
 
-// সার্চ অপশন ফিক্স করা হয়েছে
 document.getElementById("search").addEventListener('input', (e) => {
   const q = e.target.value.toLowerCase();
   const filtered = allChannels.filter(ch => ch.name.toLowerCase().includes(q));
@@ -243,8 +283,5 @@ init();
     document.getElementById("online-status").innerText = "Online: " + count;
   });
 </script>
-<script src="https://pl28744078.effectivegatecpm.com/77/45/12/774512aa06cc31fabddd395b71e127b6.js"></script>
-<script src="https://pl28744070.effectivegatecpm.com/d0/6e/79/d06e79767e37c835c1f36cc898ad6320.js"></script>
-
 </body>
 </html>
