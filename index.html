@@ -31,6 +31,7 @@
       overflow-x: hidden; overflow-y: auto; 
     }
 
+    /* ফুলস্ক্রিন হলে বাড়তি অংশ লুকানো */
     .vjs-fullscreen #brand-header, .vjs-fullscreen #ticker, .vjs-fullscreen header, .vjs-fullscreen #content-area { display: none !important; }
 
     #top-section { position: fixed; top: 0; left: 0; width: 100%; background: #111; z-index: 1000; border-bottom: 1px solid #222; }
@@ -93,7 +94,7 @@
   <div id="ticker">
     <div class="ticker-content">
       <span id="now-playing-text" style="color: var(--primary); font-weight: bold;">চ্যানেল নির্বাচন করুন...</span>
-      <span style="margin-left: 20px;">📢 পরামর্শ বা অভিযোগের জন্য এখানে ক্লিক করুন: </span>
+      <span style="margin-left: 20px;">📢 পরামর্শ বা অভিযোগের জন্য: </span>
       <a href="https://t.me/techbd_group" target="_blank" style="color:#24A1DE; font-weight:bold; text-decoration:none;">TECH BD GROUP</a>
     </div>
   </div>
@@ -116,7 +117,7 @@
       </div>
     </div>
     <div class="search-row">
-      <input type="text" id="search" placeholder="সার্চ চ্যানেল...">
+      <input type="text" id="search" placeholder="সার্চ চ্যানেল (যেমন: Sports)...">
       <span id="count">0 CH</span>
     </div>
     <div class="tabs">
@@ -153,40 +154,47 @@ let recentChannels = JSON.parse(localStorage.getItem('recentCh')) || [];
 let currentCategory = 'all';
 let player;
 
-// --- রোটেড বাটন লজিক ---
+// --- রোটেশন কন্ট্রোল ---
 async function toggleRotateManual() {
   if (!player) return;
-  try {
-    if (!player.isFullscreen()) {
-      await player.requestFullscreen();
-      if (screen.orientation && screen.orientation.lock) {
-        await screen.orientation.lock('landscape').catch(e => console.log("Orientation Lock Refused"));
-      }
-    } else {
-      await player.exitFullscreen();
+  if (!player.isFullscreen()) {
+    player.requestFullscreen();
+    if (screen.orientation && screen.orientation.lock) {
+      screen.orientation.lock('landscape').catch(() => {});
     }
-  } catch (err) {
-    console.error("Rotate Error:", err);
+  } else {
+    player.exitFullscreen();
   }
 }
 
-// --- ফেভারিট ও ক্যাটাগরি ফিল্টার লজিক ---
+// --- সার্চ লজিক (স্মার্ট ফিল্টার) ---
+document.getElementById("search").addEventListener("input", function() {
+  const val = this.value.toLowerCase().trim();
+  if (val === "") {
+    filterCat(currentCategory, document.querySelector('.tab-btn.active'));
+    return;
+  }
+  const filtered = allChannels.filter(ch => ch.name && ch.name.toLowerCase().includes(val));
+  renderChannels(filtered);
+});
+
+// --- ক্যাটাগরি ফিল্টার ---
 function filterCat(cat, btn) {
   currentCategory = cat;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+  document.getElementById("search").value = ""; // ক্যাটাগরি বদলালে সার্চ ক্লিয়ার হবে
   
   if (cat === 'all') {
     renderChannels(allChannels);
   } else if (cat === 'fav') {
-    const favList = allChannels.filter(ch => favorites.includes(ch.id));
-    renderChannels(favList);
+    renderChannels(allChannels.filter(ch => favorites.includes(ch.id)));
   } else {
-    const filtered = allChannels.filter(ch => ch.name.toLowerCase().includes(cat.toLowerCase()));
-    renderChannels(filtered);
+    renderChannels(allChannels.filter(ch => ch.name && ch.name.toLowerCase().includes(cat.toLowerCase())));
   }
 }
 
+// --- ফেভারিট লজিক ---
 function toggleFav(event, id) {
   event.stopPropagation();
   if (favorites.includes(id)) {
@@ -197,14 +205,12 @@ function toggleFav(event, id) {
   localStorage.setItem('myFavs', JSON.stringify(favorites));
   event.target.classList.toggle('active');
   
-  // যদি বর্তমানে ফেভারিট ট্যাবে থাকে তবে লিস্ট আপডেট করা
   if (currentCategory === 'fav') {
-    const favList = allChannels.filter(ch => favorites.includes(ch.id));
-    renderChannels(favList);
+    renderChannels(allChannels.filter(ch => favorites.includes(ch.id)));
   }
 }
 
-// --- প্লেয়ার ও জেস্টার লজিক ---
+// --- জেস্টার ও প্লেয়ার লজিক ---
 let startY, startVal, isBrightness;
 const wrapper = document.getElementById('player-wrapper');
 const briOverlay = document.getElementById('brightness-overlay');
@@ -212,25 +218,18 @@ const volInd = document.getElementById('vol-indicator');
 const briInd = document.getElementById('bri-indicator');
 
 async function init() {
-  player = videojs('v-player', { 
-    fluid: true,
-    html5: { vhs: { overrideNative: true } }
-  });
-
+  player = videojs('v-player', { fluid: true });
   player.on('playing', () => player.removeClass('manual-loading'));
 
-  const handleTouchStart = (e) => {
+  wrapper.addEventListener('touchstart', (e) => {
     startY = e.touches[0].pageY;
-    const rect = wrapper.getBoundingClientRect();
-    const x = e.touches[0].pageX - rect.left;
-    isBrightness = x < rect.width / 2;
+    const x = e.touches[0].pageX - wrapper.getBoundingClientRect().left;
+    isBrightness = x < wrapper.offsetWidth / 2;
     startVal = isBrightness ? (1 - parseFloat(briOverlay.style.opacity || 0)) : player.volume();
-  };
+  });
 
-  const handleTouchMove = (e) => {
-    if (e.touches.length > 1) return;
-    const currentY = e.touches[0].pageY;
-    const diff = (startY - currentY) / 180; 
+  wrapper.addEventListener('touchmove', (e) => {
+    const diff = (startY - e.touches[0].pageY) / 150;
     let newVal = Math.min(Math.max(startVal + diff, 0), 1);
     if (isBrightness) {
       briOverlay.style.opacity = 1 - newVal;
@@ -241,10 +240,8 @@ async function init() {
       volInd.innerText = `🔊 ${Math.round(newVal * 100)}%`;
       volInd.style.display = 'block';
     }
-  };
+  });
 
-  wrapper.addEventListener('touchstart', handleTouchStart);
-  wrapper.addEventListener('touchmove', handleTouchMove);
   wrapper.addEventListener('touchend', () => {
     setTimeout(() => { volInd.style.display = 'none'; briInd.style.display = 'none'; }, 800);
   });
@@ -255,36 +252,33 @@ async function init() {
     allChannels = parseM3U(data);
     renderChannels(allChannels);
     renderRecent();
-    
-    setInterval(adjustLayout, 1000);
-    adjustLayout();
-
+    setInterval(() => {
+      document.getElementById("content-area").style.marginTop = document.getElementById('top-section').offsetHeight + 'px';
+    }, 1000);
     if(allChannels.length > 0) playStream(allChannels[0].url, allChannels[0].name, allChannels[0].logo, false, false);
-  } catch(e) { console.error("Fetch Error:", e); }
-}
-
-function adjustLayout() {
-  const topH = document.getElementById('top-section').offsetHeight;
-  document.getElementById("content-area").style.marginTop = topH + 'px';
+  } catch(e) { console.error(e); }
 }
 
 function parseM3U(data) {
   const lines = data.split("\n"), list = [];
   let cur = {};
   lines.forEach(l => {
-    l = l.trim();
     if (l.startsWith("#EXTINF")) {
       cur.name = l.split(",")[1]?.trim();
       cur.logo = l.match(/tvg-logo="([^"]+)"/)?.[1];
-      cur.id = btoa(unescape(encodeURIComponent(cur.name)));
-    } else if (l.startsWith("http")) { cur.url = l; list.push({...cur}); cur = {}; }
+      cur.id = btoa(unescape(encodeURIComponent(cur.name || "")));
+    } else if (l.startsWith("http")) { 
+      cur.url = l.trim(); 
+      if(cur.name) list.push({...cur}); 
+      cur = {}; 
+    }
   });
   return list;
 }
 
 function renderChannels(list) {
   const grid = document.getElementById("channelList");
-  grid.innerHTML = list.length === 0 ? "<div style='color:gray; padding:20px; text-align:center; grid-column:1/-1;'>কোনো চ্যানেল পাওয়া যায়নি</div>" : 
+  grid.innerHTML = list.length === 0 ? "<div style='grid-column:1/-1; color:gray; padding:20px; text-align:center;'>কোনো চ্যানেল পাওয়া যায়নি</div>" : 
     list.map(ch => `<div class="channel-card" onclick="playStream('${ch.url}', '${ch.name}', '${ch.logo}', true, true)">
       <span class="fav-star ${favorites.includes(ch.id) ? 'active' : ''}" onclick="toggleFav(event, '${ch.id}')">★</span>
       <img src="${ch.logo}" class="channel-logo" loading="lazy">
@@ -293,16 +287,13 @@ function renderChannels(list) {
   document.getElementById("count").textContent = list.length + " CH";
 }
 
-function playStream(url, name, logo, updateRecent = true, showSpinner = true) {
+function playStream(url, name, logo, updateRecent, showSpinner) {
   document.getElementById("now-playing-text").innerText = "দেখছেন: " + name;
   if (showSpinner) player.addClass('manual-loading');
   player.src({ src: url, type: 'application/x-mpegURL' });
   player.play().catch(() => {});
-  
   if (updateRecent) {
-    recentChannels = recentChannels.filter(c => c.url !== url);
-    recentChannels.unshift({name, url, logo});
-    if (recentChannels.length > 8) recentChannels.pop();
+    recentChannels = [{name, url, logo}, ...recentChannels.filter(c => c.url !== url)].slice(0, 8);
     localStorage.setItem('recentCh', JSON.stringify(recentChannels));
     renderRecent();
   }
@@ -316,14 +307,8 @@ function renderRecent() {
 
 function shareApp() {
   if (navigator.share) navigator.share({ title: 'Avia Tv', url: window.location.href });
-  else { navigator.clipboard.writeText(window.location.href); alert("লিংক কপি করা হয়েছে!"); }
+  else alert("লিংক: " + window.location.href);
 }
-
-document.getElementById("search").addEventListener("input", function() {
-  const val = this.value.toLowerCase().trim();
-  const filtered = allChannels.filter(ch => ch.name.toLowerCase().includes(val));
-  renderChannels(filtered);
-});
 
 init();
 </script>
@@ -331,26 +316,19 @@ init();
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
   import { getDatabase, ref, onValue, push, set, onDisconnect } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
-
   const firebaseConfig = { databaseURL: "https://avia-tv-default-rtdb.firebaseio.com/" };
-
   try {
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const onlineRef = ref(db, 'online_users');
     const myRef = push(onlineRef);
-    
     set(myRef, true);
     onDisconnect(myRef).remove();
-
     onValue(onlineRef, (s) => {
-      const data = s.val();
-      const count = data ? Object.keys(data).length : 0;
-      const el = document.getElementById("online-status");
-      if(el) el.innerText = "Online: " + count;
+      const count = s.val() ? Object.keys(s.val()).length : 0;
+      document.getElementById("online-status").innerText = "Online: " + count;
     });
-  } catch (e) { console.error("Firebase Error:", e); }
+  } catch (e) {}
 </script>
-
 </body>
 </html>
