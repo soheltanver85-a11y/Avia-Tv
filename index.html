@@ -76,10 +76,10 @@
     #content-area { position: relative; z-index: 1; width: 100%; display: block; }
     #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 12px; padding: 15px; }
     .channel-card { background: var(--card); border-radius: 12px; padding: 15px 5px; text-align: center; border: 1px solid rgba(255,255,255,0.05); min-height: 90px; cursor: pointer; position: relative; }
-    .fav-star { position: absolute; top: 6px; right: 8px; font-size: 18px; color: rgba(255,255,255,0.2); }
+    .fav-star { position: absolute; top: 6px; right: 8px; font-size: 20px; color: rgba(255,255,255,0.2); z-index: 10; padding: 5px; }
     .fav-star.active { color: var(--star); }
-    .channel-logo { height: 35px; object-fit: contain; margin-bottom: 8px; }
-    .channel-name { font-size: 10px; color: #ccc; }
+    .channel-logo { height: 35px; object-fit: contain; margin-bottom: 8px; pointer-events: none; }
+    .channel-name { font-size: 10px; color: #ccc; pointer-events: none; }
 
     .ad-slot { margin: 15px auto; text-align: center; width: 100%; overflow: hidden; }
     .footer-area { padding: 40px 0 80px 0; text-align: center; }
@@ -150,7 +150,59 @@
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let recentChannels = JSON.parse(localStorage.getItem('recentCh')) || [];
+let currentCategory = 'all';
 let player;
+
+// --- রোটেড বাটন লজিক ---
+async function toggleRotateManual() {
+  if (!player) return;
+  try {
+    if (!player.isFullscreen()) {
+      await player.requestFullscreen();
+      if (screen.orientation && screen.orientation.lock) {
+        await screen.orientation.lock('landscape').catch(e => console.log("Orientation Lock Refused"));
+      }
+    } else {
+      await player.exitFullscreen();
+    }
+  } catch (err) {
+    console.error("Rotate Error:", err);
+  }
+}
+
+// --- ফেভারিট ও ক্যাটাগরি ফিল্টার লজিক ---
+function filterCat(cat, btn) {
+  currentCategory = cat;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  
+  if (cat === 'all') {
+    renderChannels(allChannels);
+  } else if (cat === 'fav') {
+    const favList = allChannels.filter(ch => favorites.includes(ch.id));
+    renderChannels(favList);
+  } else {
+    const filtered = allChannels.filter(ch => ch.name.toLowerCase().includes(cat.toLowerCase()));
+    renderChannels(filtered);
+  }
+}
+
+function toggleFav(event, id) {
+  event.stopPropagation();
+  if (favorites.includes(id)) {
+    favorites = favorites.filter(f => f !== id);
+  } else {
+    favorites.push(id);
+  }
+  localStorage.setItem('myFavs', JSON.stringify(favorites));
+  event.target.classList.toggle('active');
+  
+  // যদি বর্তমানে ফেভারিট ট্যাবে থাকে তবে লিস্ট আপডেট করা
+  if (currentCategory === 'fav') {
+    const favList = allChannels.filter(ch => favorites.includes(ch.id));
+    renderChannels(favList);
+  }
+}
 
 // --- প্লেয়ার ও জেস্টার লজিক ---
 let startY, startVal, isBrightness;
@@ -167,7 +219,6 @@ async function init() {
 
   player.on('playing', () => player.removeClass('manual-loading'));
 
-  // জেস্টার ইভেন্ট লিস্টেনার
   const handleTouchStart = (e) => {
     startY = e.touches[0].pageY;
     const rect = wrapper.getBoundingClientRect();
@@ -233,7 +284,7 @@ function parseM3U(data) {
 
 function renderChannels(list) {
   const grid = document.getElementById("channelList");
-  grid.innerHTML = list.length === 0 ? "<div style='color:gray; padding:20px;'>No channels found!</div>" : 
+  grid.innerHTML = list.length === 0 ? "<div style='color:gray; padding:20px; text-align:center; grid-column:1/-1;'>কোনো চ্যানেল পাওয়া যায়নি</div>" : 
     list.map(ch => `<div class="channel-card" onclick="playStream('${ch.url}', '${ch.name}', '${ch.logo}', true, true)">
       <span class="fav-star ${favorites.includes(ch.id) ? 'active' : ''}" onclick="toggleFav(event, '${ch.id}')">★</span>
       <img src="${ch.logo}" class="channel-logo" loading="lazy">
@@ -247,6 +298,14 @@ function playStream(url, name, logo, updateRecent = true, showSpinner = true) {
   if (showSpinner) player.addClass('manual-loading');
   player.src({ src: url, type: 'application/x-mpegURL' });
   player.play().catch(() => {});
+  
+  if (updateRecent) {
+    recentChannels = recentChannels.filter(c => c.url !== url);
+    recentChannels.unshift({name, url, logo});
+    if (recentChannels.length > 8) recentChannels.pop();
+    localStorage.setItem('recentCh', JSON.stringify(recentChannels));
+    renderRecent();
+  }
 }
 
 function renderRecent() {
@@ -255,18 +314,16 @@ function renderRecent() {
     <img src="${ch.logo}"></div>`).join('');
 }
 
-function toggleFav(event, id) {
-  event.stopPropagation();
-  if (favorites.includes(id)) favorites = favorites.filter(f => f !== id);
-  else favorites.push(id);
-  localStorage.setItem('myFavs', JSON.stringify(favorites));
-  event.target.classList.toggle('active');
-}
-
 function shareApp() {
   if (navigator.share) navigator.share({ title: 'Avia Tv', url: window.location.href });
-  else { navigator.clipboard.writeText(window.location.href); alert("Link Copied!"); }
+  else { navigator.clipboard.writeText(window.location.href); alert("লিংক কপি করা হয়েছে!"); }
 }
+
+document.getElementById("search").addEventListener("input", function() {
+  const val = this.value.toLowerCase().trim();
+  const filtered = allChannels.filter(ch => ch.name.toLowerCase().includes(val));
+  renderChannels(filtered);
+});
 
 init();
 </script>
