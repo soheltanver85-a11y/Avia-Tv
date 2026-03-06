@@ -31,14 +31,15 @@
       overflow-x: hidden; overflow-y: auto; 
     }
 
-    /* ফুলস্ক্রিন হলে বাড়তি অংশ লুকানো */
     .vjs-fullscreen #brand-header, .vjs-fullscreen #ticker, .vjs-fullscreen header, .vjs-fullscreen #content-area { display: none !important; }
 
     #top-section { position: fixed; top: 0; left: 0; width: 100%; background: #111; z-index: 1000; border-bottom: 1px solid #222; }
     .video-container { position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1200px; margin: 0 auto; background: #000; overflow: hidden; }
     .video-js { width: 100% !important; height: 100% !important; cursor: pointer; }
     
+    /* উজ্জ্বলতা ওভারলে যেন ক্লিক ব্লক না করে */
     #brightness-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: black; opacity: 0; pointer-events: none; z-index: 1; }
+    
     .gesture-indicator { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.8); color: var(--primary); padding: 12px 20px; border-radius: 30px; font-size: 16px; font-weight: bold; z-index: 100; display: none; pointer-events: none; border: 1px solid var(--primary); }
     #vol-indicator { right: 20px; }
     #bri-indicator { left: 20px; }
@@ -211,7 +212,7 @@ function toggleFav(event, id) {
 }
 
 // --- জেস্টার ও প্লেয়ার লজিক ---
-let startY, startVal, isBrightness, isDragging = false;
+let startY, startVal, isBrightness, moveCount = 0;
 const wrapper = document.getElementById('player-wrapper');
 const briOverlay = document.getElementById('brightness-overlay');
 const volInd = document.getElementById('vol-indicator');
@@ -219,23 +220,30 @@ const briInd = document.getElementById('bri-indicator');
 
 async function init() {
   player = videojs('v-player', { fluid: true });
-  
-  // প্লেয়ারে ক্লিক করলে Play/Pause হবে
-  player.on('click', function(event) {
-    // যদি ড্র্যাগিং বা জেস্টার না হয় তবেই প্লে-পজ করবে
-    if (!isDragging) {
-      if (player.paused()) {
-        player.play();
-      } else {
-        player.pause();
-      }
-    }
+
+  // সংশোধিত Play/Pause লজিক
+  player.on('ready', function() {
+    const tech = player.el().querySelector('.vjs-tech');
+    
+    tech.addEventListener('mousedown', function() {
+        moveCount = 0; // ক্লিক শুরুর আগে মুভ রিসেট
+    });
+
+    tech.addEventListener('mouseup', function() {
+        if (moveCount < 5) { // যদি আঙুল বেশি না ঘষে শুধু ক্লিক হয়
+            if (player.paused()) {
+                player.play();
+            } else {
+                player.pause();
+            }
+        }
+    });
   });
 
   player.on('playing', () => player.removeClass('manual-loading'));
 
   wrapper.addEventListener('touchstart', (e) => {
-    isDragging = false;
+    moveCount = 0;
     startY = e.touches[0].pageY;
     const x = e.touches[0].pageX - wrapper.getBoundingClientRect().left;
     isBrightness = x < wrapper.offsetWidth / 2;
@@ -243,7 +251,7 @@ async function init() {
   });
 
   wrapper.addEventListener('touchmove', (e) => {
-    isDragging = true; // মুভ করলে এটাকে ড্র্যাগ হিসেবে গণ্য করবে
+    moveCount++; // আঙুল ঘষলে কাউন্ট বাড়বে
     const diff = (startY - e.touches[0].pageY) / 150;
     let newVal = Math.min(Math.max(startVal + diff, 0), 1);
     if (isBrightness) {
@@ -257,13 +265,13 @@ async function init() {
     }
   });
 
-  wrapper.addEventListener('touchend', () => {
-    setTimeout(() => { 
-        volInd.style.display = 'none'; 
-        briInd.style.display = 'none'; 
-        // ছোট ডিলে দিয়ে ড্র্যাগিং স্ট্যাটাস অফ করা যেন ক্লিক লজিক কাজ করে
-        setTimeout(() => { isDragging = false; }, 100);
-    }, 800);
+  wrapper.addEventListener('touchend', (e) => {
+    // যদি একদমই মুভ না হয় তবেই প্লে-পজ করবে
+    if (moveCount < 5) {
+        if (player.paused()) player.play();
+        else player.pause();
+    }
+    setTimeout(() => { volInd.style.display = 'none'; briInd.style.display = 'none'; }, 800);
   });
 
   try {
