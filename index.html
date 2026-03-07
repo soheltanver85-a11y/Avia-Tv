@@ -14,7 +14,7 @@
       --primary: #00e5ff; --bg: #0a0a0a; --card: rgba(255, 255, 255, 0.05); 
       --focus: #00e5ff; --accent: #ff4081; --star: #ffd700; 
       --tg: #24A1DE; --apk: #3DDC84; --online: #4CAF50;
-      --refresh: #ffa500; /* Refresh বাটন এর জন্য আলাদা কালার */
+      --refresh: #ffa500; 
     }
 
     html, body { 
@@ -47,11 +47,9 @@
     
     header { padding: 10px 12px; background: #111; }
     
-    /* বাটন এরিয়া স্টাইল */
     .action-btns { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; width: 100%; justify-content: space-between; }
     .rect-btn { flex: 1; height: 38px; border-radius: 8px; display: flex; align-items: center; justify-content: center; text-decoration: none; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; font-size: 18px; outline: none; transition: 0.2s; }
     
-    /* রিফ্রেশ বাটন নতুন ডিজাইন */
     .btn-refresh { color: var(--refresh); background: rgba(255, 165, 0, 0.1); border-color: var(--refresh); }
     .btn-refresh:active { background: var(--refresh); color: #000; }
 
@@ -102,11 +100,8 @@
   <header id="main-header">
     <div class="action-btns">
       <button onclick="refreshPlayer()" class="rect-btn btn-refresh" title="Refresh Player"><i class="fa-solid fa-rotate-right"></i></button>
-      
       <a href="https://t.me/techbd_group" target="_blank" class="rect-btn btn-tg"><i class="fa-brands fa-telegram"></i></a>
-      
       <a href="https://www.mediafire.com/file/mkby3e9skeyfz8n/Avia+Tv+1.0.0.apk/file" target="_blank" class="rect-btn btn-apk"><i class="fa-solid fa-download"></i></a>
-      
       <button onclick="shareApp()" class="rect-btn btn-share"><i class="fa-solid fa-share-nodes"></i></button>
       <button onclick="toggleRotateManual()" class="rect-btn btn-rotate"><i class="fa-solid fa-expand"></i></button>
     </div>
@@ -214,8 +209,18 @@ async function init() {
     tech.addEventListener('mousedown', () => moveCount = 0);
     tech.addEventListener('mouseup', () => {
         if (moveCount < 5) {
-            if (player.paused()) player.play();
-            else player.pause();
+            if (!player.paused()) {
+                player.pause();
+                // প্লেয়ার পজ হলে চ্যানেল লিস্টে স্ক্রল করবে
+                setTimeout(() => {
+                    document.getElementById('content-area').scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start' 
+                    });
+                }, 100);
+            } else {
+                player.play();
+            }
         }
     });
   });
@@ -296,6 +301,8 @@ function playStream(url, name, logo, updateRecent, showSpinner) {
   if (showSpinner) player.addClass('manual-loading');
   player.src({ src: url, type: 'application/x-mpegURL' });
   player.play().catch(() => {});
+  // নতুন চ্যানেল প্লে করলে স্ক্রিন উপরে প্লেয়ারের কাছে চলে যাবে
+  if(updateRecent) window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function shareApp() {
