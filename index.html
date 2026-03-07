@@ -26,7 +26,19 @@
     .vjs-fullscreen #brand-header, .vjs-fullscreen #ticker, .vjs-fullscreen header, .vjs-fullscreen #content-area { display: none !important; }
 
     #top-section { position: fixed; top: 0; left: 0; width: 100%; background: #111; z-index: 1000; border-bottom: 1px solid #222; }
-    .video-container { position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1200px; margin: 0 auto; background: #000; overflow: hidden; }
+    
+    /* এখানে touch-action: none যোগ করা হয়েছে */
+    .video-container { 
+      position: relative; 
+      width: 100%; 
+      aspect-ratio: 16/9; 
+      max-width: 1200px; 
+      margin: 0 auto; 
+      background: #000; 
+      overflow: hidden; 
+      touch-action: none; 
+    }
+
     .video-js { width: 100% !important; height: 100% !important; cursor: pointer; }
     
     #brightness-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: black; opacity: 0; pointer-events: none; z-index: 1; }
@@ -199,17 +211,15 @@ const volInd = document.getElementById('vol-indicator');
 const briInd = document.getElementById('bri-indicator');
 
 async function init() {
-  // Video.js Initialization with click action enabled
   player = videojs('v-player', { 
     fluid: true,
     userActions: {
-      click: false // We will handle custom click logic for sync
+      click: false 
     }
   });
 
   player.on('playing', () => player.removeClass('manual-loading'));
 
-  // Syncing Click-to-Pause and Gesture Controls
   wrapper.addEventListener('touchstart', (e) => {
     isMoving = false; 
     startY = e.touches[0].pageY;
@@ -234,7 +244,6 @@ async function init() {
   });
 
   wrapper.addEventListener('touchend', (e) => {
-    // If no movement occurred, treat as a toggle click
     if (!isMoving) {
         if (player.paused()) player.play();
         else player.pause();
@@ -242,7 +251,6 @@ async function init() {
     setTimeout(() => { volInd.style.display = 'none'; briInd.style.display = 'none'; }, 800);
   });
 
-  // Desktop Mouse Click Handler
   player.on('mousedown', function(e) {
     if (e.target.nodeName === 'VIDEO' || e.target.classList.contains('vjs-tech')) {
         if (player.paused()) player.play();
