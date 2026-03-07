@@ -1,28 +1,20 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-99V1DXBKKT"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-99V1DXBKKT');
-  </script>
-
-  <script src="https://pl28744070.effectivegatecpm.com/d0/6e/79/d06e79767e37c835c1f36cc898ad6320.js"></script>
-
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   
   <title>Avia TV - Live TV Channels & Sports Online Free</title>
   
   <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
   <style>
     :root { 
       --primary: #00e5ff; --bg: #0a0a0a; --card: rgba(255, 255, 255, 0.05); 
       --focus: #00e5ff; --accent: #ff4081; --star: #ffd700; 
       --tg: #24A1DE; --apk: #3DDC84; --online: #4CAF50;
+      --refresh: #ffa500; /* Refresh বাটন এর জন্য আলাদা কালার */
     }
 
     html, body { 
@@ -55,13 +47,16 @@
     
     header { padding: 10px 12px; background: #111; }
     
-    /* বাটন এরিয়া স্টাইল (৫টি বড় বাটন) */
+    /* বাটন এরিয়া স্টাইল */
     .action-btns { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; width: 100%; justify-content: space-between; }
-    .rect-btn { flex: 1; height: 35px; border-radius: 8px; display: flex; align-items: center; justify-content: center; text-decoration: none; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; font-size: 16px; outline: none; transition: 0.2s; }
+    .rect-btn { flex: 1; height: 38px; border-radius: 8px; display: flex; align-items: center; justify-content: center; text-decoration: none; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; font-size: 18px; outline: none; transition: 0.2s; }
     
-    .btn-refresh { color: #fff; background: rgba(255, 64, 129, 0.1); border-color: var(--accent); }
-    .btn-tg { color: var(--tg); background: rgba(36, 161, 222, 0.1); }
-    .btn-apk { color: var(--apk); background: rgba(61, 220, 132, 0.1); }
+    /* রিফ্রেশ বাটন নতুন ডিজাইন */
+    .btn-refresh { color: var(--refresh); background: rgba(255, 165, 0, 0.1); border-color: var(--refresh); }
+    .btn-refresh:active { background: var(--refresh); color: #000; }
+
+    .btn-tg { color: var(--tg); background: rgba(36, 161, 222, 0.1); border-color: var(--tg); }
+    .btn-apk { color: var(--apk); background: rgba(61, 220, 132, 0.1); border-color: var(--apk); }
     .btn-share { color: #fff; background: rgba(255, 255, 255, 0.05); }
     .btn-rotate { color: #fff; background: var(--accent); border: 1px solid var(--accent); font-weight: bold; }
 
@@ -81,7 +76,6 @@
     .channel-logo { height: 35px; object-fit: contain; margin-bottom: 8px; pointer-events: none; }
     .channel-name { font-size: 10px; color: #ccc; pointer-events: none; }
 
-    .ad-slot { margin: 15px auto; text-align: center; width: 100%; overflow: hidden; }
     .footer-area { padding: 40px 0 80px 0; text-align: center; }
     #online-status { font-size: 11px; color: var(--online); font-weight: bold; background: rgba(76, 175, 80, 0.1); padding: 5px 15px; border-radius: 50px; display: inline-flex; align-items: center; gap: 5px; border: 1px solid rgba(76, 175, 80, 0.2); }
   </style>
@@ -107,11 +101,14 @@
 
   <header id="main-header">
     <div class="action-btns">
-      <button onclick="refreshPlayer()" class="rect-btn btn-refresh">🔄</button>
-      <a href="https://t.me/techbd_group" target="_blank" class="rect-btn btn-tg">📩</a>
-      <a href="https://www.mediafire.com/file/2c8yvb7c9dw2abz/Avia_Tv.apk/file" target="_blank" class="rect-btn btn-apk">📥</a>
-      <button onclick="shareApp()" class="rect-btn btn-share">🔗</button>
-      <button onclick="toggleRotateManual()" class="rect-btn btn-rotate">🔄</button>
+      <button onclick="refreshPlayer()" class="rect-btn btn-refresh" title="Refresh Player"><i class="fa-solid fa-rotate-right"></i></button>
+      
+      <a href="https://t.me/techbd_group" target="_blank" class="rect-btn btn-tg"><i class="fa-brands fa-telegram"></i></a>
+      
+      <a href="https://www.mediafire.com/file/mkby3e9skeyfz8n/Avia+Tv+1.0.0.apk/file" target="_blank" class="rect-btn btn-apk"><i class="fa-solid fa-download"></i></a>
+      
+      <button onclick="shareApp()" class="rect-btn btn-share"><i class="fa-solid fa-share-nodes"></i></button>
+      <button onclick="toggleRotateManual()" class="rect-btn btn-rotate"><i class="fa-solid fa-expand"></i></button>
     </div>
     
     <div class="search-row">
@@ -128,13 +125,6 @@
 </div>
 
 <div id="content-area">
-  <div class="ad-slot">
-    <script type="text/javascript">
-      atOptions = { 'key' : '774512aa06cc31fabddd395b71e127b6', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
-    </script>
-    <script type="text/javascript" src="//www.highperformanceformat.com/774512aa06cc31fabddd395b71e127b6/invoke.js"></script>
-  </div>
-
   <div id="channelList">লোডিং...</div>
 
   <div class="footer-area">
@@ -153,13 +143,11 @@ let player;
 let currentUrl = "";
 let currentName = "";
 
-// --- রিফ্রেশ বাটন ফাংশন ---
 function refreshPlayer() {
   if(currentUrl) playStream(currentUrl, currentName, "", false, true);
   else location.reload();
 }
 
-// --- রোটেশন কন্ট্রোল ---
 async function toggleRotateManual() {
   if (!player) return;
   if (!player.isFullscreen()) {
@@ -172,7 +160,6 @@ async function toggleRotateManual() {
   }
 }
 
-// --- সার্চ লজিক ---
 document.getElementById("search").addEventListener("input", function() {
   const val = this.value.toLowerCase().trim();
   if (val === "") {
@@ -183,7 +170,6 @@ document.getElementById("search").addEventListener("input", function() {
   renderChannels(filtered);
 });
 
-// --- ক্যাটাগরি ফিল্টার ---
 function filterCat(cat, btn) {
   currentCategory = cat;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -199,7 +185,6 @@ function filterCat(cat, btn) {
   }
 }
 
-// --- ফেভারিট লজিক ---
 function toggleFav(event, id) {
   event.stopPropagation();
   if (favorites.includes(id)) {
@@ -215,7 +200,6 @@ function toggleFav(event, id) {
   }
 }
 
-// --- জেস্টার ও প্লেয়ার লজিক (আপনার মূল কোড থেকে) ---
 let startY, startVal, isBrightness, moveCount = 0;
 const wrapper = document.getElementById('player-wrapper');
 const briOverlay = document.getElementById('brightness-overlay');
@@ -227,18 +211,11 @@ async function init() {
 
   player.on('ready', function() {
     const tech = player.el().querySelector('.vjs-tech');
-    
-    tech.addEventListener('mousedown', function() {
-        moveCount = 0;
-    });
-
-    tech.addEventListener('mouseup', function() {
+    tech.addEventListener('mousedown', () => moveCount = 0);
+    tech.addEventListener('mouseup', () => {
         if (moveCount < 5) {
-            if (player.paused()) {
-                player.play();
-            } else {
-                player.pause();
-            }
+            if (player.paused()) player.play();
+            else player.pause();
         }
     });
   });
@@ -268,11 +245,7 @@ async function init() {
     }
   });
 
-  wrapper.addEventListener('touchend', (e) => {
-    if (moveCount < 5) {
-        if (player.paused()) player.play();
-        else player.pause();
-    }
+  wrapper.addEventListener('touchend', () => {
     setTimeout(() => { volInd.style.display = 'none'; briInd.style.display = 'none'; }, 800);
   });
 
