@@ -14,7 +14,7 @@
       --primary: #00e5ff; --bg: #0a0a0a; --card: rgba(255, 255, 255, 0.05); 
       --focus: #00e5ff; --accent: #ff4081; --star: #ffd700; 
       --tg: #24A1DE; --apk: #3DDC84; --online: #4CAF50;
-      --refresh: #ffa500; 
+      --refresh: #ffa500;
     }
 
     html, body { 
@@ -51,8 +51,6 @@
     .rect-btn { flex: 1; height: 38px; border-radius: 8px; display: flex; align-items: center; justify-content: center; text-decoration: none; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; font-size: 18px; outline: none; transition: 0.2s; }
     
     .btn-refresh { color: var(--refresh); background: rgba(255, 165, 0, 0.1); border-color: var(--refresh); }
-    .btn-refresh:active { background: var(--refresh); color: #000; }
-
     .btn-tg { color: var(--tg); background: rgba(36, 161, 222, 0.1); border-color: var(--tg); }
     .btn-apk { color: var(--apk); background: rgba(61, 220, 132, 0.1); border-color: var(--apk); }
     .btn-share { color: #fff; background: rgba(255, 255, 255, 0.05); }
@@ -194,34 +192,26 @@ function toggleFav(event, id) {
   }
 }
 
-let startY, startVal, isBrightness, moveCount = 0;
+let startY, startVal, isBrightness, isMoving = false;
 const wrapper = document.getElementById('player-wrapper');
 const briOverlay = document.getElementById('brightness-overlay');
 const volInd = document.getElementById('vol-indicator');
 const briInd = document.getElementById('bri-indicator');
 
 async function init() {
-  player = videojs('v-player', { fluid: true });
-
-  // Play/Pause on click feature updated
-  player.on('ready', function() {
-    const playerEl = player.el();
-    playerEl.addEventListener('click', function(e) {
-      // শুধু ভিডিওর অংশে ক্লিক করলে প্লে/পজ হবে, কন্ট্রোল বারে নয়
-      if (e.target.nodeName === 'VIDEO' || e.target.classList.contains('vjs-tech') || e.target.classList.contains('video-js')) {
-        if (player.paused()) {
-          player.play();
-        } else {
-          player.pause();
-        }
-      }
-    });
+  // Video.js Initialization with click action enabled
+  player = videojs('v-player', { 
+    fluid: true,
+    userActions: {
+      click: false // We will handle custom click logic for sync
+    }
   });
 
   player.on('playing', () => player.removeClass('manual-loading'));
 
+  // Syncing Click-to-Pause and Gesture Controls
   wrapper.addEventListener('touchstart', (e) => {
-    moveCount = 0;
+    isMoving = false; 
     startY = e.touches[0].pageY;
     const x = e.touches[0].pageX - wrapper.getBoundingClientRect().left;
     isBrightness = x < wrapper.offsetWidth / 2;
@@ -229,7 +219,7 @@ async function init() {
   });
 
   wrapper.addEventListener('touchmove', (e) => {
-    moveCount++;
+    isMoving = true; 
     const diff = (startY - e.touches[0].pageY) / 150;
     let newVal = Math.min(Math.max(startVal + diff, 0), 1);
     if (isBrightness) {
@@ -243,8 +233,21 @@ async function init() {
     }
   });
 
-  wrapper.addEventListener('touchend', () => {
+  wrapper.addEventListener('touchend', (e) => {
+    // If no movement occurred, treat as a toggle click
+    if (!isMoving) {
+        if (player.paused()) player.play();
+        else player.pause();
+    }
     setTimeout(() => { volInd.style.display = 'none'; briInd.style.display = 'none'; }, 800);
+  });
+
+  // Desktop Mouse Click Handler
+  player.on('mousedown', function(e) {
+    if (e.target.nodeName === 'VIDEO' || e.target.classList.contains('vjs-tech')) {
+        if (player.paused()) player.play();
+        else player.pause();
+    }
   });
 
   try {
