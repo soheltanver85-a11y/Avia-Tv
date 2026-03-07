@@ -37,7 +37,6 @@
     .video-container { position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1200px; margin: 0 auto; background: #000; overflow: hidden; }
     .video-js { width: 100% !important; height: 100% !important; cursor: pointer; }
     
-    /* উজ্জ্বলতা ওভারলে যেন ক্লিক ব্লক না করে */
     #brightness-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: black; opacity: 0; pointer-events: none; z-index: 1; }
     
     .gesture-indicator { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.8); color: var(--primary); padding: 12px 20px; border-radius: 30px; font-size: 16px; font-weight: bold; z-index: 100; display: none; pointer-events: none; border: 1px solid var(--primary); }
@@ -54,20 +53,19 @@
     .ticker-content { display: inline-block; animation: marquee 20s linear infinite; white-space: nowrap; }
     @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
     
-    header { padding: 8px 12px; background: #111; }
-    .header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; height: 40px; }
-    #recent-list { flex: 1; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
-    .recent-item { min-width: 35px; height: 35px; background: rgba(255,255,255,0.05); border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid #333; flex-shrink: 0; cursor: pointer; }
-    .recent-item img { width: 75%; height: 75%; object-fit: contain; }
-
-    .action-btns { display: flex; gap: 8px; align-items: center; }
-    .circle-btn { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; font-size: 14px; outline: none; }
+    header { padding: 10px 12px; background: #111; }
+    
+    /* বাটন এরিয়া স্টাইল সংশোধন */
+    .action-btns { display: flex; gap: 6px; align-items: center; width: 100%; justify-content: space-between; margin-bottom: 12px; }
+    .rect-btn { flex: 1; height: 35px; border-radius: 8px; display: flex; align-items: center; justify-content: center; text-decoration: none; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; font-size: 16px; outline: none; transition: 0.3s; }
+    
+    .btn-refresh { color: #fff; background: rgba(255, 64, 129, 0.2); border-color: var(--accent); }
     .btn-tg { color: var(--tg); background: rgba(36, 161, 222, 0.1); }
     .btn-apk { color: var(--apk); background: rgba(61, 220, 132, 0.1); }
     .btn-share { color: #fff; background: rgba(255, 255, 255, 0.05); }
     .btn-rotate { color: #fff; background: var(--accent); border: 1px solid var(--accent); font-weight: bold; }
 
-    .search-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .search-row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
     #search { flex: 1; background:#1a1a1a; border:1px solid #333; color:white; padding: 8px; border-radius: 6px; font-size: 13px; outline: none; }
     #count { font-size: 10px; color: var(--primary); font-weight: bold; background: rgba(0, 229, 255, 0.1); padding: 4px 8px; border-radius: 4px; }
 
@@ -108,15 +106,14 @@
   </div>
 
   <header id="main-header">
-    <div class="header-top">
-      <div id="recent-list"></div>
-      <div class="action-btns">
-        <a href="https://t.me/techbd_group" target="_blank" class="circle-btn btn-tg">📩</a>
-        <a href="https://www.mediafire.com/file/2c8yvb7c9dw2abz/Avia_Tv.apk/file" target="_blank" class="circle-btn btn-apk">📥</a>
-        <button onclick="shareApp()" class="circle-btn btn-share">🔗</button>
-        <button onclick="toggleRotateManual()" class="circle-btn btn-rotate">🔄</button>
-      </div>
+    <div class="action-btns">
+      <button onclick="refreshPlayer()" class="rect-btn btn-refresh" title="Refresh Player">🔄</button>
+      <a href="https://t.me/techbd_group" target="_blank" class="rect-btn btn-tg">📩</a>
+      <a href="https://www.mediafire.com/file/2c8yvb7c9dw2abz/Avia_Tv.apk/file" target="_blank" class="rect-btn btn-apk">📥</a>
+      <button onclick="shareApp()" class="rect-btn btn-share">🔗</button>
+      <button onclick="toggleRotateManual()" class="rect-btn btn-rotate">🔃</button>
     </div>
+    
     <div class="search-row">
       <input type="text" id="search" placeholder="সার্চ চ্যানেল (যেমন: Sports)...">
       <span id="count">0 CH</span>
@@ -151,11 +148,20 @@
 <script>
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
-let recentChannels = JSON.parse(localStorage.getItem('recentCh')) || [];
 let currentCategory = 'all';
 let player;
+let currentStreamUrl = "";
+let currentStreamName = "";
 
-// --- রোটেশন কন্ট্রোল ---
+// --- রিফ্রেশ বাটন ফাংশন ---
+function refreshPlayer() {
+  if (currentStreamUrl) {
+    playStream(currentStreamUrl, currentStreamName, "", false, true);
+  } else {
+    location.reload();
+  }
+}
+
 async function toggleRotateManual() {
   if (!player) return;
   if (!player.isFullscreen()) {
@@ -168,7 +174,6 @@ async function toggleRotateManual() {
   }
 }
 
-// --- সার্চ লজিক ---
 document.getElementById("search").addEventListener("input", function() {
   const val = this.value.toLowerCase().trim();
   if (val === "") {
@@ -179,7 +184,6 @@ document.getElementById("search").addEventListener("input", function() {
   renderChannels(filtered);
 });
 
-// --- ক্যাটাগরি ফিল্টার ---
 function filterCat(cat, btn) {
   currentCategory = cat;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -195,7 +199,6 @@ function filterCat(cat, btn) {
   }
 }
 
-// --- ফেভারিট লজিক ---
 function toggleFav(event, id) {
   event.stopPropagation();
   if (favorites.includes(id)) {
@@ -211,7 +214,6 @@ function toggleFav(event, id) {
   }
 }
 
-// --- জেস্টার ও প্লেয়ার লজিক ---
 let startY, startVal, isBrightness, moveCount = 0;
 const wrapper = document.getElementById('player-wrapper');
 const briOverlay = document.getElementById('brightness-overlay');
@@ -221,21 +223,12 @@ const briInd = document.getElementById('bri-indicator');
 async function init() {
   player = videojs('v-player', { fluid: true });
 
-  // সংশোধিত Play/Pause লজিক
   player.on('ready', function() {
     const tech = player.el().querySelector('.vjs-tech');
-    
-    tech.addEventListener('mousedown', function() {
-        moveCount = 0; // ক্লিক শুরুর আগে মুভ রিসেট
-    });
-
-    tech.addEventListener('mouseup', function() {
-        if (moveCount < 5) { // যদি আঙুল বেশি না ঘষে শুধু ক্লিক হয়
-            if (player.paused()) {
-                player.play();
-            } else {
-                player.pause();
-            }
+    tech.addEventListener('mousedown', () => moveCount = 0);
+    tech.addEventListener('mouseup', () => {
+        if (moveCount < 5) {
+            player.paused() ? player.play() : player.pause();
         }
     });
   });
@@ -251,7 +244,7 @@ async function init() {
   });
 
   wrapper.addEventListener('touchmove', (e) => {
-    moveCount++; // আঙুল ঘষলে কাউন্ট বাড়বে
+    moveCount++;
     const diff = (startY - e.touches[0].pageY) / 150;
     let newVal = Math.min(Math.max(startVal + diff, 0), 1);
     if (isBrightness) {
@@ -265,11 +258,9 @@ async function init() {
     }
   });
 
-  wrapper.addEventListener('touchend', (e) => {
-    // যদি একদমই মুভ না হয় তবেই প্লে-পজ করবে
+  wrapper.addEventListener('touchend', () => {
     if (moveCount < 5) {
-        if (player.paused()) player.play();
-        else player.pause();
+        player.paused() ? player.play() : player.pause();
     }
     setTimeout(() => { volInd.style.display = 'none'; briInd.style.display = 'none'; }, 800);
   });
@@ -279,10 +270,9 @@ async function init() {
     const data = await res.text();
     allChannels = parseM3U(data);
     renderChannels(allChannels);
-    renderRecent();
     setInterval(() => {
       document.getElementById("content-area").style.marginTop = document.getElementById('top-section').offsetHeight + 'px';
-    }, 1000);
+    }, 500);
     if(allChannels.length > 0) playStream(allChannels[0].url, allChannels[0].name, allChannels[0].logo, false, false);
   } catch(e) { console.error(e); }
 }
@@ -316,21 +306,12 @@ function renderChannels(list) {
 }
 
 function playStream(url, name, logo, updateRecent, showSpinner) {
+  currentStreamUrl = url;
+  currentStreamName = name;
   document.getElementById("now-playing-text").innerText = "দেখছেন: " + name;
   if (showSpinner) player.addClass('manual-loading');
   player.src({ src: url, type: 'application/x-mpegURL' });
   player.play().catch(() => {});
-  if (updateRecent) {
-    recentChannels = [{name, url, logo}, ...recentChannels.filter(c => c.url !== url)].slice(0, 8);
-    localStorage.setItem('recentCh', JSON.stringify(recentChannels));
-    renderRecent();
-  }
-}
-
-function renderRecent() {
-  document.getElementById("recent-list").innerHTML = recentChannels.map(ch => 
-    `<div class="recent-item" onclick="playStream('${ch.url}', '${ch.name}', '${ch.logo}', true, true)">
-    <img src="${ch.logo}"></div>`).join('');
 }
 
 function shareApp() {
