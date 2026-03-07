@@ -20,7 +20,7 @@
     html, body { 
       margin: 0; padding: 0; width: 100%; height: 100%; 
       background: var(--bg); font-family: 'Segoe UI', sans-serif; 
-      overflow-x: hidden; overflow-y: auto; 
+      overflow-x: hidden; overflow-y: auto; scroll-behavior: smooth;
     }
 
     .vjs-fullscreen #brand-header, .vjs-fullscreen #ticker, .vjs-fullscreen header, .vjs-fullscreen #content-area { display: none !important; }
@@ -51,8 +51,6 @@
     .rect-btn { flex: 1; height: 38px; border-radius: 8px; display: flex; align-items: center; justify-content: center; text-decoration: none; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; font-size: 18px; outline: none; transition: 0.2s; }
     
     .btn-refresh { color: var(--refresh); background: rgba(255, 165, 0, 0.1); border-color: var(--refresh); }
-    .btn-refresh:active { background: var(--refresh); color: #000; }
-
     .btn-tg { color: var(--tg); background: rgba(36, 161, 222, 0.1); border-color: var(--tg); }
     .btn-apk { color: var(--apk); background: rgba(61, 220, 132, 0.1); border-color: var(--apk); }
     .btn-share { color: #fff; background: rgba(255, 255, 255, 0.05); }
@@ -121,7 +119,6 @@
 
 <div id="content-area">
   <div id="channelList">লোডিং...</div>
-
   <div class="footer-area">
     <div id="online-status">Online: 0</div>
     <div style="color:#555; font-size:11px; margin-top:10px;">DEVELOPED BY SOHEL TANVER</div>
@@ -133,10 +130,7 @@
 <script>
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
-let currentCategory = 'all';
-let player;
-let currentUrl = "";
-let currentName = "";
+let currentCategory = 'all', player, currentUrl = "", currentName = "";
 
 function refreshPlayer() {
   if(currentUrl) playStream(currentUrl, currentName, "", false, true);
@@ -147,22 +141,14 @@ async function toggleRotateManual() {
   if (!player) return;
   if (!player.isFullscreen()) {
     player.requestFullscreen();
-    if (screen.orientation && screen.orientation.lock) {
-      screen.orientation.lock('landscape').catch(() => {});
-    }
-  } else {
-    player.exitFullscreen();
-  }
+    if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(() => {});
+  } else player.exitFullscreen();
 }
 
 document.getElementById("search").addEventListener("input", function() {
   const val = this.value.toLowerCase().trim();
-  if (val === "") {
-    filterCat(currentCategory, document.querySelector('.tab-btn.active'));
-    return;
-  }
-  const filtered = allChannels.filter(ch => ch.name && ch.name.toLowerCase().includes(val));
-  renderChannels(filtered);
+  if (val === "") { filterCat(currentCategory, document.querySelector('.tab-btn.active')); return; }
+  renderChannels(allChannels.filter(ch => ch.name && ch.name.toLowerCase().includes(val)));
 });
 
 function filterCat(cat, btn) {
@@ -170,29 +156,17 @@ function filterCat(cat, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById("search").value = "";
-  
-  if (cat === 'all') {
-    renderChannels(allChannels);
-  } else if (cat === 'fav') {
-    renderChannels(allChannels.filter(ch => favorites.includes(ch.id)));
-  } else {
-    renderChannels(allChannels.filter(ch => ch.name && ch.name.toLowerCase().includes(cat.toLowerCase())));
-  }
+  if (cat === 'all') renderChannels(allChannels);
+  else if (cat === 'fav') renderChannels(allChannels.filter(ch => favorites.includes(ch.id)));
+  else renderChannels(allChannels.filter(ch => ch.name && ch.name.toLowerCase().includes(cat.toLowerCase())));
 }
 
 function toggleFav(event, id) {
   event.stopPropagation();
-  if (favorites.includes(id)) {
-    favorites = favorites.filter(f => f !== id);
-  } else {
-    favorites.push(id);
-  }
+  favorites = favorites.includes(id) ? favorites.filter(f => f !== id) : [...favorites, id];
   localStorage.setItem('myFavs', JSON.stringify(favorites));
   event.target.classList.toggle('active');
-  
-  if (currentCategory === 'fav') {
-    renderChannels(allChannels.filter(ch => favorites.includes(ch.id)));
-  }
+  if (currentCategory === 'fav') filterCat('fav', document.querySelector('.tab-btn[style*="star"]'));
 }
 
 let startY, startVal, isBrightness, moveCount = 0;
@@ -202,24 +176,32 @@ const volInd = document.getElementById('vol-indicator');
 const briInd = document.getElementById('bri-indicator');
 
 async function init() {
-  player = videojs('v-player', { fluid: true });
+  // Video.js কনফিগারেশন যেখানে ডিফল্ট ক্লিক অ্যাকশন বন্ধ করা হয়েছে
+  player = videojs('v-player', { 
+    fluid: true,
+    userActions: {
+        click: false 
+    }
+  });
 
   player.on('ready', function() {
-    const tech = player.el().querySelector('.vjs-tech');
-    tech.addEventListener('mousedown', () => moveCount = 0);
-    tech.addEventListener('mouseup', () => {
-        if (moveCount < 5) {
+    const playerEl = player.el();
+    
+    // কাস্টম ক্লিক ইভেন্ট: প্লেয়ারের যেকোনো জায়গায় ক্লিক করলে কাজ করবে
+    playerEl.addEventListener('click', function() {
+        if (moveCount < 5) { // যদি ইউজার না টেনে শুধু ক্লিক করে
             if (!player.paused()) {
                 player.pause();
-                // প্লেয়ার পজ হলে চ্যানেল লিস্টে স্ক্রল করবে
-                setTimeout(() => {
-                    document.getElementById('content-area').scrollIntoView({ 
-                        behavior: 'smooth', 
-                        block: 'start' 
-                    });
-                }, 100);
+                // পজ হলে সরাসরি চ্যানেল লিস্টের শুরুতে নিয়ে যাবে
+                const listPos = document.getElementById('content-area').offsetTop;
+                window.scrollTo({
+                    top: listPos - 80,
+                    behavior: 'smooth'
+                });
             } else {
                 player.play();
+                // প্লে করলে আবার উপরে ভিডিও প্লেয়ারে নিয়ে যাবে
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         }
     });
@@ -259,9 +241,7 @@ async function init() {
     const data = await res.text();
     allChannels = parseM3U(data);
     renderChannels(allChannels);
-    setInterval(() => {
-      document.getElementById("content-area").style.marginTop = document.getElementById('top-section').offsetHeight + 'px';
-    }, 1000);
+    setInterval(() => { document.getElementById("content-area").style.marginTop = document.getElementById('top-section').offsetHeight + 'px'; }, 1000);
     if(allChannels.length > 0) playStream(allChannels[0].url, allChannels[0].name, allChannels[0].logo, false, false);
   } catch(e) { console.error(e); }
 }
@@ -274,11 +254,7 @@ function parseM3U(data) {
       cur.name = l.split(",")[1]?.trim();
       cur.logo = l.match(/tvg-logo="([^"]+)"/)?.[1];
       cur.id = btoa(unescape(encodeURIComponent(cur.name || "")));
-    } else if (l.startsWith("http")) { 
-      cur.url = l.trim(); 
-      if(cur.name) list.push({...cur}); 
-      cur = {}; 
-    }
+    } else if (l.startsWith("http")) { cur.url = l.trim(); if(cur.name) list.push({...cur}); cur = {}; }
   });
   return list;
 }
@@ -295,13 +271,11 @@ function renderChannels(list) {
 }
 
 function playStream(url, name, logo, updateRecent, showSpinner) {
-  currentUrl = url;
-  currentName = name;
+  currentUrl = url; currentName = name;
   document.getElementById("now-playing-text").innerText = "দেখছেন: " + name;
   if (showSpinner) player.addClass('manual-loading');
   player.src({ src: url, type: 'application/x-mpegURL' });
   player.play().catch(() => {});
-  // নতুন চ্যানেল প্লে করলে স্ক্রিন উপরে প্লেয়ারের কাছে চলে যাবে
   if(updateRecent) window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -309,7 +283,6 @@ function shareApp() {
   if (navigator.share) navigator.share({ title: 'Avia Tv', url: window.location.href });
   else alert("লিংক: " + window.location.href);
 }
-
 init();
 </script>
 
