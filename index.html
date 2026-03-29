@@ -67,9 +67,14 @@
     
     header { padding: 10px 12px; background: #111; }
     
-    .action-btns { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; width: 100%; justify-content: space-between; }
-    .rect-btn { flex: 1; height: 38px; border-radius: 8px; display: flex; align-items: center; justify-content: center; text-decoration: none; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; font-size: 18px; outline: none; transition: 0.2s; }
+    /* বাটন সেকশন আপডেট: ৫টি বাটনের জন্য গ্যাপ ও প্যাডিং অ্যাডজাস্ট */
+    .action-btns { display: flex; gap: 6px; align-items: center; margin-bottom: 12px; width: 100%; justify-content: space-between; }
+    .rect-btn { flex: 1; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; text-decoration: none; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; font-size: 16px; outline: none; transition: 0.3s; }
     
+    /* নতুন রিফ্রেশ বাটন স্টাইল */
+    .btn-refresh { color: var(--refresh); background: rgba(255, 165, 0, 0.1); border-color: var(--refresh); }
+    .btn-refresh:active i { transform: rotate(360deg); transition: 0.5s; }
+
     .btn-tg { color: var(--tg); background: rgba(36, 161, 222, 0.1); border-color: var(--tg); }
     .btn-apk { color: var(--apk); background: rgba(61, 220, 132, 0.1); border-color: var(--apk); }
     .btn-share { color: #fff; background: rgba(255, 255, 255, 0.05); }
@@ -116,6 +121,10 @@
 
   <header id="main-header">
     <div class="action-btns">
+      <button onclick="window.location.reload()" class="rect-btn btn-refresh">
+        <i class="fa-solid fa-rotate-right"></i>
+      </button>
+
       <a href="https://t.me/techbd_group" target="_blank" class="rect-btn btn-tg"><i class="fa-brands fa-telegram"></i></a>
       <a href="https://www.mediafire.com/file/mkby3e9skeyfz8n/Avia+Tv+1.0.0.apk/file" target="_blank" class="rect-btn btn-apk"><i class="fa-solid fa-download"></i></a>
       <button onclick="shareApp()" class="rect-btn btn-share"><i class="fa-solid fa-share-nodes"></i></button>
