@@ -6,7 +6,7 @@
   
   <title>Avia TV - Premium Live Streaming</title>
   
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
   <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -25,7 +25,7 @@
       --text: #ffffff;
     }
 
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
 
     body { 
       margin: 0; padding: 0; 
@@ -33,130 +33,116 @@
       color: var(--text);
       font-family: 'Inter', sans-serif; 
       overflow-x: hidden; 
-      line-height: 1.5;
     }
 
-    /* Hide elements in Fullscreen */
+    /* Fullscreen logic */
     .vjs-fullscreen #brand-header, .vjs-fullscreen #ticker, .vjs-fullscreen header, .vjs-fullscreen #content-area { display: none !important; }
 
     #top-section { 
       position: fixed; top: 0; left: 0; width: 100%; 
-      background: rgba(10, 10, 10, 0.8); 
-      backdrop-filter: blur(20px); 
+      background: rgba(10, 10, 10, 0.85); 
+      backdrop-filter: blur(25px); 
       z-index: 1000; 
       border-bottom: 1px solid var(--card-border); 
     }
     
+    /* Stylish Logo Section */
+    .brand-header { padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; }
+    
+    .brand-title-new { 
+      font-size: 20px; font-weight: 900; letter-spacing: 1px;
+      background: linear-gradient(to right, var(--primary), #fff, var(--primary));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .brand-title-new i { font-size: 18px; color: var(--primary); filter: drop-shadow(0 0 5px var(--primary)); }
+
+    #online-status { 
+      font-size: 11px; color: var(--online); font-weight: 800; 
+      background: rgba(76, 175, 80, 0.1); padding: 4px 10px; 
+      border-radius: 20px; display: flex; align-items: center; gap: 5px; 
+      border: 1px solid rgba(76, 175, 80, 0.2); 
+    }
+    .online-dot { width: 7px; height: 7px; background: var(--online); border-radius: 50%; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
     .video-container { 
       position: relative; width: 100%; aspect-ratio: 16/9; 
-      max-width: 1000px; margin: 0 auto; 
-      background: #000; overflow: hidden;
-      box-shadow: 0 10px 50px rgba(0, 229, 255, 0.15);
-      border-radius: 0 0 12px 12px;
+      max-width: 1000px; margin: 0 auto; background: #000; 
+      box-shadow: 0 10px 40px rgba(0, 229, 255, 0.1);
     }
-
     .video-js { width: 100% !important; height: 100% !important; }
     
-    #brightness-overlay { 
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-      background: black; opacity: 0; pointer-events: none; z-index: 10; 
-    }
-    
-    .gesture-indicator { 
-      position: absolute; top: 50%; transform: translateY(-50%); 
-      background: rgba(0,0,0,0.8); color: var(--primary); padding: 12px 20px; 
-      border-radius: 50px; font-size: 14px; font-weight: 800; 
-      z-index: 100; display: none; border: 1px solid var(--primary); 
-    }
-    #vol-indicator { right: 20px; }
-    #bri-indicator { left: 20px; }
+    #ticker { background: rgba(255,255,255,0.02); padding: 5px 0; font-size: 10px; border-bottom: 1px solid var(--card-border); overflow: hidden;}
+    .ticker-content { display: inline-block; animation: marquee 25s linear infinite; white-space: nowrap; color: #bbb;}
 
-    .brand-header { 
-      padding: 15px 20px; display: flex; align-items: center; justify-content: space-between;
-    }
-    .brand-title-new { 
-      font-size: 22px; font-weight: 800; color: var(--primary); 
-      letter-spacing: -0.5px; text-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
-    }
-
-    #ticker { 
-      background: rgba(0, 229, 255, 0.05); color: #ddd; 
-      padding: 6px 0; font-size: 11px; border-bottom: 1px solid var(--card-border); 
-    }
-    .ticker-content { display: inline-block; animation: marquee 25s linear infinite; white-space: nowrap; }
-    @keyframes marquee { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
+    header { padding: 12px; }
     
-    header { padding: 15px; }
-    
-    .action-btns { display: flex; gap: 8px; margin-bottom: 15px; }
+    /* One-Frame Compact Buttons */
+    .action-btns { display: flex; gap: 6px; margin-bottom: 12px; }
     .rect-btn { 
-      flex: 1; height: 42px; border-radius: 12px; 
+      flex: 1; height: 38px; border-radius: 10px; 
       display: flex; align-items: center; justify-content: center; 
-      text-decoration: none; border: 1px solid var(--card-border); 
-      background: var(--card-bg); color: #fff; cursor: pointer; 
-      transition: all 0.3s; font-size: 18px;
+      background: var(--card-bg); border: 1px solid var(--card-border); 
+      color: #fff; cursor: pointer; transition: 0.3s; font-size: 16px;
     }
-    .rect-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.1); }
-    .btn-rotate { background: var(--primary); color: #000; border: none; font-weight: 800; }
+    .btn-rotate { background: var(--primary); color: #000; border: none; font-weight: 900; }
 
-    .search-row { display: flex; gap: 10px; align-items: center; margin-bottom: 15px; }
+    .search-row { display: flex; gap: 8px; margin-bottom: 12px; }
     #search { 
       flex: 1; background: var(--card-bg); border: 1px solid var(--card-border); 
-      color: white; padding: 12px 18px; border-radius: 14px; 
-      font-size: 14px; outline: none; transition: 0.3s;
+      color: white; padding: 10px 15px; border-radius: 12px; font-size: 13px;
     }
-    #search:focus { border-color: var(--primary); box-shadow: 0 0 15px rgba(0, 229, 255, 0.1); }
-    #count { font-size: 11px; color: var(--primary); font-weight: 700; background: rgba(0, 229, 255, 0.1); padding: 6px 12px; border-radius: 8px; }
+    #count { font-size: 10px; color: var(--primary); font-weight: 800; background: rgba(0, 229, 255, 0.1); padding: 5px 10px; border-radius: 8px; white-space: nowrap;}
 
-    .tabs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
+    /* One-Frame Categories */
+    .tabs { display: flex; gap: 5px; width: 100%; }
     .tab-btn { 
-      padding: 8px 20px; background: var(--card-bg); border: 1px solid var(--card-border); 
-      color: #999; border-radius: 30px; font-size: 13px; font-weight: 600; 
-      cursor: pointer; white-space: nowrap; transition: 0.3s;
+      flex: 1; padding: 7px 2px; background: var(--card-bg); border: 1px solid var(--card-border); 
+      color: #888; border-radius: 8px; font-size: 11px; font-weight: 700; 
+      cursor: pointer; text-align: center; transition: 0.3s;
     }
-    .tab-btn.active { background: var(--primary); color: #000; border-color: var(--primary); box-shadow: 0 5px 15px rgba(0, 229, 255, 0.3); }
+    .tab-btn.active { background: var(--primary); color: #000; border-color: var(--primary); box-shadow: 0 4px 10px rgba(0, 229, 255, 0.2); }
 
-    #content-area { margin-top: 420px; transition: margin-top 0.3s; }
+    /* Content Area */
+    #content-area { margin-top: 400px; }
     #channelList { 
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); 
-      gap: 15px; padding: 20px; 
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); 
+      gap: 12px; padding: 15px; 
     }
     
     .channel-card { 
-      background: var(--card-bg); border-radius: 20px; padding: 15px 10px; 
+      background: var(--card-bg); border-radius: 18px; padding: 15px 8px; 
       text-align: center; border: 1px solid var(--card-border); 
-      cursor: pointer; position: relative; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      backdrop-filter: blur(10px);
+      transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); backdrop-filter: blur(10px);
     }
-    .channel-card:hover { 
-      transform: translateY(-8px); background: rgba(255,255,255,0.06); 
-      border-color: var(--primary); box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-    }
-    .fav-star { 
-      position: absolute; top: 8px; right: 8px; font-size: 18px; 
-      color: rgba(255,255,255,0.1); transition: 0.3s; 
-    }
-    .fav-star.active { color: var(--star); text-shadow: 0 0 10px var(--star); }
-    .channel-logo { height: 45px; width: auto; max-width: 80%; object-fit: contain; margin-bottom: 10px; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3)); }
-    .channel-name { font-size: 11px; color: #bbb; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .channel-card:hover { transform: translateY(-5px); border-color: var(--primary); background: rgba(255,255,255,0.06); }
+    
+    .fav-star { position: absolute; top: 8px; right: 8px; font-size: 16px; color: rgba(255,255,255,0.1); }
+    .fav-star.active { color: var(--star); text-shadow: 0 0 8px var(--star); }
+    
+    .channel-logo { height: 40px; margin-bottom: 8px; object-fit: contain; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2)); }
+    .channel-name { font-size: 10px; color: #ccc; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    .footer-area { padding: 40px 0 100px 0; text-align: center; opacity: 0.6; }
-    #online-status { 
-      font-size: 12px; color: var(--online); font-weight: 700; 
-      background: rgba(76, 175, 80, 0.1); padding: 6px 18px; 
-      border-radius: 50px; display: inline-flex; align-items: center; gap: 8px; 
-      border: 1px solid rgba(76, 175, 80, 0.2); 
+    .gesture-indicator { 
+      position: absolute; top: 50%; transform: translateY(-50%); 
+      background: rgba(0,0,0,0.8); color: var(--primary); padding: 10px 18px; 
+      border-radius: 30px; font-size: 13px; font-weight: 800; z-index: 100; display: none; border: 1px solid var(--primary); 
     }
-    .online-dot { width: 8px; height: 8px; background: var(--online); border-radius: 50%; animation: pulse 1.5s infinite; }
-    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+    #vol-indicator { right: 15px; } #bri-indicator { left: 15px; }
+    #brightness-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: black; opacity: 0; pointer-events: none; z-index: 10; }
+
+    .footer-area { padding: 40px 0 100px 0; text-align: center; opacity: 0.5; font-size: 10px; letter-spacing: 1px; }
+
+    @keyframes marquee { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
   </style>
 </head>
-<body id="main-body">
+<body>
 
 <div id="top-section">
-  <div id="brand-header" class="brand-header">
-    <div class="brand-title-new">AVIA TV</div>
-    <div id="online-status"><div class="online-dot"></div> Online: 0</div>
+  <div class="brand-header">
+    <div class="brand-title-new"><i class="fa-solid fa-tv"></i> AVIA TV</div>
+    <div id="online-status"><div class="online-dot"></div> <span id="user-count">0</span></div>
   </div>
 
   <div class="video-container" id="player-wrapper">
@@ -168,9 +154,8 @@
 
   <div id="ticker">
     <div class="ticker-content">
-      <span id="now-playing-text" style="color: var(--primary); font-weight: 800;">চ্যানেল নির্বাচন করুন...</span>
-      <span style="margin-left: 30px;">📢 পরামর্শ বা অভিযোগের জন্য টেলিগ্রাম গ্রুপে যুক্ত হোন: </span>
-      <a href="https://t.me/techbd_group" target="_blank" style="color:var(--tg); font-weight:800; text-decoration:none;">TECH BD GROUP</a>
+      <span id="now-playing-text" style="color: var(--primary); font-weight: 900;">চ্যানেল নির্বাচন করুন...</span>
+      <span style="margin-left: 30px;">📢 পরামর্শ বা অভিযোগের জন্য টেলিগ্রাম গ্রুপে যুক্ত হোন: TECH BD GROUP</span>
     </div>
   </div>
 
@@ -184,24 +169,23 @@
     </div>
     
     <div class="search-row">
-      <input type="text" id="search" placeholder="সার্চ করুন (যেমন: Sports, Star)...">
+      <input type="text" id="search" placeholder="Search Channels...">
       <span id="count">0 CH</span>
     </div>
     <div class="tabs">
-      <button class="tab-btn active" onclick="filterCat('all', this)">🔥 All</button>
-      <button class="tab-btn" onclick="filterCat('sports', this)">⚽ Sports</button>
-      <button class="tab-btn" onclick="filterCat('bangla', this)">🇧🇩 Bangla</button>
-      <button class="tab-btn" onclick="filterCat('fav', this)">⭐ Favorites</button>
+      <button class="tab-btn active" onclick="filterCat('all', this)">🔥 ALL</button>
+      <button class="tab-btn" onclick="filterCat('sports', this)">⚽ SPORTS</button>
+      <button class="tab-btn" onclick="filterCat('bangla', this)">🇧🇩 BANGLA</button>
+      <button class="tab-btn" onclick="filterCat('fav', this)">⭐ FAV</button>
     </div>
   </header>
 </div>
 
 <div id="content-area">
-  <div id="channelList">
-    </div>
+  <div id="channelList">লোডিং...</div>
   <div class="footer-area">
-    <div style="color:var(--primary); font-size:14px; font-weight:800; margin-bottom:5px;">AVIA TV PREMIUM</div>
-    <div style="font-size:10px; letter-spacing:1px;">DEVELOPED BY SOHEL TANVER</div>
+    <div style="color:var(--primary); font-weight:900; margin-bottom:5px;">AVIA TV PREMIUM</div>
+    <div>DEVELOPED BY SOHEL TANVER</div>
   </div>
 </div>
 
@@ -210,39 +194,30 @@
 <script>
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
-let currentCategory = 'all';
 let player;
 
-// Adjust Content Area Margin Dynamically
 function adjustMargin() {
-  const topHeight = document.getElementById('top-section').offsetHeight;
-  document.getElementById('content-area').style.marginTop = topHeight + 'px';
+  const h = document.getElementById('top-section').offsetHeight;
+  document.getElementById('content-area').style.marginTop = (h + 10) + 'px';
 }
 
 async function toggleRotateManual() {
   if (!player) return;
   if (!player.isFullscreen()) {
     player.requestFullscreen();
-    if (screen.orientation && screen.orientation.lock) {
-      screen.orientation.lock('landscape').catch(() => {});
-    }
-  } else {
-    player.exitFullscreen();
-  }
+    if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(()=>{});
+  } else player.exitFullscreen();
 }
 
 document.getElementById("search").addEventListener("input", function() {
   const val = this.value.toLowerCase().trim();
-  const filtered = allChannels.filter(ch => ch.name && ch.name.toLowerCase().includes(val));
-  renderChannels(filtered);
+  renderChannels(allChannels.filter(ch => ch.name.toLowerCase().includes(val)));
 });
 
 function filterCat(cat, btn) {
-  currentCategory = cat;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById("search").value = "";
-  
   if (cat === 'all') renderChannels(allChannels);
   else if (cat === 'fav') renderChannels(allChannels.filter(ch => favorites.includes(ch.id)));
   else renderChannels(allChannels.filter(ch => ch.name.toLowerCase().includes(cat.toLowerCase())));
@@ -250,54 +225,46 @@ function filterCat(cat, btn) {
 
 function toggleFav(event, id) {
   event.stopPropagation();
-  if (favorites.includes(id)) favorites = favorites.filter(f => f !== id);
-  else favorites.push(id);
+  favorites = favorites.includes(id) ? favorites.filter(f => f !== id) : [...favorites, id];
   localStorage.setItem('myFavs', JSON.stringify(favorites));
   event.target.classList.toggle('active');
-  if (currentCategory === 'fav') filterCat('fav', document.querySelector('.tab-btn.active'));
 }
-
-let startY, startVal, isBrightness, isMoving = false;
-const wrapper = document.getElementById('player-wrapper');
-const briOverlay = document.getElementById('brightness-overlay');
-const volInd = document.getElementById('vol-indicator');
-const briInd = document.getElementById('bri-indicator');
 
 async function init() {
   player = videojs('v-player', { fluid: true, userActions: { click: false } });
-
-  player.on('ready', () => {
-    const el = player.el();
-    el.appendChild(briOverlay); el.appendChild(volInd); el.appendChild(briInd);
-    adjustMargin();
-  });
-
-  // Touch Gestures
+  
+  // Touch Gestures logic
+  let startY, startVal, isBrightness, isMoving = false;
+  const wrapper = document.getElementById('player-wrapper');
+  const briOverlay = document.getElementById('brightness-overlay');
+  
   wrapper.addEventListener('touchstart', (e) => {
     isMoving = false; startY = e.touches[0].pageY;
-    const x = e.touches[0].pageX - wrapper.getBoundingClientRect().left;
-    isBrightness = x < wrapper.offsetWidth / 2;
+    isBrightness = (e.touches[0].pageX - wrapper.getBoundingClientRect().left) < wrapper.offsetWidth / 2;
     startVal = isBrightness ? (1 - parseFloat(briOverlay.style.opacity || 0)) : player.volume();
   });
 
   wrapper.addEventListener('touchmove', (e) => {
-    isMoving = true; 
+    isMoving = true;
     const diff = (startY - e.touches[0].pageY) / 150;
     let newVal = Math.min(Math.max(startVal + diff, 0), 1);
     if (isBrightness) {
       briOverlay.style.opacity = 1 - newVal;
-      briInd.innerText = `☀️ ${Math.round(newVal * 100)}%`;
-      briInd.style.display = 'block';
+      document.getElementById('bri-indicator').innerText = `☀️ ${Math.round(newVal * 100)}%`;
+      document.getElementById('bri-indicator').style.display = 'block';
     } else {
       player.volume(newVal);
-      volInd.innerText = `🔊 ${Math.round(newVal * 100)}%`;
-      volInd.style.display = 'block';
+      document.getElementById('vol-indicator').innerText = `🔊 ${Math.round(newVal * 100)}%`;
+      document.getElementById('vol-indicator').style.display = 'block';
     }
   });
 
   wrapper.addEventListener('touchend', () => {
     if (!isMoving) player.paused() ? player.play() : player.pause();
-    setTimeout(() => { volInd.style.display = 'none'; briInd.style.display = 'none'; }, 800);
+    setTimeout(() => { 
+      document.getElementById('vol-indicator').style.display = 'none'; 
+      document.getElementById('bri-indicator').style.display = 'none'; 
+    }, 800);
   });
 
   try {
@@ -316,12 +283,10 @@ function parseM3U(data) {
   lines.forEach(l => {
     if (l.startsWith("#EXTINF")) {
       cur.name = l.split(",")[1]?.trim();
-      cur.logo = l.match(/tvg-logo="([^"]+)"/)?.[1] || "https://via.placeholder.com/150";
+      cur.logo = l.match(/tvg-logo="([^"]+)"/)?.[1] || "https://cdn-icons-png.flaticon.com/512/716/716429.png";
       cur.id = btoa(unescape(encodeURIComponent(cur.name || "")));
     } else if (l.startsWith("http")) { 
-      cur.url = l.trim(); 
-      if(cur.name) list.push({...cur}); 
-      cur = {}; 
+      cur.url = l.trim(); if(cur.name) list.push({...cur}); cur = {}; 
     }
   });
   return list;
@@ -329,11 +294,10 @@ function parseM3U(data) {
 
 function renderChannels(list) {
   const grid = document.getElementById("channelList");
-  grid.innerHTML = list.length === 0 ? "<div style='grid-column:1/-1; opacity:0.5;'>কোনো চ্যানেল পাওয়া যায়নি</div>" : 
-    list.map(ch => `
+  grid.innerHTML = list.map(ch => `
     <div class="channel-card" onclick="playStream('${ch.url}', '${ch.name}')">
       <i class="fa-solid fa-star fav-star ${favorites.includes(ch.id) ? 'active' : ''}" onclick="toggleFav(event, '${ch.id}')"></i>
-      <img src="${ch.logo}" class="channel-logo" loading="lazy" onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716429.png'">
+      <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716429.png'">
       <div class="channel-name">${ch.name}</div>
     </div>`).join('');
   document.getElementById("count").textContent = list.length + " CH";
@@ -348,7 +312,6 @@ function playStream(url, name) {
 
 function shareApp() {
   if (navigator.share) navigator.share({ title: 'Avia Tv', url: window.location.href });
-  else alert("লিংক কপি করুন: " + window.location.href);
 }
 
 init();
@@ -367,10 +330,9 @@ init();
     onDisconnect(myRef).remove();
     onValue(onlineRef, (s) => {
       const count = s.val() ? Object.keys(s.val()).length : 0;
-      document.getElementById("online-status").innerHTML = `<div class="online-dot"></div> Online: ${count}`;
+      document.getElementById("user-count").innerText = count;
     });
   } catch (e) {}
 </script>
-
 </body>
 </html>
