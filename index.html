@@ -52,12 +52,13 @@
     .video-container { 
       position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1000px; margin: 0 auto; 
       background: #000; box-shadow: 0 10px 40px rgba(0, 229, 255, 0.1);
-      touch-action: none; /* Stops page scroll during player gestures */
+      touch-action: none; 
     }
     .video-js { width: 100% !important; height: 100% !important; }
     
     #ticker { background: rgba(255,255,255,0.02); padding: 5px 0; font-size: 10px; border-bottom: 1px solid var(--card-border); overflow: hidden; }
     .ticker-content { display: inline-block; animation: marquee 25s linear infinite; white-space: nowrap; color: #bbb; }
+    .ticker-link { color: var(--tg); font-weight: 900; text-decoration: none; border-bottom: 1px dashed var(--tg); padding: 0 2px; }
 
     header { padding: 12px; }
     .action-btns { display: flex; gap: 6px; margin-bottom: 12px; }
@@ -71,7 +72,6 @@
     #search { flex: 1; background: var(--card-bg); border: 1px solid var(--card-border); color: white; padding: 10px 15px; border-radius: 12px; font-size: 13px; }
     #count { font-size: 10px; color: var(--primary); font-weight: 800; background: rgba(0, 229, 255, 0.1); padding: 5px 10px; border-radius: 8px; }
 
-    /* Compact One-Frame Tabs */
     .tabs { display: flex; gap: 5px; width: 100%; }
     .tab-btn { 
       flex: 1; padding: 7px 2px; background: var(--card-bg); border: 1px solid var(--card-border); 
@@ -79,7 +79,6 @@
     }
     .tab-btn.active { background: var(--primary); color: #000; border-color: var(--primary); box-shadow: 0 4px 10px rgba(0, 229, 255, 0.2); }
 
-    /* Content Area */
     #content-area { margin-top: 410px; transition: margin-top 0.3s; }
     #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 12px; padding: 15px; }
     .channel-card { 
@@ -92,7 +91,7 @@
     .channel-logo { height: 40px; margin-bottom: 8px; object-fit: contain; }
     .channel-name { font-size: 10px; color: #ccc; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-    /* Modern Footer with Fire Glow */
+    /* Developer Credit */
     .footer-area { 
       padding: 30px 0 100px 0; text-align: center; background: linear-gradient(to top, rgba(0,0,0,0.4), transparent); 
       border-top: 1px solid var(--card-border); margin-top: 20px;
@@ -108,7 +107,6 @@
       50% { text-shadow: 0 0 8px #ff4500, 0 0 15px #ff8c00, 0 0 25px #ff0000; opacity: 0.9; }
     }
 
-    /* Player Indicators */
     .gesture-indicator { 
       position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.8); 
       color: var(--primary); padding: 10px 18px; border-radius: 30px; font-size: 13px; 
@@ -138,7 +136,8 @@
   <div id="ticker">
     <div class="ticker-content">
       <span id="now-playing-text" style="color: var(--primary); font-weight: 900;">চ্যানেল নির্বাচন করুন...</span>
-      <span style="margin-left: 30px;">📢 পরামর্শ বা অভিযোগের জন্য টেলিগ্রাম গ্রুপে যুক্ত হোন: TECH BD GROUP</span>
+      <span style="margin-left: 30px;">📢 পরামর্শ বা অভিযোগের জন্য যুক্ত হোন: </span>
+      <a href="https://t.me/techbd_group" target="_blank" class="ticker-link">TECH BD GROUP</a>
     </div>
   </div>
 
@@ -217,8 +216,6 @@ function playStream(url, name) {
   document.getElementById("now-playing-text").innerText = "দেখছেন: " + name;
   player.src({ src: url, type: 'application/x-mpegURL' });
   player.play().catch(() => {});
-  
-  // Scrolls only to the player, maintaining channel list position
   document.getElementById('player-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -238,12 +235,9 @@ async function init() {
 
   wrapper.addEventListener('touchmove', (e) => {
     isMoving = true;
-    // Fix: Prevent page scroll during volume/brightness adjust
     if (e.cancelable) e.preventDefault();
-
     const diff = (startY - e.touches[0].pageY) / 150;
     let newVal = Math.min(Math.max(startVal + diff, 0), 1);
-    
     if (isBrightness) {
       briOverlay.style.opacity = 1 - newVal;
       document.getElementById('bri-indicator').innerText = `☀️ ${Math.round(newVal * 100)}%`;
