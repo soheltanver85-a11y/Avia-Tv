@@ -24,7 +24,6 @@
       color: var(--text); font-family: 'Inter', sans-serif; overflow-x: hidden; 
     }
 
-    /* Fullscreen logic */
     .vjs-fullscreen #brand-header, .vjs-fullscreen #ticker, .vjs-fullscreen header, .vjs-fullscreen #content-area { display: none !important; }
 
     #top-section { 
@@ -96,16 +95,10 @@
     }
     .footer-line { width: 30px; height: 1px; background: var(--card-border); margin: 0 auto 10px auto; }
     .dev-credits { font-size: 9px; color: #888; letter-spacing: 1.5px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 5px; }
-    .dev-name { 
-      font-weight: 900; color: #fff; text-shadow: 0 0 5px #ff4500, 0 0 10px #ff8c00, 0 0 15px #ff0000; 
-      animation: fireFlicker 1.5s infinite alternate; 
-    }
-    @keyframes fireFlicker { 
-      0%, 100% { text-shadow: 0 0 5px #ff4500, 0 0 10px #ff8c00, 0 0 15px #ff0000; opacity: 1; }
-      50% { text-shadow: 0 0 8px #ff4500, 0 0 15px #ff8c00, 0 0 25px #ff0000; opacity: 0.9; }
-    }
+    .dev-name { font-weight: 900; color: #fff; text-shadow: 0 0 5px #ff4500, 0 0 10px #ff8c00, 0 0 15px #ff0000; animation: fireFlicker 1.5s infinite alternate; }
+    
+    @keyframes fireFlicker { 0%, 100% { opacity: 1; } 50% { opacity: 0.9; } }
 
-    /* Player Indicators Fix for Fullscreen */
     .gesture-indicator { 
       position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.8); 
       color: var(--primary); padding: 12px 20px; border-radius: 30px; font-size: 15px; 
@@ -224,16 +217,33 @@ function playStream(url, name) {
   document.getElementById('player-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+function shareApp() {
+  if (navigator.share) {
+    navigator.share({
+      title: 'Avia TV',
+      text: 'এভিয়া টিভিতে সরাসরি খেলা এবং সব চ্যানেল দেখুন ফ্রিতে!',
+      url: window.location.href
+    }).catch(console.error);
+  } else {
+    const el = document.createElement('textarea');
+    el.value = window.location.href;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    alert("লিঙ্ক কপি হয়েছে! আপনার বন্ধুদের শেয়ার করুন।");
+  }
+}
+
 async function init() {
   player = videojs('v-player', { fluid: true, userActions: { click: false } });
   
   let startY, startVal, isBrightness, isMoving = false;
-  const wrapper = player.el(); // Fullscreen friendly element
+  const wrapper = player.el();
   const briOverlay = document.getElementById('brightness-overlay');
   const volInd = document.getElementById('vol-indicator');
   const briInd = document.getElementById('bri-indicator');
 
-  // Inject indicators into videojs element to make them visible in fullscreen
   wrapper.appendChild(briOverlay);
   wrapper.appendChild(volInd);
   wrapper.appendChild(briInd);
@@ -248,7 +258,6 @@ async function init() {
   wrapper.addEventListener('touchmove', (e) => {
     isMoving = true;
     if (e.cancelable) e.preventDefault();
-
     const diff = (startY - e.touches[0].pageY) / 150;
     let newVal = Math.min(Math.max(startVal + diff, 0), 1);
     
@@ -265,10 +274,7 @@ async function init() {
 
   wrapper.addEventListener('touchend', () => {
     if (!isMoving) player.paused() ? player.play() : player.pause();
-    setTimeout(() => { 
-      volInd.style.display = 'none'; 
-      briInd.style.display = 'none'; 
-    }, 800);
+    setTimeout(() => { volInd.style.display = 'none'; briInd.style.display = 'none'; }, 800);
   });
 
   try {
@@ -308,10 +314,6 @@ function renderChannels(list) {
       <div class="channel-name">${ch.name}</div>
     </div>`).join('');
   document.getElementById("count").textContent = list.length + " CH";
-}
-
-function shareApp() {
-  if (navigator.share) navigator.share({ title: 'Avia Tv', url: window.location.href });
 }
 
 init();
