@@ -77,7 +77,7 @@
     }
     .tab-btn.active { background: var(--primary); color: #000; border-color: var(--primary); box-shadow: 0 4px 10px rgba(0, 229, 255, 0.2); }
 
-    #content-area { margin-top: 410px; transition: margin-top 0.3s; }
+    #content-area { margin-top: 420px; transition: margin-top 0.3s; }
     #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 12px; padding: 15px; }
     .channel-card { 
       background: var(--card-bg); border-radius: 18px; padding: 15px 8px; text-align: center; 
@@ -95,9 +95,7 @@
     }
     .footer-line { width: 30px; height: 1px; background: var(--card-border); margin: 0 auto 10px auto; }
     .dev-credits { font-size: 9px; color: #888; letter-spacing: 1.5px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 5px; }
-    .dev-name { font-weight: 900; color: #fff; text-shadow: 0 0 5px #ff4500, 0 0 10px #ff8c00, 0 0 15px #ff0000; animation: fireFlicker 1.5s infinite alternate; }
-    
-    @keyframes fireFlicker { 0%, 100% { opacity: 1; } 50% { opacity: 0.9; } }
+    .dev-name { font-weight: 900; color: #fff; text-shadow: 0 0 5px #ff4500, 0 0 10px #ff8c00, 0 0 15px #ff0000; }
 
     .gesture-indicator { 
       position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.8); 
@@ -144,7 +142,7 @@
       <button onclick="window.location.reload()" class="rect-btn" style="color:var(--refresh)"><i class="fa-solid fa-rotate-right"></i></button>
       <a href="https://t.me/techbd_group" target="_blank" class="rect-btn" style="color:var(--tg)"><i class="fa-brands fa-telegram"></i></a>
       <a href="https://www.mediafire.com/file/mkby3e9skeyfz8n/Avia+Tv+1.0.0.apk/file" target="_blank" class="rect-btn" style="color:var(--apk)"><i class="fa-solid fa-download"></i></a>
-      <button onclick="shareApp()" class="rect-btn"><i class="fa-solid fa-share-nodes"></i></button>
+      <button onclick="shareApp()" class="rect-btn" style="color: #fff;"><i class="fa-solid fa-share-nodes"></i></button>
       <button onclick="toggleRotateManual()" class="rect-btn btn-rotate"><i class="fa-solid fa-expand"></i></button>
     </div>
     
@@ -176,6 +174,33 @@
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let player;
+
+// উন্নত শেয়ার অপশন: সরাসরি মোবাইল অ্যাপস ওপেন হবে
+async function shareApp() {
+  const shareData = {
+    title: 'Avia TV - Live Streaming',
+    text: 'এভিয়া টিভিতে সরাসরি সব চ্যানেল দেখুন একদম ফ্রিতে! এখনই ট্রাই করুন।',
+    url: window.location.href
+  };
+
+  try {
+    if (navigator.share) {
+      // এটি সরাসরি WhatsApp, Telegram, Facebook ইত্যাদি অপশন আনবে
+      await navigator.share(shareData);
+    } else {
+      // ব্রাউজার সাপোর্ট না করলে লিঙ্ক কপি হবে
+      const el = document.createElement('textarea');
+      el.value = window.location.href;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      alert("লিঙ্ক কপি করা হয়েছে! বন্ধুদের মেসেজ বক্সে পেস্ট করে দিন।");
+    }
+  } catch (err) {
+    console.log('শেয়ার বাতিল করা হয়েছে');
+  }
+}
 
 function adjustMargin() {
   const h = document.getElementById('top-section').offsetHeight;
@@ -215,24 +240,6 @@ function playStream(url, name) {
   player.src({ src: url, type: 'application/x-mpegURL' });
   player.play().catch(() => {});
   document.getElementById('player-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-function shareApp() {
-  if (navigator.share) {
-    navigator.share({
-      title: 'Avia TV',
-      text: 'এভিয়া টিভিতে সরাসরি খেলা এবং সব চ্যানেল দেখুন ফ্রিতে!',
-      url: window.location.href
-    }).catch(console.error);
-  } else {
-    const el = document.createElement('textarea');
-    el.value = window.location.href;
-    document.body.appendChild(el);
-    el.select();
-    document.execCommand('copy');
-    document.body.removeChild(el);
-    alert("লিঙ্ক কপি হয়েছে! আপনার বন্ধুদের শেয়ার করুন।");
-  }
 }
 
 async function init() {
