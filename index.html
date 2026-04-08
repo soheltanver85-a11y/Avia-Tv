@@ -24,7 +24,6 @@
       color: var(--text); font-family: 'Inter', sans-serif; overflow-x: hidden; 
     }
 
-    /* Fullscreen logic */
     .vjs-fullscreen #brand-header, .vjs-fullscreen #ticker, .vjs-fullscreen header, .vjs-fullscreen #content-area { display: none !important; }
 
     #top-section { 
@@ -32,106 +31,95 @@
       backdrop-filter: blur(25px); z-index: 1000; border-bottom: 1px solid var(--card-border); 
     }
     
-    .brand-header { padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; }
+    .brand-header { padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; }
     .brand-title-new { 
-      font-size: 20px; font-weight: 900; letter-spacing: 1px;
+      font-size: 18px; font-weight: 900; letter-spacing: 1px;
       background: linear-gradient(to right, var(--primary), #fff, var(--primary));
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       display: flex; align-items: center; gap: 6px;
     }
-    .brand-title-new i { font-size: 18px; color: var(--primary); filter: drop-shadow(0 0 5px var(--primary)); }
+    .brand-title-new i { font-size: 16px; color: var(--primary); filter: drop-shadow(0 0 5px var(--primary)); }
 
     #online-status { 
-      font-size: 11px; color: var(--online); font-weight: 800; background: rgba(76, 175, 80, 0.1); 
-      padding: 4px 10px; border-radius: 20px; display: flex; align-items: center; gap: 5px; border: 1px solid rgba(76, 175, 80, 0.2); 
+      font-size: 10px; color: var(--online); font-weight: 800; background: rgba(76, 175, 80, 0.1); 
+      padding: 3px 8px; border-radius: 20px; display: flex; align-items: center; gap: 4px; border: 1px solid rgba(76, 175, 80, 0.1); 
     }
-    .online-dot { width: 7px; height: 7px; background: var(--online); border-radius: 50%; animation: pulse 1.5s infinite; }
+    .online-dot { width: 6px; height: 6px; background: var(--online); border-radius: 50%; animation: pulse 1.5s infinite; }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
     .video-container { 
       position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1000px; margin: 0 auto; 
-      background: #000; box-shadow: 0 10px 40px rgba(0, 229, 255, 0.1);
+      background: #000; box-shadow: 0 5px 20px rgba(0, 229, 255, 0.1);
       touch-action: none; 
     }
     .video-js { width: 100% !important; height: 100% !important; }
     
-    #ticker { background: rgba(255,255,255,0.02); padding: 5px 0; font-size: 10px; border-bottom: 1px solid var(--card-border); overflow: hidden; }
+    #ticker { background: rgba(255,255,255,0.02); padding: 4px 0; font-size: 9px; border-bottom: 1px solid var(--card-border); overflow: hidden; }
     .ticker-content { display: inline-block; animation: marquee 25s linear infinite; white-space: nowrap; color: #bbb; }
-    .ticker-content a { color: var(--primary); text-decoration: underline; font-weight: 900; cursor: pointer; }
+    .ticker-content a { color: var(--primary); text-decoration: underline; font-weight: 900; }
 
-    header { padding: 12px; }
+    header { padding: 10px; }
 
-    /* **UPDATED: Slim and Slimmer Action Buttons** */
+    /* **ACTION BUTTONS - SLIM & COMPACT** */
     .action-btns { 
       display: grid; 
       grid-template-columns: repeat(4, 1fr); 
-      gap: 6px; /* Slightly reduced gap */
-      margin-bottom: 12px; /* Slightly reduced margin */
+      gap: 5px; 
+      margin-bottom: 10px; 
     }
     .rect-btn { 
-      height: 40px; /* **Much smaller height** */
-      border-radius: 8px; /* Slightly smaller border radius */
-      display: flex; flex-direction: column; align-items: center; justify-content: center; 
-      background: rgba(255, 255, 255, 0.02); /* More subtle background */
-      border: 1px solid var(--card-border); color: #fff; cursor: pointer; 
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-decoration: none; gap: 2px; /* Reduced gap */
+      height: 32px; /* Super Slim Height */
+      border-radius: 6px; 
+      display: flex; flex-direction: row; align-items: center; justify-content: center; 
+      background: rgba(255, 255, 255, 0.04); border: 1px solid var(--card-border); 
+      color: #fff; cursor: pointer; transition: 0.2s; text-decoration: none; gap: 4px;
     }
-    .rect-btn i { font-size: 12px; } /* **Smaller icons** */
-    .rect-btn span { font-size: 8px; font-weight: 400; text-transform: uppercase; letter-spacing: 0.3px; opacity: 0.6; } /* **Smaller and slimmer text** */
-    .rect-btn:active { transform: scale(0.96); background: rgba(255, 255, 255, 0.08); }
+    .rect-btn i { font-size: 11px; }
+    .rect-btn span { font-size: 8px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; opacity: 0.8; }
+    .rect-btn:active { transform: scale(0.96); background: rgba(255, 255, 255, 0.1); }
     
-    .btn-rotate { background: linear-gradient(135deg, var(--primary), #00b8d4); color: #000; border: none; }
-    .btn-rotate span { color: #000; font-weight: 600; opacity: 1; }
+    .btn-rotate { background: var(--primary); border: none; }
+    .btn-rotate i, .btn-rotate span { color: #000; font-weight: 800; opacity: 1; }
 
-    .search-row { display: flex; gap: 8px; margin-bottom: 12px; }
-    #search { flex: 1; background: var(--card-bg); border: 1px solid var(--card-border); color: white; padding: 10px 15px; border-radius: 12px; font-size: 13px; }
-    #count { font-size: 10px; color: var(--primary); font-weight: 800; background: rgba(0, 229, 255, 0.1); padding: 5px 10px; border-radius: 8px; }
+    .search-row { display: flex; gap: 8px; margin-bottom: 10px; }
+    #search { flex: 1; background: var(--card-bg); border: 1px solid var(--card-border); color: white; padding: 8px 12px; border-radius: 8px; font-size: 12px; }
+    #count { font-size: 9px; color: var(--primary); font-weight: 800; background: rgba(0, 229, 255, 0.1); padding: 4px 8px; border-radius: 6px; display: flex; align-items: center; }
 
-    .tabs { display: flex; gap: 5px; width: 100%; }
+    .tabs { display: flex; gap: 4px; width: 100%; }
     .tab-btn { 
-      flex: 1; padding: 7px 2px; background: var(--card-bg); border: 1px solid var(--card-border); 
-      color: #888; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; text-align: center;
+      flex: 1; padding: 6px 2px; background: var(--card-bg); border: 1px solid var(--card-border); 
+      color: #888; border-radius: 6px; font-size: 10px; font-weight: 700; cursor: pointer;
     }
-    .tab-btn.active { background: var(--primary); color: #000; border-color: var(--primary); box-shadow: 0 4px 10px rgba(0, 229, 255, 0.2); }
+    .tab-btn.active { background: var(--primary); color: #000; border-color: var(--primary); }
 
-    #content-area { margin-top: 400px; transition: margin-top 0.3s; } /* Adjust margin due to smaller buttons */
-    #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 12px; padding: 15px; }
+    #content-area { margin-top: 380px; transition: margin-top 0.3s; }
+    #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; padding: 12px; }
     .channel-card { 
-      background: var(--card-bg); border-radius: 18px; padding: 15px 8px; text-align: center; 
-      border: 1px solid var(--card-border); transition: 0.4s; position: relative; backdrop-filter: blur(10px);
+      background: var(--card-bg); border-radius: 15px; padding: 12px 5px; text-align: center; 
+      border: 1px solid var(--card-border); transition: 0.3s; position: relative;
     }
-    .channel-card:hover { transform: translateY(-5px); border-color: var(--primary); background: rgba(255,255,255,0.06); }
     
-    /* **UPDATED: Smaller Star Icon** */
+    /* **SMALL & SHARP STAR** */
     .fav-star { 
-      position: absolute; top: 6px; right: 6px; /* Slightly adjusted position */
-      font-size: 12px; /* **Much smaller star** */
-      color: rgba(255,255,255,0.1); 
+      position: absolute; top: 5px; right: 5px; 
+      font-size: 10px; color: rgba(255,255,255,0.1); 
     }
-    .fav-star.active { color: var(--star); text-shadow: 0 0 5px var(--star); } /* Subtler text shadow */
+    .fav-star.active { color: var(--star); text-shadow: 0 0 5px var(--star); }
     
-    .channel-logo { height: 40px; margin-bottom: 8px; object-fit: contain; }
-    .channel-name { font-size: 10px; color: #ccc; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .channel-logo { height: 35px; margin-bottom: 6px; object-fit: contain; }
+    .channel-name { font-size: 9px; color: #ccc; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-    .footer-area { 
-      padding: 30px 0 100px 0; text-align: center; background: linear-gradient(to top, rgba(0,0,0,0.4), transparent); 
-      border-top: 1px solid var(--card-border); margin-top: 20px;
-    }
-    .footer-line { width: 30px; height: 1px; background: var(--card-border); margin: 0 auto 10px auto; }
-    .dev-credits { font-size: 9px; color: #888; letter-spacing: 1.5px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 5px; }
-    .dev-name { font-weight: 900; color: #fff; text-shadow: 0 0 5px var(--primary); }
+    .footer-area { padding: 20px 0 80px 0; text-align: center; border-top: 1px solid var(--card-border); margin-top: 20px; }
+    .dev-credits { font-size: 8px; color: #666; letter-spacing: 1px; text-transform: uppercase; }
+    .dev-name { font-weight: 900; color: #fff; }
 
     .gesture-indicator { 
       position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.8); 
-      color: var(--primary); padding: 12px 20px; border-radius: 30px; font-size: 15px; 
-      font-weight: 800; z-index: 2147483647; display: none; border: 1px solid var(--primary); 
-      pointer-events: none;
+      color: var(--primary); padding: 10px 18px; border-radius: 30px; font-size: 14px; 
+      font-weight: 800; z-index: 2000; display: none; border: 1px solid var(--primary); pointer-events: none;
     }
     #vol-indicator { right: 15px; } #bri-indicator { left: 15px; }
-    #brightness-overlay { 
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-      background: black; opacity: 0; pointer-events: none; z-index: 2147483646; 
-    }
+    #brightness-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: black; opacity: 0; pointer-events: none; z-index: 1999; }
 
     @keyframes marquee { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
   </style>
@@ -154,9 +142,8 @@
   <div id="ticker">
     <div class="ticker-content">
       <span id="now-playing-text" style="color: var(--primary); font-weight: 900;">চ্যানেল নির্বাচন করুন...</span>
-      <span style="margin-left: 30px;">
-        📢 পরামর্শ বা অভিযোগের জন্য টেলিগ্রাম গ্রুপে যুক্ত হোন: 
-        <a href="https://t.me/techbd_group" target="_blank">TECH BD GROUP</a>
+      <span style="margin-left: 20px;">
+        📢 টেলিগ্রাম গ্রুপ: <a href="https://t.me/techbd_group" target="_blank">TECH BD GROUP</a>
       </span>
     </div>
   </div>
@@ -172,12 +159,12 @@
         <span>Group</span>
       </a>
       <a href="https://www.mediafire.com/file/mkby3e9skeyfz8n/Avia+Tv+1.0.0.apk/file" target="_blank" class="rect-btn">
-        <i class="fa-solid fa-cloud-arrow-down" style="color:var(--apk)"></i>
-        <span>Get App</span>
+        <i class="fa-solid fa-download" style="color:var(--apk)"></i>
+        <span>APK</span>
       </a>
       <button onclick="toggleRotateManual()" class="rect-btn btn-rotate">
         <i class="fa-solid fa-expand"></i>
-        <span>Fullscreen</span>
+        <span>Full</span>
       </button>
     </div>
     
@@ -186,9 +173,9 @@
       <span id="count">0 CH</span>
     </div>
     <div class="tabs">
-      <button class="tab-btn active" onclick="filterCat('all', this)">🔥 ALL</button>
-      <button class="tab-btn" onclick="filterCat('sports', this)">⚽ SPORTS</button>
-      <button class="tab-btn" onclick="filterCat('bangla', this)">🇧🇩 BANGLA</button>
+      <button class="tab-btn active" onclick="filterCat('all', this)">ALL</button>
+      <button class="tab-btn" onclick="filterCat('sports', this)">SPORTS</button>
+      <button class="tab-btn" onclick="filterCat('bangla', this)">BANGLA</button>
       <button class="tab-btn" onclick="filterCat('fav', this)">⭐ FAV</button>
     </div>
   </header>
@@ -196,9 +183,7 @@
 
 <div id="content-area">
   <div id="channelList">লোডিং...</div>
-  
   <div class="footer-area">
-    <div class="footer-line"></div>
     <div class="dev-credits">Developed by <span class="dev-name">Sohel Tanver</span></div>
   </div>
 </div>
@@ -212,7 +197,7 @@ let player;
 
 function adjustMargin() {
   const h = document.getElementById('top-section').offsetHeight;
-  document.getElementById('content-area').style.marginTop = (h + 10) + 'px';
+  document.getElementById('content-area').style.marginTop = (h + 5) + 'px';
 }
 
 async function toggleRotateManual() {
@@ -247,7 +232,7 @@ function playStream(url, name) {
   document.getElementById("now-playing-text").innerText = "দেখছেন: " + name;
   player.src({ src: url, type: 'application/x-mpegURL' });
   player.play().catch(() => {});
-  document.getElementById('player-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 async function init() {
@@ -259,23 +244,16 @@ async function init() {
   const volInd = document.getElementById('vol-indicator');
   const briInd = document.getElementById('bri-indicator');
 
-  wrapper.appendChild(briOverlay);
-  wrapper.appendChild(volInd);
-  wrapper.appendChild(briInd);
-  
   wrapper.addEventListener('touchstart', (e) => {
-    isMoving = false; 
-    startY = e.touches[0].pageY;
+    isMoving = false; startY = e.touches[0].pageY;
     isBrightness = (e.touches[0].pageX - wrapper.getBoundingClientRect().left) < wrapper.offsetWidth / 2;
     startVal = isBrightness ? (1 - parseFloat(briOverlay.style.opacity || 0)) : player.volume();
   });
 
   wrapper.addEventListener('touchmove', (e) => {
-    isMoving = true;
-    if (e.cancelable) e.preventDefault();
+    isMoving = true; if (e.cancelable) e.preventDefault();
     const diff = (startY - e.touches[0].pageY) / 150;
     let newVal = Math.min(Math.max(startVal + diff, 0), 1);
-    
     if (isBrightness) {
       briOverlay.style.opacity = 1 - newVal;
       briInd.innerText = `☀️ ${Math.round(newVal * 100)}%`;
