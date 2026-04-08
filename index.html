@@ -24,7 +24,8 @@
       color: var(--text); font-family: 'Inter', sans-serif; overflow-x: hidden; 
     }
 
-    .vjs-fullscreen #brand-header, .vjs-fullscreen #ticker, .vjs-fullscreen header, .vjs-fullscreen #content-area { display: none !important; }
+    /* Fullscreen logic */
+    .vjs-fullscreen #top-section { position: relative !important; }
 
     #top-section { 
       position: fixed; top: 0; left: 0; width: 100%; background: rgba(10, 10, 10, 0.9); 
@@ -50,7 +51,6 @@
     .video-container { 
       position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1000px; margin: 0 auto; 
       background: #000; box-shadow: 0 10px 40px rgba(0, 229, 255, 0.1);
-      touch-action: none; 
     }
     .video-js { width: 100% !important; height: 100% !important; }
     
@@ -59,7 +59,7 @@
 
     header { padding: 12px; }
 
-    /* আপনার দেওয়া ছবির মতো বাটনের ডিজাইন */
+    /* বাটন সিরিয়াল পরিবর্তন ও ডিজাইন */
     .action-btns { 
       display: grid; 
       grid-template-columns: repeat(4, 1fr); 
@@ -68,17 +68,16 @@
     }
     .nav-btn {
       display: flex; flex-direction: row; align-items: center; justify-content: center;
-      gap: 6px; height: 32px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);
+      gap: 4px; height: 32px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);
       background: rgba(255, 255, 255, 0.03); text-decoration: none; cursor: pointer; transition: 0.2s;
     }
-    .nav-btn i { font-size: 12px; }
-    .nav-btn span { font-size: 10px; font-weight: 600; text-transform: none; color: #ffffff; }
+    .nav-btn i { font-size: 11px; }
+    .nav-btn span { font-size: 9px; font-weight: 600; color: #ffffff; }
 
-    /* ছবির মতো ইন্ডিভিজুয়াল বাটনের কালার ও বর্ডার */
+    .btn-apk { border-color: rgba(61, 220, 132, 0.2); color: #3DDC84; }
+    .btn-tg { border-color: rgba(36, 161, 222, 0.2); color: #24A1DE; }
+    .btn-refresh { border-color: rgba(255, 165, 0, 0.2); color: #ffa500; }
     .btn-fs { border-color: rgba(0, 229, 255, 0.2); color: #00e5ff; }
-    .btn-refresh { border-color: rgba(76, 175, 80, 0.2); color: #4caf50; }
-    .btn-tg { border-color: rgba(33, 150, 243, 0.2); color: #2196f3; }
-    .btn-apk { border-color: rgba(255, 87, 34, 0.2); color: #ff5722; }
 
     .nav-btn:active { transform: scale(0.96); opacity: 0.8; }
 
@@ -91,37 +90,29 @@
       flex: 1; padding: 7px 2px; background: var(--card-bg); border: 1px solid var(--card-border); 
       color: #888; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; text-align: center;
     }
-    .tab-btn.active { background: var(--primary); color: #000; border-color: var(--primary); box-shadow: 0 4px 10px rgba(0, 229, 255, 0.2); }
+    .tab-btn.active { background: var(--primary); color: #000; border-color: var(--primary); }
 
-    /* অ্যাডজাস্টেড মার্জিন-টপ */
     #content-area { margin-top: 380px; transition: margin-top 0.3s; }
     #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 12px; padding: 15px; }
     .channel-card { 
       background: var(--card-bg); border-radius: 18px; padding: 15px 8px; text-align: center; 
-      border: 1px solid var(--card-border); transition: 0.4s; position: relative; backdrop-filter: blur(10px);
+      border: 1px solid var(--card-border); transition: 0.4s; position: relative;
     }
-    .channel-card:hover { transform: translateY(-5px); border-color: var(--primary); background: rgba(255,255,255,0.06); }
-    .fav-star { position: absolute; top: 8px; right: 8px; font-size: 16px; color: rgba(255,255,255,0.1); }
-    .fav-star.active { color: var(--star); text-shadow: 0 0 8px var(--star); }
     .channel-logo { height: 40px; margin-bottom: 8px; object-fit: contain; }
     .channel-name { font-size: 10px; color: #ccc; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-    /* ফুটারের লেখা ছোট করার ডিজাইন */
+    /* ফুটারের ডিজাইন */
     .footer-area { padding: 30px 0 100px 0; text-align: center; border-top: 1px solid var(--card-border); margin-top: 20px; }
     .dev-credits { font-size: 8px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
-    .dev-name { font-weight: 900; color: #ffffff; text-shadow: none; }
+    .dev-name { font-weight: 900; color: #ffffff; }
 
     .gesture-indicator { 
       position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.8); 
-      color: var(--primary); padding: 12px 20px; border-radius: 30px; font-size: 15px; 
-      font-weight: 800; z-index: 2147483647; display: none; border: 1px solid var(--primary); 
-      pointer-events: none;
+      color: var(--primary); padding: 10px 15px; border-radius: 30px; font-size: 14px; 
+      z-index: 2147483647; display: none; border: 1px solid var(--primary); pointer-events: none;
     }
     #vol-indicator { right: 15px; } #bri-indicator { left: 15px; }
-    #brightness-overlay { 
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-      background: black; opacity: 0; pointer-events: none; z-index: 2147483646; 
-    }
+    #brightness-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: black; opacity: 0; pointer-events: none; z-index: 2147483646; }
 
     @keyframes marquee { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
   </style>
@@ -135,7 +126,7 @@
   </div>
 
   <div class="video-container" id="player-wrapper">
-    <video id="v-player" class="video-js vjs-big-play-centered" controls preload="auto" playsinline></video>
+    <video id="v-player" class="video-js vjs-big-play-centered" controls preload="auto" playsinline webkit-playsinline></video>
     <div id="brightness-overlay"></div>
     <div id="vol-indicator" class="gesture-indicator">🔊 100%</div>
     <div id="bri-indicator" class="gesture-indicator">☀️ 100%</div>
@@ -150,22 +141,22 @@
 
   <header id="main-header">
     <div class="action-btns">
-      <div onclick="toggleRotateManual()" class="nav-btn btn-fs">
-        <i class="fa-solid fa-expand"></i>
-        <span>Fullscreen</span>
-      </div>
-      <div onclick="window.location.reload()" class="nav-btn btn-refresh">
-        <i class="fa-solid fa-rotate-right"></i>
-        <span>Refresh</span>
-      </div>
-      <a href="https://t.me/techbd_group" target="_blank" class="nav-btn btn-tg">
-        <i class="fa-brands fa-telegram"></i>
-        <span>Contact</span>
-      </a>
       <a href="https://www.mediafire.com/file/mkby3e9skeyfz8n/Avia+Tv+1.0.0.apk/file" target="_blank" class="nav-btn btn-apk">
         <i class="fa-solid fa-download"></i>
         <span>Get App</span>
       </a>
+      <a href="https://t.me/techbd_group" target="_blank" class="nav-btn btn-tg">
+        <i class="fa-brands fa-telegram"></i>
+        <span>Contact</span>
+      </a>
+      <div onclick="window.location.reload()" class="nav-btn btn-refresh">
+        <i class="fa-solid fa-rotate-right"></i>
+        <span>Refresh</span>
+      </div>
+      <div onclick="toggleFull()" class="nav-btn btn-fs">
+        <i class="fa-solid fa-expand"></i>
+        <span>Fullscreen</span>
+      </div>
     </div>
     
     <div class="search-row">
@@ -183,7 +174,6 @@
 
 <div id="content-area">
   <div id="channelList">লোডিং...</div>
-  
   <div class="footer-area">
     <div class="dev-credits">Developed by <span class="dev-name">Sohel Tanver</span></div>
   </div>
@@ -201,16 +191,14 @@ function adjustMargin() {
   document.getElementById('content-area').style.marginTop = (h + 10) + 'px';
 }
 
-// সরাসরি ফুলস্ক্রিন করার ফাংশন
-function toggleRotateManual() {
-  if (!player) return;
-  
-  if (!player.isFullscreen()) {
-    const el = document.getElementById('v-player');
-    if (el.requestFullscreen) el.requestFullscreen();
-    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-    else if (el.msRequestFullscreen) el.msRequestFullscreen();
+// পাওয়ারফুল ফুলস্ক্রিন ফাংশন
+function toggleFull() {
+  const container = document.getElementById('player-wrapper');
+  if (!document.fullscreenElement) {
+    if (container.requestFullscreen) container.requestFullscreen();
+    else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
     
+    // অটো রোটেট ল্যান্ডস্কেপ করার রিকোয়েস্ট
     if (screen.orientation && screen.orientation.lock) {
       screen.orientation.lock('landscape').catch(()=>{});
     }
@@ -219,65 +207,29 @@ function toggleRotateManual() {
   }
 }
 
-document.getElementById("search").addEventListener("input", function() {
-  const val = this.value.toLowerCase().trim();
-  renderChannels(allChannels.filter(ch => ch.name.toLowerCase().includes(val)));
-});
-
-function filterCat(cat, btn) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  if (cat === 'all') renderChannels(allChannels);
-  else if (cat === 'fav') renderChannels(allChannels.filter(ch => favorites.includes(ch.id)));
-  else renderChannels(allChannels.filter(ch => ch.name.toLowerCase().includes(cat.toLowerCase())));
-}
-
-function toggleFav(event, id) {
-  event.stopPropagation();
-  favorites = favorites.includes(id) ? favorites.filter(f => f !== id) : [...favorites, id];
-  localStorage.setItem('myFavs', JSON.stringify(favorites));
-  event.target.classList.toggle('active');
-}
-
-function playStream(url, name) {
-  document.getElementById("now-playing-text").innerText = "দেখছেন: " + name;
-  player.src({ src: url, type: 'application/x-mpegURL' });
-  player.play().catch(() => {});
-  document.getElementById('player-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
 async function init() {
   player = videojs('v-player', { 
-    fluid: true, 
-    userActions: { click: false },
+    fluid: true,
+    userActions: { click: true },
     controlBar: {
-      children: [
-        'playToggle',
-        'volumePanel',
-        'currentTimeDisplay',
-        'timeDivider',
-        'durationDisplay',
-        'progressControl',
-        'fullscreenToggle',
-      ],
+      children: ['playToggle', 'volumePanel', 'currentTimeDisplay', 'timeDivider', 'durationDisplay', 'progressControl', 'fullscreenToggle']
     }
   });
   
-  let startY, startVal, isBrightness, isMoving = false;
+  // জেসচার কন্ট্রোল (ব্রাইটনেস ও ভলিউম)
+  let startY, startVal, isBrightness;
   const wrapper = player.el();
   const briOverlay = document.getElementById('brightness-overlay');
   const volInd = document.getElementById('vol-indicator');
   const briInd = document.getElementById('bri-indicator');
 
   wrapper.addEventListener('touchstart', (e) => {
-    isMoving = false; 
     startY = e.touches[0].pageY;
     isBrightness = (e.touches[0].pageX - wrapper.getBoundingClientRect().left) < wrapper.offsetWidth / 2;
     startVal = isBrightness ? (1 - parseFloat(briOverlay.style.opacity || 0)) : player.volume();
   });
 
   wrapper.addEventListener('touchmove', (e) => {
-    isMoving = true;
     if (e.cancelable) e.preventDefault();
     const diff = (startY - e.touches[0].pageY) / 150;
     let newVal = Math.min(Math.max(startVal + diff, 0), 1);
@@ -294,7 +246,6 @@ async function init() {
   }, { passive: false });
 
   wrapper.addEventListener('touchend', () => {
-    if (!isMoving) player.paused() ? player.play() : player.pause();
     setTimeout(() => { volInd.style.display = 'none'; briInd.style.display = 'none'; }, 800);
   });
 
@@ -317,7 +268,7 @@ function parseM3U(data) {
   lines.forEach(l => {
     if (l.startsWith("#EXTINF")) {
       cur.name = l.split(",")[1]?.trim();
-      cur.logo = l.match(/tvg-logo="([^"]+)"/)?.[1] || "https://cdn-icons-png.flaticon.com/512/716/716429.png";
+      cur.logo = l.match(/tvg-logo="([^"]+)"/)?.[1] || "";
       cur.id = btoa(unescape(encodeURIComponent(cur.name || "")));
     } else if (l.startsWith("http")) { 
       cur.url = l.trim(); if(cur.name) list.push({...cur}); cur = {}; 
@@ -330,11 +281,17 @@ function renderChannels(list) {
   const grid = document.getElementById("channelList");
   grid.innerHTML = list.map(ch => `
     <div class="channel-card" onclick="playStream('${ch.url}', '${ch.name}')">
-      <i class="fa-solid fa-star fav-star ${favorites.includes(ch.id) ? 'active' : ''}" onclick="toggleFav(event, '${ch.id}')"></i>
       <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716429.png'">
       <div class="channel-name">${ch.name}</div>
     </div>`).join('');
   document.getElementById("count").textContent = list.length + " CH";
+}
+
+function playStream(url, name) {
+  document.getElementById("now-playing-text").innerText = "দেখছেন: " + name;
+  player.src({ src: url, type: 'application/x-mpegURL' });
+  player.play().catch(() => {});
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 init();
