@@ -24,8 +24,12 @@
       color: var(--text); font-family: 'Inter', sans-serif; overflow-x: hidden; 
     }
 
-    /* Fullscreen logic for VideoJS */
-    .video-js.vjs-fullscreen { position: fixed !important; top: 0; left: 0; width: 100% !important; height: 100% !important; z-index: 99999; }
+    /* Force Fullscreen CSS */
+    .vjs-fullscreen-bg {
+      position: fixed !important; top: 0 !important; left: 0 !important;
+      width: 100vw !important; height: 100vh !important; z-index: 2147483647 !important;
+      background: #000 !important;
+    }
 
     #top-section { 
       position: fixed; top: 0; left: 0; width: 100%; background: rgba(10, 10, 10, 0.9); 
@@ -39,11 +43,10 @@
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       display: flex; align-items: center; gap: 6px;
     }
-    .brand-title-new i { font-size: 18px; color: var(--primary); filter: drop-shadow(0 0 5px var(--primary)); }
 
     #online-status { 
       font-size: 11px; color: var(--online); font-weight: 800; background: rgba(76, 175, 80, 0.1); 
-      padding: 4px 10px; border-radius: 20px; display: flex; align-items: center; gap: 5px; border: 1px solid rgba(76, 175, 80, 0.2); 
+      padding: 4px 10px; border-radius: 20px; display: flex; align-items: center; gap: 5px; 
     }
     .online-dot { width: 7px; height: 7px; background: var(--online); border-radius: 50%; animation: pulse 1.5s infinite; }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
@@ -52,33 +55,26 @@
       position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1000px; margin: 0 auto; 
       background: #000; box-shadow: 0 10px 40px rgba(0, 229, 255, 0.1);
     }
-    .video-js { width: 100% !important; height: 100% !important; }
     
     #ticker { background: rgba(255,255,255,0.02); padding: 5px 0; font-size: 10px; border-bottom: 1px solid var(--card-border); overflow: hidden; }
     .ticker-content { display: inline-block; animation: marquee 25s linear infinite; white-space: nowrap; color: #bbb; }
 
     header { padding: 12px; }
 
-    .action-btns { 
-      display: grid; 
-      grid-template-columns: repeat(4, 1fr); 
-      gap: 6px; 
-      margin-bottom: 12px; 
-    }
+    /* Button Styling */
+    .action-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 12px; }
     .nav-btn {
       display: flex; flex-direction: row; align-items: center; justify-content: center;
       gap: 6px; height: 32px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);
       background: rgba(255, 255, 255, 0.03); text-decoration: none; cursor: pointer; transition: 0.2s;
     }
-    .nav-btn i { font-size: 12px; }
+    .nav-btn i { font-size: 11px; }
     .nav-btn span { font-size: 10px; font-weight: 600; color: #ffffff; }
 
     .btn-fs { border-color: rgba(0, 229, 255, 0.2); color: #00e5ff; }
     .btn-refresh { border-color: rgba(76, 175, 80, 0.2); color: #4caf50; }
     .btn-tg { border-color: rgba(33, 150, 243, 0.2); color: #2196f3; }
     .btn-apk { border-color: rgba(255, 87, 34, 0.2); color: #ff5722; }
-
-    .nav-btn:active { transform: scale(0.96); opacity: 0.8; }
 
     .search-row { display: flex; gap: 8px; margin-bottom: 12px; }
     #search { flex: 1; background: var(--card-bg); border: 1px solid var(--card-border); color: white; padding: 10px 15px; border-radius: 12px; font-size: 13px; }
@@ -89,35 +85,28 @@
       flex: 1; padding: 7px 2px; background: var(--card-bg); border: 1px solid var(--card-border); 
       color: #888; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; text-align: center;
     }
-    .tab-btn.active { background: var(--primary); color: #000; border-color: var(--primary); box-shadow: 0 4px 10px rgba(0, 229, 255, 0.2); }
+    .tab-btn.active { background: var(--primary); color: #000; border-color: var(--primary); }
 
     #content-area { margin-top: 380px; transition: margin-top 0.3s; }
     #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 12px; padding: 15px; }
     .channel-card { 
       background: var(--card-bg); border-radius: 18px; padding: 15px 8px; text-align: center; 
-      border: 1px solid var(--card-border); transition: 0.4s; position: relative; backdrop-filter: blur(10px);
+      border: 1px solid var(--card-border); transition: 0.4s; position: relative;
     }
-    .channel-card:hover { transform: translateY(-5px); border-color: var(--primary); background: rgba(255,255,255,0.06); }
-    .fav-star { position: absolute; top: 8px; right: 8px; font-size: 16px; color: rgba(255,255,255,0.1); }
-    .fav-star.active { color: var(--star); text-shadow: 0 0 8px var(--star); }
     .channel-logo { height: 40px; margin-bottom: 8px; object-fit: contain; }
     .channel-name { font-size: 10px; color: #ccc; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-    .footer-area { padding: 30px 0 100px 0; text-align: center; border-top: 1px solid var(--card-border); margin-top: 20px; }
-    .dev-credits { font-size: 8px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+    .footer-area { padding: 20px 0 80px 0; text-align: center; border-top: 1px solid var(--card-border); }
+    .dev-credits { font-size: 8px; color: #888; text-transform: uppercase; }
     .dev-name { font-weight: 900; color: #ffffff; }
 
     .gesture-indicator { 
       position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.8); 
-      color: var(--primary); padding: 12px 20px; border-radius: 30px; font-size: 15px; 
-      font-weight: 800; z-index: 2147483647; display: none; border: 1px solid var(--primary); 
-      pointer-events: none;
+      color: var(--primary); padding: 10px 15px; border-radius: 20px; font-size: 14px; 
+      z-index: 2147483647; display: none; pointer-events: none;
     }
-    #vol-indicator { right: 15px; } #bri-indicator { left: 15px; }
-    #brightness-overlay { 
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-      background: black; opacity: 0; pointer-events: none; z-index: 2147483646; 
-    }
+    #vol-indicator { right: 10px; } #bri-indicator { left: 10px; }
+    #brightness-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: black; opacity: 0; pointer-events: none; z-index: 2147483646; }
 
     @keyframes marquee { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
   </style>
@@ -131,7 +120,7 @@
   </div>
 
   <div class="video-container" id="player-wrapper">
-    <video id="v-player" class="video-js vjs-big-play-centered" controls preload="auto" playsinline></video>
+    <video id="v-player" class="video-js vjs-big-play-centered" controls preload="auto" playsinline webkit-playsinline></video>
     <div id="brightness-overlay"></div>
     <div id="vol-indicator" class="gesture-indicator">🔊 100%</div>
     <div id="bri-indicator" class="gesture-indicator">☀️ 100%</div>
@@ -140,13 +129,12 @@
   <div id="ticker">
     <div class="ticker-content">
       <span id="now-playing-text" style="color: var(--primary); font-weight: 900;">চ্যানেল নির্বাচন করুন...</span>
-      <span style="margin-left: 30px;">📢 পরামর্শ বা অভিযোগের জন্য টেলিগ্রাম গ্রুপে যুক্ত হোন!</span>
     </div>
   </div>
 
   <header id="main-header">
     <div class="action-btns">
-      <div onclick="toggleRotateManual()" class="nav-btn btn-fs">
+      <div onclick="toggleFullscreen()" class="nav-btn btn-fs">
         <i class="fa-solid fa-expand"></i>
         <span>Fullscreen</span>
       </div>
@@ -179,7 +167,6 @@
 
 <div id="content-area">
   <div id="channelList">লোডিং...</div>
-  
   <div class="footer-area">
     <div class="dev-credits">Developed by <span class="dev-name">Sohel Tanver</span></div>
   </div>
@@ -197,62 +184,32 @@ function adjustMargin() {
   document.getElementById('content-area').style.marginTop = (h + 10) + 'px';
 }
 
-// ক্লিক করার সাথে সাথে সরাসরি ফুলস্ক্রিন করার ফিক্সড ফাংশন
-function toggleRotateManual() {
-  if (player) {
-    if (!player.isFullscreen()) {
-      player.requestFullscreen();
-    } else {
-      player.exitFullscreen();
+// নতুন পাওয়ারফুল ফুলস্ক্রিন ফাংশন
+function toggleFullscreen() {
+  const playerElement = document.getElementById('player-wrapper');
+  
+  if (!document.fullscreenElement) {
+    if (playerElement.requestFullscreen) {
+      playerElement.requestFullscreen();
+    } else if (playerElement.webkitRequestFullscreen) {
+      playerElement.webkitRequestFullscreen(); // Safari/iOS
+    } else if (playerElement.msRequestFullscreen) {
+      playerElement.msRequestFullscreen();
     }
+    // অটো রোটেট ল্যান্ডস্কেপ করার চেষ্টা
+    if (screen.orientation && screen.orientation.lock) {
+      screen.orientation.lock('landscape').catch(()=>{});
+    }
+  } else {
+    document.exitFullscreen();
   }
 }
 
-document.getElementById("search").addEventListener("input", function() {
-  const val = this.value.toLowerCase().trim();
-  renderChannels(allChannels.filter(ch => ch.name.toLowerCase().includes(val)));
-});
-
-function filterCat(cat, btn) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  if (cat === 'all') renderChannels(allChannels);
-  else if (cat === 'fav') renderChannels(allChannels.filter(ch => favorites.includes(ch.id)));
-  else renderChannels(allChannels.filter(ch => ch.name.toLowerCase().includes(cat.toLowerCase())));
-}
-
-function toggleFav(event, id) {
-  event.stopPropagation();
-  favorites = favorites.includes(id) ? favorites.filter(f => f !== id) : [...favorites, id];
-  localStorage.setItem('myFavs', JSON.stringify(favorites));
-  event.target.classList.toggle('active');
-}
-
-function playStream(url, name) {
-  document.getElementById("now-playing-text").innerText = "দেখছেন: " + name;
-  player.src({ src: url, type: 'application/x-mpegURL' });
-  player.play().catch(() => {});
-  document.getElementById('player-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
+// ভিডিও জেএস প্লেয়ার ইনিশিয়ালাইজেশন
 async function init() {
-  player = videojs('v-player', { 
-    fluid: true, 
-    userActions: { click: true }, // এটি এখন ক্লিক সাপোর্ট করবে
-    controlBar: {
-      children: [
-        'playToggle',
-        'volumePanel',
-        'currentTimeDisplay',
-        'timeDivider',
-        'durationDisplay',
-        'progressControl',
-        'fullscreenToggle',
-      ],
-    }
-  });
+  player = videojs('v-player', { fluid: true, userActions: { click: true } });
   
-  // ব্রাইটনেস এবং ভলিউম জেসচার কোড
+  // জেসচার কন্ট্রোল (ভলিউম/ব্রাইটনেস)
   let startY, startVal, isBrightness, isMoving = false;
   const wrapper = player.el();
   const briOverlay = document.getElementById('brightness-overlay');
@@ -319,11 +276,24 @@ function renderChannels(list) {
   const grid = document.getElementById("channelList");
   grid.innerHTML = list.map(ch => `
     <div class="channel-card" onclick="playStream('${ch.url}', '${ch.name}')">
-      <i class="fa-solid fa-star fav-star ${favorites.includes(ch.id) ? 'active' : ''}" onclick="toggleFav(event, '${ch.id}')"></i>
       <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716429.png'">
       <div class="channel-name">${ch.name}</div>
     </div>`).join('');
   document.getElementById("count").textContent = list.length + " CH";
+}
+
+function playStream(url, name) {
+  document.getElementById("now-playing-text").innerText = "দেখছেন: " + name;
+  player.src({ src: url, type: 'application/x-mpegURL' });
+  player.play().catch(() => {});
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function filterCat(cat, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (cat === 'all') renderChannels(allChannels);
+  else renderChannels(allChannels.filter(ch => ch.name.toLowerCase().includes(cat.toLowerCase())));
 }
 
 init();
