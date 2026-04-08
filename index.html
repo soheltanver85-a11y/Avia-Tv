@@ -24,7 +24,8 @@
       color: var(--text); font-family: 'Inter', sans-serif; overflow-x: hidden; 
     }
 
-    .vjs-fullscreen #brand-header, .vjs-fullscreen #ticker, .vjs-fullscreen header, .vjs-fullscreen #content-area { display: none !important; }
+    /* Fullscreen logic for VideoJS */
+    .video-js.vjs-fullscreen { position: fixed !important; top: 0; left: 0; width: 100% !important; height: 100% !important; z-index: 99999; }
 
     #top-section { 
       position: fixed; top: 0; left: 0; width: 100%; background: rgba(10, 10, 10, 0.9); 
@@ -50,7 +51,6 @@
     .video-container { 
       position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1000px; margin: 0 auto; 
       background: #000; box-shadow: 0 10px 40px rgba(0, 229, 255, 0.1);
-      touch-action: none; 
     }
     .video-js { width: 100% !important; height: 100% !important; }
     
@@ -59,7 +59,6 @@
 
     header { padding: 12px; }
 
-    /* আপনার দেওয়া ছবির মতো বাটনের ডিজাইন */
     .action-btns { 
       display: grid; 
       grid-template-columns: repeat(4, 1fr); 
@@ -72,9 +71,8 @@
       background: rgba(255, 255, 255, 0.03); text-decoration: none; cursor: pointer; transition: 0.2s;
     }
     .nav-btn i { font-size: 12px; }
-    .nav-btn span { font-size: 10px; font-weight: 600; text-transform: none; color: #ffffff; }
+    .nav-btn span { font-size: 10px; font-weight: 600; color: #ffffff; }
 
-    /* ছবির মতো ইন্ডিভিজুয়াল বাটনের কালার ও বর্ডার */
     .btn-fs { border-color: rgba(0, 229, 255, 0.2); color: #00e5ff; }
     .btn-refresh { border-color: rgba(76, 175, 80, 0.2); color: #4caf50; }
     .btn-tg { border-color: rgba(33, 150, 243, 0.2); color: #2196f3; }
@@ -93,7 +91,6 @@
     }
     .tab-btn.active { background: var(--primary); color: #000; border-color: var(--primary); box-shadow: 0 4px 10px rgba(0, 229, 255, 0.2); }
 
-    /* অ্যাডজাস্টেড মার্জিন-টপ */
     #content-area { margin-top: 380px; transition: margin-top 0.3s; }
     #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 12px; padding: 15px; }
     .channel-card { 
@@ -106,10 +103,9 @@
     .channel-logo { height: 40px; margin-bottom: 8px; object-fit: contain; }
     .channel-name { font-size: 10px; color: #ccc; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-    /* ফুটারের লেখা ছোট করার ডিজাইন */
     .footer-area { padding: 30px 0 100px 0; text-align: center; border-top: 1px solid var(--card-border); margin-top: 20px; }
     .dev-credits { font-size: 8px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
-    .dev-name { font-weight: 900; color: #ffffff; text-shadow: none; }
+    .dev-name { font-weight: 900; color: #ffffff; }
 
     .gesture-indicator { 
       position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.8); 
@@ -201,21 +197,14 @@ function adjustMargin() {
   document.getElementById('content-area').style.marginTop = (h + 10) + 'px';
 }
 
-// সরাসরি ফুলস্ক্রিন করার ফাংশন
+// ক্লিক করার সাথে সাথে সরাসরি ফুলস্ক্রিন করার ফিক্সড ফাংশন
 function toggleRotateManual() {
-  if (!player) return;
-  
-  if (!player.isFullscreen()) {
-    const el = document.getElementById('v-player');
-    if (el.requestFullscreen) el.requestFullscreen();
-    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-    else if (el.msRequestFullscreen) el.msRequestFullscreen();
-    
-    if (screen.orientation && screen.orientation.lock) {
-      screen.orientation.lock('landscape').catch(()=>{});
+  if (player) {
+    if (!player.isFullscreen()) {
+      player.requestFullscreen();
+    } else {
+      player.exitFullscreen();
     }
-  } else {
-    document.exitFullscreen();
   }
 }
 
@@ -249,7 +238,7 @@ function playStream(url, name) {
 async function init() {
   player = videojs('v-player', { 
     fluid: true, 
-    userActions: { click: false },
+    userActions: { click: true }, // এটি এখন ক্লিক সাপোর্ট করবে
     controlBar: {
       children: [
         'playToggle',
@@ -263,6 +252,7 @@ async function init() {
     }
   });
   
+  // ব্রাইটনেস এবং ভলিউম জেসচার কোড
   let startY, startVal, isBrightness, isMoving = false;
   const wrapper = player.el();
   const briOverlay = document.getElementById('brightness-overlay');
@@ -294,7 +284,6 @@ async function init() {
   }, { passive: false });
 
   wrapper.addEventListener('touchend', () => {
-    if (!isMoving) player.paused() ? player.play() : player.pause();
     setTimeout(() => { volInd.style.display = 'none'; briInd.style.display = 'none'; }, 800);
   });
 
