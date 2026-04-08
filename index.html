@@ -24,12 +24,11 @@
       color: var(--text); font-family: 'Inter', sans-serif; overflow-x: hidden; 
     }
 
-    /* ফুলস্ক্রিন ফিক্স: ভিডিও যাতে না ফাটে */
-    .vjs-fullscreen video { object-fit: contain !important; }
+    /* Fullscreen logic */
     .vjs-fullscreen #brand-header, .vjs-fullscreen #ticker, .vjs-fullscreen header, .vjs-fullscreen #content-area { display: none !important; }
 
     #top-section { 
-      position: fixed; top: 0; left: 0; width: 100%; background: rgba(10, 10, 10, 0.9); 
+      position: fixed; top: 0; left: 0; width: 100%; background: rgba(10, 10, 10, 0.95); 
       backdrop-filter: blur(25px); z-index: 1000; border-bottom: 1px solid var(--card-border); 
     }
     
@@ -47,59 +46,75 @@
       padding: 4px 10px; border-radius: 20px; display: flex; align-items: center; gap: 5px; border: 1px solid rgba(76, 175, 80, 0.2); 
     }
     .online-dot { width: 7px; height: 7px; background: var(--online); border-radius: 50%; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
     .video-container { 
       position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1000px; margin: 0 auto; 
       background: #000; box-shadow: 0 10px 40px rgba(0, 229, 255, 0.1);
-      touch-action: none; 
     }
     .video-js { width: 100% !important; height: 100% !important; }
-    .video-js .vjs-tech { object-fit: contain; } /* ভিডিও কোয়ালিটি ধরে রাখার জন্য */
     
     #ticker { background: rgba(255,255,255,0.02); padding: 5px 0; font-size: 10px; border-bottom: 1px solid var(--card-border); overflow: hidden; }
     .ticker-content { display: inline-block; animation: marquee 25s linear infinite; white-space: nowrap; color: #bbb; }
+    .ticker-content a { color: var(--primary); text-decoration: underline; font-weight: 900; cursor: pointer; }
 
-    /* নতুন বাটন ডিজাইন (৪টি বাটন) */
-    .action-btns-container { 
-      display: grid; grid-template-columns: repeat(4, 1fr); 
-      gap: 6px; padding: 10px 12px; max-width: 1000px; margin: 0 auto;
-    }
-    .custom-nav-btn {
-      display: flex; align-items: center; justify-content: center;
-      gap: 4px; height: 36px; border-radius: 8px; 
-      border: 1px solid rgba(255,255,255,0.08); background: rgba(255, 255, 255, 0.05); 
-      text-decoration: none; cursor: pointer; transition: 0.2s;
-    }
-    .custom-nav-btn i { font-size: 12px; }
-    .custom-nav-btn span { font-size: 10px; font-weight: 600; color: #fff; }
-    .btn-apk { border-color: rgba(61, 220, 132, 0.3); color: #3DDC84; }
-    .btn-tg { border-color: rgba(36, 161, 222, 0.3); color: #24A1DE; }
-    .btn-refresh { border-color: rgba(255, 165, 0, 0.3); color: #ffa500; }
-    .btn-fs { border-color: rgba(0, 229, 255, 0.3); color: #00e5ff; }
+    header { padding: 12px; }
 
-    header { padding: 0 12px 12px 12px; }
+    /* ছবির মতো নতুন বাটন ডিজাইন */
+    .action-btns { display: flex; gap: 8px; margin-bottom: 15px; }
+    .rect-btn { 
+      flex: 1; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; 
+      gap: 6px; background: rgba(255, 255, 255, 0.04); border: 1.5px solid var(--card-border); 
+      color: #fff; cursor: pointer; transition: 0.3s; font-size: 13px; font-weight: 700; text-decoration: none;
+    }
+    .rect-btn i { font-size: 16px; }
+
+    /* আলাদা আলাদা বর্ডার কালার (ছবির মতো) */
+    .btn-get-app { border-color: #3DDC84 !important; color: #fff !important; }
+    .btn-get-app i { color: #3DDC84; }
+    
+    .btn-contact { border-color: #24A1DE !important; color: #fff !important; }
+    .btn-contact i { color: #24A1DE; }
+
+    .btn-refresh { border-color: #ffa500 !important; color: #fff !important; }
+    .btn-refresh i { color: #ffa500; }
+
+    .btn-fullscreen { border-color: #00e5ff !important; color: #fff !important; }
+    .btn-fullscreen i { color: #00e5ff; }
+
     .search-row { display: flex; gap: 8px; margin-bottom: 12px; }
     #search { flex: 1; background: var(--card-bg); border: 1px solid var(--card-border); color: white; padding: 10px 15px; border-radius: 12px; font-size: 13px; }
     #count { font-size: 10px; color: var(--primary); font-weight: 800; background: rgba(0, 229, 255, 0.1); padding: 5px 10px; border-radius: 8px; }
 
     .tabs { display: flex; gap: 5px; width: 100%; }
-    .tab-btn { flex: 1; padding: 7px 2px; background: var(--card-bg); border: 1px solid var(--card-border); color: #888; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; text-align: center; }
+    .tab-btn { 
+      flex: 1; padding: 8px 2px; background: var(--card-bg); border: 1px solid var(--card-border); 
+      color: #888; border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer;
+    }
     .tab-btn.active { background: var(--primary); color: #000; border-color: var(--primary); }
 
-    #content-area { margin-top: 420px; transition: margin-top 0.3s; }
+    #content-area { margin-top: 430px; }
     #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 12px; padding: 15px; }
-    .channel-card { background: var(--card-bg); border-radius: 18px; padding: 15px 8px; text-align: center; border: 1px solid var(--card-border); transition: 0.4s; position: relative; }
+    .channel-card { 
+      background: var(--card-bg); border-radius: 18px; padding: 15px 8px; text-align: center; 
+      border: 1px solid var(--card-border); position: relative; backdrop-filter: blur(10px);
+    }
     .fav-star { position: absolute; top: 8px; right: 8px; font-size: 16px; color: rgba(255,255,255,0.1); }
     .fav-star.active { color: var(--star); }
     .channel-logo { height: 40px; margin-bottom: 8px; object-fit: contain; }
-    .channel-name { font-size: 10px; color: #ccc; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .channel-name { font-size: 10px; color: #ccc; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     .footer-area { padding: 30px 0 100px 0; text-align: center; border-top: 1px solid var(--card-border); margin-top: 20px; }
     .dev-name { font-weight: 900; color: #fff; text-shadow: 0 0 5px #ff4500; }
 
-    .gesture-indicator { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.8); color: var(--primary); padding: 12px 20px; border-radius: 30px; font-size: 15px; font-weight: 800; z-index: 2147483647; display: none; pointer-events: none; }
+    /* গেসচার ইন্ডিকেটর */
+    .gesture-indicator { 
+      position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.8); 
+      color: var(--primary); padding: 12px 20px; border-radius: 30px; font-size: 14px; 
+      font-weight: 800; z-index: 10; display: none; border: 1px solid var(--primary); pointer-events: none;
+    }
     #vol-indicator { right: 15px; } #bri-indicator { left: 15px; }
-    #brightness-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: black; opacity: 0; pointer-events: none; z-index: 2147483646; }
+    #brightness-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: black; opacity: 0; pointer-events: none; z-index: 5; }
 
     @keyframes marquee { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
   </style>
@@ -122,29 +137,37 @@
   <div id="ticker">
     <div class="ticker-content">
       <span id="now-playing-text" style="color: var(--primary); font-weight: 900;">চ্যানেল নির্বাচন করুন...</span>
+      <span style="margin-left: 30px;">
+        📢 পরামর্শ বা অভিযোগের জন্য টেলিগ্রাম গ্রুপে যুক্ত হোন: 
+        <a href="https://t.me/techbd_group" target="_blank">TECH BD GROUP</a>
+      </span>
     </div>
   </div>
 
-  <div class="action-btns-container">
-    <a href="https://www.mediafire.com/file/mkby3e9skeyfz8n/Avia+Tv+1.0.0.apk/file" target="_blank" class="custom-nav-btn btn-apk">
-      <i class="fa-solid fa-download"></i><span>Get App</span>
-    </a>
-    <a href="https://t.me/techbd_group" target="_blank" class="custom-nav-btn btn-tg">
-      <i class="fa-brands fa-telegram"></i><span>Contact</span>
-    </a>
-    <div onclick="window.location.reload()" class="custom-nav-btn btn-refresh">
-      <i class="fa-solid fa-rotate-right"></i><span>Refresh</span>
-    </div>
-    <div onclick="toggleSiteFull()" class="custom-nav-btn btn-fs">
-      <i class="fa-solid fa-expand"></i><span>Fullscreen</span>
-    </div>
-  </div>
+  <header id="main-header">
+    <div class="action-btns">
+      <a href="https://www.mediafire.com/file/mkby3e9skeyfz8n/Avia+Tv+1.0.0.apk/file" target="_blank" class="rect-btn btn-get-app">
+        <i class="fa-solid fa-download"></i> <span>Get App</span>
+      </a>
+      
+      <a href="https://t.me/techbd_group" target="_blank" class="rect-btn btn-contact">
+        <i class="fa-brands fa-telegram"></i> <span>Contact</span>
+      </a>
 
-  <header>
+      <button onclick="window.location.reload()" class="rect-btn btn-refresh">
+        <i class="fa-solid fa-rotate-right"></i> <span>Refresh</span>
+      </button>
+
+      <button onclick="toggleRotateManual()" class="rect-btn btn-fullscreen">
+        <i class="fa-solid fa-expand"></i> <span>Fullscreen</span>
+      </button>
+    </div>
+    
     <div class="search-row">
       <input type="text" id="search" placeholder="Search Channels...">
       <span id="count">0 CH</span>
     </div>
+    
     <div class="tabs">
       <button class="tab-btn active" onclick="filterCat('all', this)">🔥 ALL</button>
       <button class="tab-btn" onclick="filterCat('sports', this)">⚽ SPORTS</button>
@@ -156,6 +179,7 @@
 
 <div id="content-area">
   <div id="channelList">লোডিং...</div>
+  
   <div class="footer-area">
     <div class="dev-credits">Developed by <span class="dev-name">Sohel Tanver</span></div>
   </div>
@@ -168,24 +192,23 @@ const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-t
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let player;
 
-// ফুলস্ক্রিন ফিক্সড ফাংশন
-function toggleSiteFull() {
-  const elem = document.getElementById('player-wrapper');
-  if (!document.fullscreenElement) {
-    if (elem.requestFullscreen) elem.requestFullscreen();
-    else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
-    if (screen.orientation && screen.orientation.lock) {
-      screen.orientation.lock('landscape').catch(() => {});
-    }
-  } else {
-    document.exitFullscreen();
-  }
-}
-
 function adjustMargin() {
   const h = document.getElementById('top-section').offsetHeight;
   document.getElementById('content-area').style.marginTop = (h + 10) + 'px';
 }
+
+function toggleRotateManual() {
+  if (!player) return;
+  if (!player.isFullscreen()) {
+    player.requestFullscreen();
+    if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(()=>{});
+  } else player.exitFullscreen();
+}
+
+document.getElementById("search").addEventListener("input", function() {
+  const val = this.value.toLowerCase().trim();
+  renderChannels(allChannels.filter(ch => ch.name.toLowerCase().includes(val)));
+});
 
 function filterCat(cat, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -195,16 +218,24 @@ function filterCat(cat, btn) {
   else renderChannels(allChannels.filter(ch => ch.name.toLowerCase().includes(cat.toLowerCase())));
 }
 
+function toggleFav(event, id) {
+  event.stopPropagation();
+  favorites = favorites.includes(id) ? favorites.filter(f => f !== id) : [...favorites, id];
+  localStorage.setItem('myFavs', JSON.stringify(favorites));
+  event.target.classList.toggle('active');
+}
+
 function playStream(url, name) {
   document.getElementById("now-playing-text").innerText = "দেখছেন: " + name;
   player.src({ src: url, type: 'application/x-mpegURL' });
   player.play().catch(() => {});
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 async function init() {
   player = videojs('v-player', { fluid: true, userActions: { click: false } });
   
-  // ব্রাইটনেস ও ভলিউম জেস্টার
+  // ব্রাইটনেস এবং ভলিউম কন্ট্রোল স্ক্রিপ্ট
   let startY, startVal, isBrightness, isMoving = false;
   const wrapper = player.el();
   const briOverlay = document.getElementById('brightness-overlay');
@@ -223,6 +254,7 @@ async function init() {
     if (e.cancelable) e.preventDefault();
     const diff = (startY - e.touches[0].pageY) / 150;
     let newVal = Math.min(Math.max(startVal + diff, 0), 1);
+    
     if (isBrightness) {
       briOverlay.style.opacity = 1 - newVal;
       briInd.innerText = `☀️ ${Math.round(newVal * 100)}%`;
@@ -255,7 +287,7 @@ function parseM3U(data) {
   lines.forEach(l => {
     if (l.startsWith("#EXTINF")) {
       cur.name = l.split(",")[1]?.trim();
-      cur.logo = l.match(/tvg-logo="([^"]+)"/)?.[1] || "";
+      cur.logo = l.match(/tvg-logo="([^"]+)"/)?.[1] || "https://cdn-icons-png.flaticon.com/512/716/716429.png";
       cur.id = btoa(unescape(encodeURIComponent(cur.name || "")));
     } else if (l.startsWith("http")) { 
       cur.url = l.trim(); if(cur.name) list.push({...cur}); cur = {}; 
@@ -268,6 +300,7 @@ function renderChannels(list) {
   const grid = document.getElementById("channelList");
   grid.innerHTML = list.map(ch => `
     <div class="channel-card" onclick="playStream('${ch.url}', '${ch.name}')">
+      <i class="fa-solid fa-star fav-star ${favorites.includes(ch.id) ? 'active' : ''}" onclick="toggleFav(event, '${ch.id}')"></i>
       <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716429.png'">
       <div class="channel-name">${ch.name}</div>
     </div>`).join('');
