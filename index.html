@@ -23,9 +23,27 @@
     .brand-header { padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; }
     .brand-title-new { font-size: 18px; font-weight: 900; letter-spacing: 1px; background: linear-gradient(to right, var(--primary), #fff, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; gap: 6px; }
     
-    #online-status { font-size: 10px; color: var(--online); font-weight: 800; background: rgba(76, 175, 80, 0.1); padding: 3px 8px; border-radius: 20px; display: flex; align-items: center; gap: 4px; border: 1px solid rgba(76, 175, 80, 0.1); }
-    .online-dot { width: 6px; height: 6px; background: var(--online); border-radius: 50%; animation: pulse 1.5s infinite; }
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    /* আপনার নতুন অনলাইন কাউন্টার স্টাইল */
+    .online-counter-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(76, 175, 80, 0.1);
+      color: var(--online);
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 800;
+      border: 1px solid rgba(76, 175, 80, 0.2);
+    }
+    .online-dot-blink {
+      width: 6px;
+      height: 6px;
+      background-color: var(--online);
+      border-radius: 50%;
+      animation: pulse-animation 1.5s infinite;
+    }
+    @keyframes pulse-animation { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
     .video-container { position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1000px; margin: 0 auto; background: #000; box-shadow: 0 5px 20px rgba(0, 229, 255, 0.1); touch-action: none; }
     .video-js { width: 100% !important; height: 100% !important; }
@@ -52,9 +70,7 @@
     #content-area { margin-top: 380px; transition: margin-top 0.3s; }
     #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; padding: 12px; }
     
-    .channel-card { background: var(--card-bg); border-radius: 15px; padding: 12px 5px; text-align: center; border: 1px solid var(--card-border); transition: 0.3s; position: relative; scroll-margin-top: 400px; /* প্লেয়ারের নিচে ঠিকমতো থামার জন্য */ }
-    
-    /* অ্যাক্টিভ চ্যানেল হাইলাইট */
+    .channel-card { background: var(--card-bg); border-radius: 15px; padding: 12px 5px; text-align: center; border: 1px solid var(--card-border); transition: 0.3s; position: relative; scroll-margin-top: 400px; }
     .channel-card.playing { border-color: var(--primary); background: rgba(0, 229, 255, 0.12); box-shadow: 0 0 15px rgba(0, 229, 255, 0.3); transform: scale(1.02); }
     .channel-card.playing .channel-name { color: var(--primary); font-weight: 800; }
 
@@ -74,7 +90,10 @@
 <div id="top-section">
   <div class="brand-header">
     <div class="brand-title-new"><i class="fa-solid fa-tv"></i> AVIA TV</div>
-    <div id="online-status"><div class="online-dot"></div> <span id="user-count">0</span></div>
+    <div class="online-counter-box">
+      <div class="online-dot-blink"></div>
+      <span>ONLINE: <span id="user-count">0</span></span>
+    </div>
   </div>
 
   <div class="video-container" id="player-wrapper">
@@ -85,9 +104,8 @@
     <div class="ticker-content" id="ticker-text">
       <b>দেখছেন:</b> <span id="now-playing-ticker">চ্যানেল নির্বাচন করুন...</span> | 
       🚀 <b>Avia TV</b> তে আপনাকে স্বাগতম | 
-      📡 হাই-স্পিড সার্ভারে বাফারিং ছাড়াই সব চ্যানেল উপভোগ করুন | 
-      📢 যে কোনো সমস্যায় আমাদের টেলিগ্রাম গ্রুপে জয়েন করুন: <b>TECH BD GROUP</b> | 
-      🔥 নিয়মিত নতুন আপডেট পেতে আমাদের সাথে যুক্ত থাকুন।
+      📡 বাফারিং ছাড়াই সব চ্যানেল উপভোগ করুন | 
+      📢 যে কোনো সমস্যায় টেলিগ্রাম গ্রুপ: <b>TECH BD GROUP</b>
     </div>
   </div>
 
@@ -116,8 +134,38 @@
   </div>
 </div>
 
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+  import { getDatabase, ref, onValue, push, set, onDisconnect } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+
+  const firebaseConfig = { 
+    databaseURL: "https://avia-tv-default-rtdb.firebaseio.com/" 
+  };
+
+  try {
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const onlineRef = ref(db, 'online_users'); 
+
+    const myRef = push(onlineRef);
+    set(myRef, true);
+    onDisconnect(myRef).remove();
+
+    onValue(onlineRef, (snapshot) => {
+      const count = snapshot.val() ? Object.keys(snapshot.val()).length : 0;
+      const countElement = document.getElementById("user-count");
+      if (countElement) {
+        countElement.innerText = count;
+      }
+    });
+  } catch (error) {
+    console.error("Firebase Error:", error);
+  }
+</script>
+
 <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
 <script>
+// আগের প্লেয়ার এবং চ্যানেল লজিক
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let player, currentUrl = "";
@@ -127,22 +175,17 @@ function adjustMargin() {
   document.getElementById('content-area').style.marginTop = (h + 5) + 'px';
 }
 
-// চ্যানেল প্লে করার ফাংশন
 function playStream(url, name, shouldScroll = false) {
   currentUrl = url;
   document.getElementById("now-playing-ticker").innerText = name;
   player.src({ src: url, type: 'application/x-mpegURL' });
   player.play().catch(() => {});
   
-  // হাইলাইট লজিক
   document.querySelectorAll('.channel-card').forEach(card => {
     card.classList.remove('playing');
     if (card.getAttribute('data-url') === url) {
       card.classList.add('playing');
-      // যদি ব্যবহারকারী নিজে ক্লিক করে, তবে ওই চ্যানেলটি ফোকাসে থাকবে (উপরে অটো স্ক্রল হবে না)
-      if (shouldScroll) {
-        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
+      if (shouldScroll) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   });
 }
@@ -154,10 +197,7 @@ async function init() {
     const data = await res.text();
     allChannels = parseM3U(data);
     renderChannels(allChannels);
-    
-    // প্রথমবার লোড হওয়ার সময় প্রথম চ্যানেলটি প্লে হবে কিন্তু ফোকাস স্ক্রল হবে না
     if(allChannels.length > 0) playStream(allChannels[0].url, allChannels[0].name, false);
-    
     setInterval(adjustMargin, 500);
   } catch(e) { console.error(e); }
 }
