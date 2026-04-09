@@ -52,11 +52,11 @@
     #content-area { margin-top: 380px; transition: margin-top 0.3s; }
     #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; padding: 12px; }
     
-    .channel-card { background: var(--card-bg); border-radius: 15px; padding: 12px 5px; text-align: center; border: 1px solid var(--card-border); transition: 0.3s; position: relative; }
+    .channel-card { background: var(--card-bg); border-radius: 15px; padding: 12px 5px; text-align: center; border: 1px solid var(--card-border); transition: 0.3s; position: relative; scroll-margin-top: 400px; /* প্লেয়ারের নিচে ঠিকমতো থামার জন্য */ }
     
-    /* বর্তমানে যে চ্যানেলটি চলছে তার স্টাইল */
-    .channel-card.playing { border-color: var(--primary); background: rgba(0, 229, 255, 0.08); box-shadow: 0 0 10px rgba(0, 229, 255, 0.2); }
-    .channel-card.playing .channel-name { color: var(--primary); }
+    /* অ্যাক্টিভ চ্যানেল হাইলাইট */
+    .channel-card.playing { border-color: var(--primary); background: rgba(0, 229, 255, 0.12); box-shadow: 0 0 15px rgba(0, 229, 255, 0.3); transform: scale(1.02); }
+    .channel-card.playing .channel-name { color: var(--primary); font-weight: 800; }
 
     .fav-star { position: absolute; top: 5px; right: 5px; font-size: 10px; color: rgba(255,255,255,0.1); }
     .fav-star.active { color: var(--star); text-shadow: 0 0 5px var(--star); }
@@ -127,21 +127,24 @@ function adjustMargin() {
   document.getElementById('content-area').style.marginTop = (h + 5) + 'px';
 }
 
-function playStream(url, name) {
+// চ্যানেল প্লে করার ফাংশন
+function playStream(url, name, shouldScroll = false) {
   currentUrl = url;
   document.getElementById("now-playing-ticker").innerText = name;
   player.src({ src: url, type: 'application/x-mpegURL' });
   player.play().catch(() => {});
   
-  // লিস্টে ফোকাস এবং হাইলাইট করা
+  // হাইলাইট লজিক
   document.querySelectorAll('.channel-card').forEach(card => {
     card.classList.remove('playing');
     if (card.getAttribute('data-url') === url) {
       card.classList.add('playing');
+      // যদি ব্যবহারকারী নিজে ক্লিক করে, তবে ওই চ্যানেলটি ফোকাসে থাকবে (উপরে অটো স্ক্রল হবে না)
+      if (shouldScroll) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
     }
   });
-
-  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 async function init() {
@@ -151,7 +154,10 @@ async function init() {
     const data = await res.text();
     allChannels = parseM3U(data);
     renderChannels(allChannels);
-    if(allChannels.length > 0) playStream(allChannels[0].url, allChannels[0].name);
+    
+    // প্রথমবার লোড হওয়ার সময় প্রথম চ্যানেলটি প্লে হবে কিন্তু ফোকাস স্ক্রল হবে না
+    if(allChannels.length > 0) playStream(allChannels[0].url, allChannels[0].name, false);
+    
     setInterval(adjustMargin, 500);
   } catch(e) { console.error(e); }
 }
@@ -174,7 +180,7 @@ function parseM3U(data) {
 function renderChannels(list) {
   const grid = document.getElementById("channelList");
   grid.innerHTML = list.map(ch => `
-    <div class="channel-card ${currentUrl === ch.url ? 'playing' : ''}" data-url="${ch.url}" onclick="playStream('${ch.url}', '${ch.name}')">
+    <div class="channel-card ${currentUrl === ch.url ? 'playing' : ''}" data-url="${ch.url}" onclick="playStream('${ch.url}', '${ch.name}', true)">
       <i class="fa-solid fa-star fav-star ${favorites.includes(ch.id) ? 'active' : ''}" onclick="toggleFav(event, '${ch.id}')"></i>
       <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716429.png'">
       <div class="channel-name">${ch.name}</div>
