@@ -23,7 +23,6 @@
     .brand-header { padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; }
     .brand-title-new { font-size: 18px; font-weight: 900; letter-spacing: 1px; background: linear-gradient(to right, var(--primary), #fff, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; gap: 6px; }
     
-    /* আপনার নতুন অনলাইন কাউন্টার স্টাইল */
     .online-counter-box {
       display: inline-flex;
       align-items: center;
@@ -36,18 +35,31 @@
       font-weight: 800;
       border: 1px solid rgba(76, 175, 80, 0.2);
     }
-    .online-dot-blink {
-      width: 6px;
-      height: 6px;
-      background-color: var(--online);
-      border-radius: 50%;
-      animation: pulse-animation 1.5s infinite;
-    }
+    .online-dot-blink { width: 6px; height: 6px; background-color: var(--online); border-radius: 50%; animation: pulse-animation 1.5s infinite; }
     @keyframes pulse-animation { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-    .video-container { position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1000px; margin: 0 auto; background: #000; box-shadow: 0 5px 20px rgba(0, 229, 255, 0.1); touch-action: none; }
+    /* ভিডিও প্লেয়ার এবং জেসচার স্টাইল */
+    .video-container { position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1000px; margin: 0 auto; background: #000; box-shadow: 0 5px 20px rgba(0, 229, 255, 0.1); touch-action: none; overflow: hidden; }
     .video-js { width: 100% !important; height: 100% !important; }
     
+    /* MX Player Style Hint */
+    .vjs-gesture-hint {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.7);
+        color: var(--primary);
+        padding: 12px 25px;
+        border-radius: 30px;
+        font-size: 14px;
+        font-weight: bold;
+        z-index: 100;
+        display: none;
+        pointer-events: none;
+        border: 1px solid var(--primary);
+    }
+
     #ticker { background: rgba(255,255,255,0.02); padding: 5px 0; font-size: 10px; border-bottom: 1px solid var(--card-border); overflow: hidden; }
     .ticker-content { display: inline-block; animation: marquee 30s linear infinite; white-space: nowrap; color: #ccc; }
     .ticker-content b { color: var(--primary); }
@@ -98,14 +110,14 @@
 
   <div class="video-container" id="player-wrapper">
     <video id="v-player" class="video-js vjs-big-play-centered" controls preload="auto" playsinline></video>
+    <div id="gesture-hint" class="vjs-gesture-hint"></div>
   </div>
 
   <div id="ticker">
     <div class="ticker-content" id="ticker-text">
       <b>দেখছেন:</b> <span id="now-playing-ticker">চ্যানেল নির্বাচন করুন...</span> | 
-      🚀 <b>Avia TV</b> তে আপনাকে স্বাগতম | 
-      📡 বাফারিং ছাড়াই সব চ্যানেল উপভোগ করুন | 
-      📢 যে কোনো সমস্যায় টেলিগ্রাম গ্রুপ: <b>TECH BD GROUP</b>
+      🚀 <b>Avia TV</b> তে আপনাকে স্বাগতম | 📡 বাফারিং ছাড়াই সব চ্যানেল উপভোগ করুন | 
+      📢 সমস্যা হলে টেলিগ্রাম গ্রুপ: <b>TECH BD GROUP</b>
     </div>
   </div>
 
@@ -138,37 +150,78 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
   import { getDatabase, ref, onValue, push, set, onDisconnect } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 
-  const firebaseConfig = { 
-    databaseURL: "https://avia-tv-default-rtdb.firebaseio.com/" 
-  };
+  const firebaseConfig = { databaseURL: "https://avia-tv-default-rtdb.firebaseio.com/" };
 
   try {
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const onlineRef = ref(db, 'online_users'); 
-
     const myRef = push(onlineRef);
     set(myRef, true);
     onDisconnect(myRef).remove();
-
     onValue(onlineRef, (snapshot) => {
       const count = snapshot.val() ? Object.keys(snapshot.val()).length : 0;
-      const countElement = document.getElementById("user-count");
-      if (countElement) {
-        countElement.innerText = count;
-      }
+      document.getElementById("user-count").innerText = count;
     });
-  } catch (error) {
-    console.error("Firebase Error:", error);
-  }
+  } catch (error) { console.error("Firebase Error:", error); }
 </script>
 
 <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+
 <script>
-// আগের প্লেয়ার এবং চ্যানেল লজিক
+// কনফিগ
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let player, currentUrl = "";
+
+// ১. MX Player Gesture Controls
+function setupGestures(player) {
+    const wrapper = document.getElementById('player-wrapper');
+    const hint = document.getElementById('gesture-hint');
+    let startX, startY, startVol, startBright;
+    let brightness = 100;
+
+    wrapper.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        startVol = player.volume();
+        startBright = brightness;
+    });
+
+    wrapper.addEventListener('touchmove', (e) => {
+        const deltaY = startY - e.touches[0].clientY;
+        const isLeft = startX < (wrapper.clientWidth / 2);
+
+        if (isLeft) {
+            // Brightness (Left Side)
+            brightness = Math.min(200, Math.max(10, startBright + (deltaY / 2)));
+            wrapper.style.filter = `brightness(${brightness}%)`;
+            showHint(`Brightness: ${Math.round(brightness)}%`);
+        } else {
+            // Volume (Right Side)
+            let newVol = Math.min(1, Math.max(0, startVol + (deltaY / 200)));
+            player.volume(newVol);
+            showHint(`Volume: ${Math.round(newVol * 100)}%`);
+        }
+        e.preventDefault();
+    }, { passive: false });
+
+    wrapper.addEventListener('touchend', () => {
+        setTimeout(() => hint.style.display = 'none', 600);
+    });
+
+    // Play/Pause on Center Click
+    wrapper.addEventListener('click', (e) => {
+        if (e.target.tagName !== 'BUTTON' && !e.target.closest('.vjs-control-bar')) {
+            if (player.paused()) player.play(); else player.pause();
+        }
+    });
+
+    function showHint(text) {
+        hint.innerText = text;
+        hint.style.display = 'block';
+    }
+}
 
 function adjustMargin() {
   const h = document.getElementById('top-section').offsetHeight;
@@ -191,7 +244,14 @@ function playStream(url, name, shouldScroll = false) {
 }
 
 async function init() {
-  player = videojs('v-player', { fluid: true });
+  player = videojs('v-player', { 
+    fluid: true,
+    userActions: { doubleClick: true }
+  });
+
+  // জেসচার চালু করা
+  setupGestures(player);
+
   try {
     const res = await fetch(playlistUrl);
     const data = await res.text();
