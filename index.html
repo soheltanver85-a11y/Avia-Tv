@@ -11,17 +11,41 @@
 
   <style>
     :root { 
-      --primary: #00e5ff; --bg: #050505; --card-bg: rgba(255, 255, 255, 0.03); 
-      --card-border: rgba(255, 255, 255, 0.08); --accent: #ff4081; --star: #ffd700; 
+      --primary: #00e5ff; 
+      --bg: #050505; 
+      --card-bg: rgba(255, 255, 255, 0.05); 
+      --card-border: rgba(255, 255, 255, 0.1); 
+      --accent: #ff4081; --star: #ffd700; 
       --tg: #24A1DE; --apk: #3DDC84; --online: #4CAF50; --refresh: #ffa500; --text: #ffffff;
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-    body { margin: 0; padding: 0; background: radial-gradient(circle at top center, #111b21 0%, var(--bg) 100%); color: var(--text); font-family: 'Inter', sans-serif; overflow-x: hidden; }
+    
+    body { 
+      margin: 0; padding: 0; 
+      background: radial-gradient(circle at 50% 0%, #1a2a33 0%, var(--bg) 80%); 
+      color: var(--text); 
+      font-family: 'Inter', sans-serif; 
+      overflow-x: hidden; 
+      min-height: 100vh;
+    }
 
-    #top-section { position: fixed; top: 0; left: 0; width: 100%; background: rgba(10, 10, 10, 0.9); backdrop-filter: blur(25px); z-index: 1000; border-bottom: 1px solid var(--card-border); }
+    #top-section { 
+      position: fixed; top: 0; left: 0; width: 100%; 
+      background: rgba(10, 10, 10, 0.8); 
+      backdrop-filter: blur(25px); 
+      -webkit-backdrop-filter: blur(25px);
+      z-index: 1000; 
+      border-bottom: 1px solid var(--card-border); 
+    }
+
     .brand-header { padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; }
-    .brand-title-new { font-size: 18px; font-weight: 900; letter-spacing: 1px; background: linear-gradient(to right, var(--primary), #fff, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; gap: 6px; }
+    .brand-title-new { 
+      font-size: 18px; font-weight: 900; letter-spacing: 1px; 
+      background: linear-gradient(to right, var(--primary), #fff, var(--primary)); 
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+      display: flex; align-items: center; gap: 6px; 
+    }
     
     .online-counter-box {
       display: inline-flex; align-items: center; gap: 6px; background: rgba(76, 175, 80, 0.1);
@@ -30,51 +54,74 @@
     .online-dot-blink { width: 6px; height: 6px; background-color: var(--online); border-radius: 50%; animation: pulse-animation 1.5s infinite; }
     @keyframes pulse-animation { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-    /* ভিডিও প্লেয়ার এবং জেসচার স্টাইল */
-    .video-container { position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1000px; margin: 0 auto; background: #000; box-shadow: 0 5px 20px rgba(0, 229, 255, 0.1); touch-action: none; overflow: hidden; }
+    .video-container { position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1000px; margin: 0 auto; background: #000; box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5); touch-action: none; overflow: hidden; }
     .video-js { width: 100% !important; height: 100% !important; }
     
-    /* MX Player Style Hint Indicator */
     .vjs-gesture-hint {
         position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-        background: rgba(0, 0, 0, 0.7); color: var(--primary); padding: 12px 25px;
+        background: rgba(0, 0, 0, 0.8); color: var(--primary); padding: 12px 25px;
         border-radius: 30px; font-size: 14px; font-weight: bold; z-index: 100;
         display: none; pointer-events: none; border: 1px solid var(--primary);
+        backdrop-filter: blur(5px);
     }
 
-    #ticker { background: rgba(255,255,255,0.02); padding: 5px 0; font-size: 10px; border-bottom: 1px solid var(--card-border); overflow: hidden; }
+    #ticker { background: rgba(255,255,255,0.02); padding: 6px 0; font-size: 10px; border-bottom: 1px solid var(--card-border); overflow: hidden; }
     .ticker-content { display: inline-block; animation: marquee 30s linear infinite; white-space: nowrap; color: #ccc; }
     .ticker-content b { color: var(--primary); }
 
-    header { padding: 10px; }
-    .action-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 10px; }
-    .rect-btn { height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--card-border); color: #fff; cursor: pointer; text-decoration: none; gap: 4px; }
-    .rect-btn i { font-size: 11px; }
-    .rect-btn span { font-size: 8px; font-weight: 500; text-transform: uppercase; opacity: 0.8; }
-    .btn-rotate { background: var(--primary); border: none; }
+    header { padding: 12px; }
+    .action-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+    .rect-btn { 
+      height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; 
+      background: rgba(255, 255, 255, 0.05); border: 1px solid var(--card-border); color: #fff; 
+      cursor: pointer; text-decoration: none; gap: 6px; transition: 0.3s;
+    }
+    .rect-btn:active { transform: scale(0.95); }
+    .rect-btn i { font-size: 12px; }
+    .rect-btn span { font-size: 9px; font-weight: 600; text-transform: uppercase; opacity: 0.9; }
+    .btn-rotate { background: var(--primary); border: none; box-shadow: 0 4px 10px rgba(0, 229, 255, 0.3); }
     .btn-rotate i, .btn-rotate span { color: #000; font-weight: 800; }
 
-    #search { flex: 1; background: var(--card-bg); border: 1px solid var(--card-border); color: white; padding: 8px 12px; border-radius: 8px; font-size: 12px; margin-bottom: 10px; width: calc(100% - 60px); }
-    #count { font-size: 9px; color: var(--primary); font-weight: 800; background: rgba(0, 229, 255, 0.1); padding: 8px; border-radius: 6px; float: right; }
+    #search { 
+      background: rgba(255, 255, 255, 0.07); border: 1px solid var(--card-border); 
+      color: white; padding: 10px 15px; border-radius: 12px; font-size: 13px; 
+      margin-bottom: 12px; width: calc(100% - 70px); backdrop-filter: blur(5px);
+    }
+    #count { font-size: 10px; color: var(--primary); font-weight: 800; background: rgba(0, 229, 255, 0.1); padding: 10px; border-radius: 8px; float: right; }
 
-    .tabs { display: flex; gap: 4px; width: 100%; clear: both; }
-    .tab-btn { flex: 1; padding: 6px 2px; background: var(--card-bg); border: 1px solid var(--card-border); color: #888; border-radius: 6px; font-size: 10px; font-weight: 700; cursor: pointer; }
-    .tab-btn.active { background: var(--primary); color: #000; border-color: var(--primary); }
+    .tabs { display: flex; gap: 6px; width: 100%; clear: both; }
+    .tab-btn { 
+      flex: 1; padding: 8px 5px; background: rgba(255, 255, 255, 0.05); 
+      border: 1px solid var(--card-border); color: #aaa; border-radius: 10px; 
+      font-size: 11px; font-weight: 700; cursor: pointer; transition: 0.3s;
+    }
+    .tab-btn.active { 
+      background: var(--primary); color: #000; border-color: var(--primary);
+      box-shadow: 0 4px 12px rgba(0, 229, 255, 0.3);
+    }
 
-    #content-area { margin-top: 380px; transition: margin-top 0.3s; }
-    #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; padding: 12px; }
+    #content-area { margin-top: 390px; transition: margin-top 0.3s; }
+    #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; padding: 15px; }
     
-    .channel-card { background: var(--card-bg); border-radius: 15px; padding: 12px 5px; text-align: center; border: 1px solid var(--card-border); transition: 0.3s; position: relative; scroll-margin-top: 400px; }
-    .channel-card.playing { border-color: var(--primary); background: rgba(0, 229, 255, 0.12); box-shadow: 0 0 15px rgba(0, 229, 255, 0.3); transform: scale(1.02); }
+    .channel-card { 
+      background: var(--card-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      border-radius: 18px; padding: 15px 8px; text-align: center; border: 1px solid var(--card-border); 
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; scroll-margin-top: 410px; 
+    }
+    .channel-card:hover { transform: translateY(-5px) scale(1.05); background: rgba(255, 255, 255, 0.08); border-color: var(--primary); }
+    .channel-card.playing { border-color: var(--primary); background: rgba(0, 229, 255, 0.15); box-shadow: 0 0 20px rgba(0, 229, 255, 0.2); transform: scale(1.05); }
     .channel-card.playing .channel-name { color: var(--primary); font-weight: 800; }
 
-    .fav-star { position: absolute; top: 5px; right: 5px; font-size: 10px; color: rgba(255,255,255,0.1); }
-    .fav-star.active { color: var(--star); text-shadow: 0 0 5px var(--star); }
-    .channel-logo { height: 35px; margin-bottom: 6px; object-fit: contain; }
-    .channel-name { font-size: 9px; color: #ccc; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .fav-star { position: absolute; top: 8px; right: 8px; font-size: 12px; color: rgba(255,255,255,0.1); transition: 0.3s; }
+    .fav-star.active { color: var(--star); text-shadow: 0 0 8px var(--star); }
+    
+    .channel-logo { height: 45px; margin-bottom: 8px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); transition: 0.3s; }
+    .channel-card:hover .channel-logo { transform: rotate(5deg); }
+    
+    .channel-name { font-size: 10px; color: #ccc; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-    .footer-area { padding: 20px 0 80px 0; text-align: center; border-top: 1px solid var(--card-border); margin-top: 20px; }
-    .dev-credits { font-size: 8px; color: #666; letter-spacing: 1px; text-transform: uppercase; }
+    .footer-area { padding: 30px 0 100px 0; text-align: center; border-top: 1px solid var(--card-border); margin-top: 20px; }
+    .dev-credits { font-size: 9px; color: #666; letter-spacing: 1.5px; text-transform: uppercase; }
 
     @keyframes marquee { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
   </style>
@@ -155,7 +202,6 @@ const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-t
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let player, currentUrl = "";
 
-// ১. MX Player Gesture Logic (সংশোধিত ক্লিক এবং স্ক্রল)
 function setupMXControls(player) {
     const wrapper = document.getElementById('player-wrapper');
     const hint = document.getElementById('gesture-hint');
@@ -163,7 +209,6 @@ function setupMXControls(player) {
     let brightness = 100;
     let isMoving = false;
 
-    // টাচ শুরু
     wrapper.addEventListener('touchstart', (e) => {
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
@@ -172,7 +217,6 @@ function setupMXControls(player) {
         isMoving = false;
     });
 
-    // স্লাইড করা (ব্রাইটনেস ও ভলিউম)
     wrapper.addEventListener('touchmove', (e) => {
         isMoving = true;
         const deltaY = startY - e.touches[0].clientY;
@@ -190,13 +234,9 @@ function setupMXControls(player) {
         e.preventDefault();
     }, { passive: false });
 
-    // টাচ শেষ (প্লে/পজ লজিক)
     wrapper.addEventListener('touchend', (e) => {
         setTimeout(() => hint.style.display = 'none', 600);
-        
-        // যদি আঙুল স্লাইড না করা হয় (শুধুমাত্র ক্লিক)
         if (!isMoving) {
-            // যদি নিচের কন্ট্রোল বারে ক্লিক না লাগে
             if (!e.target.closest('.vjs-control-bar') && !e.target.closest('.vjs-big-play-button')) {
                 if (player.paused()) player.play(); else player.pause();
             }
@@ -231,9 +271,12 @@ function playStream(url, name, shouldScroll = false) {
 
 async function init() {
   player = videojs('v-player', { fluid: true });
-  
-  // জেসচার কন্ট্রোল চালু
   setupMXControls(player);
+
+  // ভিডিও এরর হ্যান্ডলিং
+  player.on('error', function() {
+    document.getElementById("now-playing-ticker").innerText = "⚠️ চ্যানেলটি বর্তমানে ডাউন আছে!";
+  });
 
   try {
     const res = await fetch(playlistUrl);
@@ -274,9 +317,16 @@ function renderChannels(list) {
 function filterCat(cat, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+  
   if (cat === 'all') renderChannels(allChannels);
   else if (cat === 'fav') renderChannels(allChannels.filter(ch => favorites.includes(ch.id)));
   else renderChannels(allChannels.filter(ch => ch.name.toLowerCase().includes(cat.toLowerCase())));
+
+  // অটো-স্ক্রল টপ
+  window.scrollTo({
+    top: document.getElementById('main-header').offsetTop - 20,
+    behavior: 'smooth'
+  });
 }
 
 function toggleFav(event, id) {
