@@ -146,7 +146,7 @@
     <div class="ticker-content" id="ticker-text">
       <b>দেখছেন:</b> <span id="now-playing-ticker">চ্যানেল নির্বাচন করুন...</span> | 
       🚀 <b>Avia TV</b> তে আপনাকে স্বাগতম | 📡 বাফারিং ছাড়াই সব চ্যানেল উপভোগ করুন | 
-      📢 যে কোনো সমস্যায় টেলিগ্রাম গ্রুপ: <b>TECH BD GROUP</b>
+      📢 যে কোনো সমস্যায় টেলিগ্রাম গ্রুপ: <a href="https://t.me/techbd_group" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 800;">TECH BD GROUP</a>
     </div>
   </div>
 
@@ -313,7 +313,6 @@ function renderChannels(list) {
   document.getElementById("count").textContent = list.length + " CH";
 }
 
-// ফিক্সড ফাংশন: ক্যাটাগরি ক্লিক করলে পেজ উপরে চলে যাবে
 function filterCat(cat, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
@@ -322,7 +321,6 @@ function filterCat(cat, btn) {
   else if (cat === 'fav') renderChannels(allChannels.filter(ch => favorites.includes(ch.id)));
   else renderChannels(allChannels.filter(ch => ch.name.toLowerCase().includes(cat.toLowerCase())));
 
-  // পেজটিকে স্মুথভাবে একদম উপরে নিয়ে যাওয়ার জন্য
   window.scrollTo({
     top: 0,
     behavior: 'smooth'
