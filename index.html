@@ -32,7 +32,7 @@
 
     #top-section { 
       position: fixed; top: 0; left: 0; width: 100%; 
-      background: rgba(10, 10, 10, 0.8); 
+      background: rgba(10, 10, 10, 0.85); 
       backdrop-filter: blur(25px); 
       -webkit-backdrop-filter: blur(25px);
       z-index: 1000; 
@@ -91,7 +91,7 @@
 
     .tabs { display: flex; gap: 6px; width: 100%; clear: both; }
     .tab-btn { 
-      flex: 1; padding: 8px 5px; background: rgba(255, 255, 255, 0.05); 
+      flex: 1; padding: 10px 5px; background: rgba(255, 255, 255, 0.05); 
       border: 1px solid var(--card-border); color: #aaa; border-radius: 10px; 
       font-size: 11px; font-weight: 700; cursor: pointer; transition: 0.3s;
     }
@@ -100,8 +100,8 @@
       box-shadow: 0 4px 12px rgba(0, 229, 255, 0.3);
     }
 
-    #content-area { margin-top: 390px; transition: margin-top 0.3s; }
-    #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; padding: 15px; }
+    #content-area { margin-top: 400px; transition: margin-top 0.3s; }
+    #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; padding: 15px; min-height: 50vh;}
     
     .channel-card { 
       background: var(--card-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
@@ -273,7 +273,6 @@ async function init() {
   player = videojs('v-player', { fluid: true });
   setupMXControls(player);
 
-  // ভিডিও এরর হ্যান্ডলিং
   player.on('error', function() {
     document.getElementById("now-playing-ticker").innerText = "⚠️ চ্যানেলটি বর্তমানে ডাউন আছে!";
   });
@@ -315,16 +314,21 @@ function renderChannels(list) {
 }
 
 function filterCat(cat, btn) {
+  // ১. বাটন অ্যাক্টিভ স্টেট
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   
+  // ২. ফিল্টার লজিক
   if (cat === 'all') renderChannels(allChannels);
   else if (cat === 'fav') renderChannels(allChannels.filter(ch => favorites.includes(ch.id)));
   else renderChannels(allChannels.filter(ch => ch.name.toLowerCase().includes(cat.toLowerCase())));
 
-  // অটো-স্ক্রল টপ
+  // ৩. ফিক্সড স্ক্রল লজিক: ক্যাটাগরিতে ক্লিক করলে চ্যানেল লিস্ট সামনে আসবে
+  const topSection = document.getElementById('top-section');
+  const scrollPosition = topSection.offsetHeight;
+  
   window.scrollTo({
-    top: document.getElementById('main-header').offsetTop - 20,
+    top: scrollPosition - 5,
     behavior: 'smooth'
   });
 }
