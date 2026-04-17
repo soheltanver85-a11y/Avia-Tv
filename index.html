@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Avia TV - Premium Live Streaming</title>
+  <title>Avia TV - Live Streaming</title>
   
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
   <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
@@ -20,7 +20,6 @@
       --header-bg: rgba(10, 10, 10, 0.8);
     }
 
-    /* Light Mode Variables */
     body.light-mode {
       --bg: #f0f2f5;
       --card-bg: #ffffff;
@@ -58,10 +57,8 @@
       display: flex; align-items: center; gap: 6px; 
     }
     
-    /* Center Controls: Theme + Online Status */
     .header-right-side { display: flex; align-items: center; gap: 12px; }
 
-    /* Theme Switcher Style */
     .theme-switch {
       position: relative; width: 45px; height: 22px;
       background: #333; border-radius: 20px; cursor: pointer;
@@ -110,12 +107,27 @@
     .btn-rotate { background: var(--primary); border: none; }
     .btn-rotate i, .btn-rotate span { color: #000; font-weight: 800; }
 
+    /* Modern Search & Count Container */
+    .search-container { position: relative; display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
     #search { 
-      background: var(--card-bg); border: 1px solid var(--card-border); 
+      flex: 1; background: var(--card-bg); border: 1px solid var(--card-border); 
       color: var(--text); padding: 10px 15px; border-radius: 12px; font-size: 13px; 
-      margin-bottom: 12px; width: calc(100% - 70px); backdrop-filter: blur(5px);
+      backdrop-filter: blur(5px); transition: 0.3s;
     }
-    #count { font-size: 10px; color: var(--primary); font-weight: 800; background: rgba(0, 229, 255, 0.1); padding: 10px; border-radius: 8px; float: right; }
+    #search:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(0, 229, 255, 0.2); }
+
+    #count { 
+      font-size: 11px; color: var(--primary); font-weight: 800; 
+      background: rgba(0, 229, 255, 0.1); padding: 8px 12px; border-radius: 10px; 
+      border: 1px solid rgba(0, 229, 255, 0.2); backdrop-filter: blur(10px);
+      display: flex; align-items: center; gap: 5px; transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+    #count::before {
+      content: ""; width: 6px; height: 6px; background: var(--primary);
+      border-radius: 50%; display: inline-block; box-shadow: 0 0 8px var(--primary);
+    }
+    .count-animate { transform: scale(1.1); background: rgba(0, 229, 255, 0.25) !important; }
 
     .tabs { display: flex; gap: 6px; width: 100%; clear: both; }
     .tab-btn { 
@@ -162,7 +174,6 @@
       <div class="theme-switch" id="theme-toggle" onclick="toggleTheme()">
         <div class="dot"><i id="theme-icon" class="fa-solid fa-moon"></i></div>
       </div>
-
       <div class="online-counter-box">
         <div class="online-dot-blink"></div>
         <span>ONLINE: <span id="user-count">0</span></span>
@@ -190,8 +201,12 @@
       <a href="https://www.mediafire.com/file/mkby3e9skeyfz8n/Avia+Tv+1.0.0.apk/file" target="_blank" class="rect-btn"><i class="fa-solid fa-download" style="color:var(--apk)"></i><span>APK</span></a>
       <button onclick="toggleRotateManual()" class="rect-btn btn-rotate"><i class="fa-solid fa-expand"></i><span>Full</span></button>
     </div>
-    <span id="count">0 CH</span>
-    <input type="text" id="search" placeholder="Search Channels...">
+    
+    <div class="search-container">
+        <input type="text" id="search" placeholder="Search Channels...">
+        <span id="count">0 CH</span>
+    </div>
+
     <div class="tabs">
       <button class="tab-btn active" onclick="filterCat('all', this)">ALL</button>
       <button class="tab-btn" onclick="filterCat('sports', this)">SPORTS</button>
@@ -235,12 +250,10 @@ const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-t
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let player, currentUrl = "";
 
-// Theme Toggle Function
 function toggleTheme() {
     const body = document.body;
     const icon = document.getElementById('theme-icon');
     body.classList.toggle('light-mode');
-    
     if (body.classList.contains('light-mode')) {
         icon.classList.replace('fa-moon', 'fa-sun');
         localStorage.setItem('avia-theme', 'light');
@@ -250,7 +263,6 @@ function toggleTheme() {
     }
 }
 
-// Load Saved Theme
 if (localStorage.getItem('avia-theme') === 'light') {
     document.body.classList.add('light-mode');
     document.getElementById('theme-icon').classList.replace('fa-moon', 'fa-sun');
@@ -275,7 +287,6 @@ function setupMXControls(player) {
         isMoving = true;
         const deltaY = startY - e.touches[0].clientY;
         const isLeft = startX < (wrapper.clientWidth / 2);
-
         if (isLeft) {
             brightness = Math.min(200, Math.max(10, startBright + (deltaY / 2)));
             wrapper.style.filter = `brightness(${brightness}%)`;
@@ -296,11 +307,7 @@ function setupMXControls(player) {
             }
         }
     });
-
-    function showHint(text) {
-        hint.innerText = text;
-        hint.style.display = 'block';
-    }
+    function showHint(text) { hint.innerText = text; hint.style.display = 'block'; }
 }
 
 function adjustMargin() {
@@ -326,11 +333,9 @@ function playStream(url, name, shouldScroll = false) {
 async function init() {
   player = videojs('v-player', { fluid: true });
   setupMXControls(player);
-
   player.on('error', function() {
     document.getElementById("now-playing-ticker").innerText = "⚠️ চ্যানেলটি বর্তমানে ডাউন আছে!";
   });
-
   try {
     const res = await fetch(playlistUrl);
     const data = await res.text();
@@ -364,17 +369,19 @@ function renderChannels(list) {
       <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716429.png'">
       <div class="channel-name">${ch.name}</div>
     </div>`).join('');
-  document.getElementById("count").textContent = list.length + " CH";
+    
+  const countEl = document.getElementById("count");
+  countEl.textContent = list.length + " CH";
+  countEl.classList.add('count-animate');
+  setTimeout(() => countEl.classList.remove('count-animate'), 300);
 }
 
 function filterCat(cat, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  
   if (cat === 'all') renderChannels(allChannels);
   else if (cat === 'fav') renderChannels(allChannels.filter(ch => favorites.includes(ch.id)));
   else renderChannels(allChannels.filter(ch => ch.name.toLowerCase().includes(cat.toLowerCase())));
-
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
