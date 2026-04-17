@@ -20,7 +20,6 @@
       --header-bg: rgba(10, 10, 10, 0.8);
     }
 
-    /* Light Mode Variables */
     body.light-mode {
       --bg: #f0f2f5;
       --card-bg: #ffffff;
@@ -51,17 +50,28 @@
     }
 
     .brand-header { padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; }
+    
     .brand-title-new { 
       font-size: 18px; font-weight: 900; letter-spacing: 1px; 
       background: linear-gradient(to right, var(--primary), #a2f9ff, var(--primary)); 
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
-      display: flex; align-items: center; gap: 6px; 
+      display: flex; align-items: center; gap: 8px; 
+    }
+
+    /* New Channel Count Badge Style */
+    #count {
+      font-size: 10px;
+      background: var(--primary);
+      color: #000;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-weight: 900;
+      -webkit-text-fill-color: initial; /* Fix for gradient text inherit */
+      box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
     }
     
-    /* Center Controls: Theme + Online Status */
     .header-right-side { display: flex; align-items: center; gap: 12px; }
 
-    /* Theme Switcher Style */
     .theme-switch {
       position: relative; width: 45px; height: 22px;
       background: #333; border-radius: 20px; cursor: pointer;
@@ -112,10 +122,9 @@
 
     #search { 
       background: var(--card-bg); border: 1px solid var(--card-border); 
-      color: var(--text); padding: 10px 15px; border-radius: 12px; font-size: 13px; 
-      margin-bottom: 12px; width: calc(100% - 70px); backdrop-filter: blur(5px);
+      color: var(--text); padding: 12px 15px; border-radius: 12px; font-size: 13px; 
+      margin-bottom: 12px; width: 100%; backdrop-filter: blur(5px);
     }
-    #count { font-size: 10px; color: var(--primary); font-weight: 800; background: rgba(0, 229, 255, 0.1); padding: 10px; border-radius: 8px; float: right; }
 
     .tabs { display: flex; gap: 6px; width: 100%; clear: both; }
     .tab-btn { 
@@ -156,7 +165,10 @@
 
 <div id="top-section">
   <div class="brand-header">
-    <div class="brand-title-new"><i class="fa-solid fa-tv"></i> AVIA TV</div>
+    <div class="brand-title-new">
+      <i class="fa-solid fa-tv"></i> AVIA TV 
+      <span id="count">0 CH</span>
+    </div>
     
     <div class="header-right-side">
       <div class="theme-switch" id="theme-toggle" onclick="toggleTheme()">
@@ -190,8 +202,9 @@
       <a href="https://www.mediafire.com/file/mkby3e9skeyfz8n/Avia+Tv+1.0.0.apk/file" target="_blank" class="rect-btn"><i class="fa-solid fa-download" style="color:var(--apk)"></i><span>APK</span></a>
       <button onclick="toggleRotateManual()" class="rect-btn btn-rotate"><i class="fa-solid fa-expand"></i><span>Full</span></button>
     </div>
-    <span id="count">0 CH</span>
+    
     <input type="text" id="search" placeholder="Search Channels...">
+    
     <div class="tabs">
       <button class="tab-btn active" onclick="filterCat('all', this)">ALL</button>
       <button class="tab-btn" onclick="filterCat('sports', this)">SPORTS</button>
@@ -235,7 +248,6 @@ const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-t
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let player, currentUrl = "";
 
-// Theme Toggle Function
 function toggleTheme() {
     const body = document.body;
     const icon = document.getElementById('theme-icon');
@@ -250,7 +262,6 @@ function toggleTheme() {
     }
 }
 
-// Load Saved Theme
 if (localStorage.getItem('avia-theme') === 'light') {
     document.body.classList.add('light-mode');
     document.getElementById('theme-icon').classList.replace('fa-moon', 'fa-sun');
@@ -385,16 +396,4 @@ function toggleFav(event, id) {
   event.target.classList.toggle('active');
 }
 
-function toggleRotateManual() {
-  if (!player.isFullscreen()) player.requestFullscreen();
-  else player.exitFullscreen();
-}
-
-document.getElementById("search").addEventListener("input", function() {
-  renderChannels(allChannels.filter(ch => ch.name.toLowerCase().includes(this.value.toLowerCase())));
-});
-
-init();
-</script>
-</body>
-</html>
+function toggleRotateManual()
