@@ -348,7 +348,12 @@ function setupMXControls(player) {
         if (e.cancelable) e.preventDefault();
     }, { passive: false });
 
-    wrapper.addEventListener('touchend', () => {
+    wrapper.addEventListener('touchend', (e) => {
+        // যদি ইউজার স্ক্রিন মুভ না করে শুধু টাচ করে, তাহলে পজ/প্লে হবে
+        if (!isMoving) {
+            if (player.paused()) player.play();
+            else player.pause();
+        }
         setTimeout(() => hint.style.display = 'none', 600);
     });
     function showHint(text) { hint.innerText = text; hint.style.display = 'block'; }
@@ -374,31 +379,14 @@ function playStream(url, name, shouldScroll = false) {
 }
 
 async function init() {
-  player = videojs('v-player', { fluid: true });
+  player = videojs('v-player', { 
+    fluid: true,
+    userActions: {
+      click: true // ভিডিওর ওপর ক্লিক ইনেবল করা হলো
+    }
+  });
+  
   setupMXControls(player);
-
-  // --- নতুন পজ/প্লে ফিচার শুরু ---
-  player.on('click', function() {
-    if (player.paused()) {
-      player.play();
-    } else {
-      player.pause();
-    }
-  });
-
-  player.ready(function() {
-    const tech = player.el().querySelector('.vjs-tech');
-    if (tech) {
-      tech.addEventListener('click', function(e) {
-        if (player.paused()) {
-          player.play();
-        } else {
-          player.pause();
-        }
-      });
-    }
-  });
-  // --- নতুন পজ/প্লে ফিচার শেষ ---
   
   try {
     const res = await fetch(playlistUrl);
