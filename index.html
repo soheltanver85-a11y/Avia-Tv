@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="referrer" content="no-referrer">
   <title>Avia TV - Premium Live Streaming</title>
   
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
@@ -52,10 +53,7 @@
 
     .brand-header { padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; }
     
-    /* New Premium Logo Style */
-    .brand-logo-container {
-      display: flex; align-items: center; gap: 8px;
-    }
+    .brand-logo-container { display: flex; align-items: center; gap: 8px; }
     .modern-tv-logo {
       width: 30px; height: 26px;
       background: #111;
@@ -136,7 +134,6 @@
     .btn-rotate { background: var(--primary); border: none; }
     .btn-rotate i, .btn-rotate span { color: #000; font-weight: 800; }
 
-    /* Modern Search, Share & Count Container */
     .search-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; width: 100%; }
     
     #search { 
@@ -146,7 +143,6 @@
     }
     #search:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(0, 229, 255, 0.2); }
 
-    /* Trending Share Button Style */
     .share-btn {
       width: 38px; height: 38px; border-radius: 12px;
       background: var(--card-bg); border: 1px solid var(--card-border);
@@ -154,7 +150,6 @@
       cursor: pointer; transition: 0.3s; font-size: 16px;
     }
     .share-btn:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
-    .share-btn:active { transform: scale(0.9); }
 
     #count { 
       font-size: 11px; color: var(--primary); font-weight: 800; 
@@ -195,7 +190,7 @@
     .fav-star { position: absolute; top: 8px; right: 8px; font-size: 12px; color: rgba(128,128,128,0.3); transition: 0.3s; }
     .fav-star.active { color: var(--star); text-shadow: 0 0 8px var(--star); }
     
-    .channel-logo { height: 45px; margin-bottom: 8px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
+    .channel-logo { height: 45px; margin-bottom: 8px; object-fit: contain; }
     .channel-name { font-size: 10px; color: var(--text); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
     .footer-area { padding: 30px 0 100px 0; text-align: center; border-top: 1px solid var(--card-border); margin-top: 20px; }
@@ -204,7 +199,7 @@
     @keyframes marquee { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
   </style>
 </head>
-<body>
+<body onload="init()">
 
 <div id="top-section">
   <div class="brand-header">
@@ -246,7 +241,7 @@
     </div>
     
     <div class="search-row">
-        <input type="text" id="search" placeholder="Search Channels...">
+        <input type="text" id="search" placeholder="Search Channels..." oninput="handleSearch(this.value)">
         <button class="share-btn" onclick="shareApp()" title="Share App">
             <i class="fa-solid fa-share-nodes"></i>
         </button>
@@ -296,25 +291,16 @@ const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-t
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let player, currentUrl = "";
 
-// Share Function
 function shareApp() {
     if (navigator.share) {
         navigator.share({
-            title: 'Avia TV - Live Streaming',
-            text: 'Watch premium live TV channels without buffering on Avia TV!',
+            title: 'Avia TV',
+            text: 'Watch premium live TV on Avia TV!',
             url: window.location.href,
-        })
-        .then(() => console.log('Successful share'))
-        .catch((error) => console.log('Error sharing', error));
+        }).catch(console.error);
     } else {
-        // Fallback: Copy link to clipboard
-        const dummy = document.createElement('input');
-        document.body.appendChild(dummy);
-        dummy.value = window.location.href;
-        dummy.select();
-        document.execCommand('copy');
-        document.body.removeChild(dummy);
-        alert('Link copied to clipboard! Share it with your friends.');
+        navigator.clipboard.writeText(window.location.href);
+        alert('Link copied to clipboard!');
     }
 }
 
@@ -322,18 +308,13 @@ function toggleTheme() {
     const body = document.body;
     const icon = document.getElementById('theme-icon');
     body.classList.toggle('light-mode');
-    if (body.classList.contains('light-mode')) {
-        icon.classList.replace('fa-moon', 'fa-sun');
-        localStorage.setItem('avia-theme', 'light');
-    } else {
-        icon.classList.replace('fa-sun', 'fa-moon');
-        localStorage.setItem('avia-theme', 'dark');
-    }
+    const mode = body.classList.contains('light-mode') ? 'light' : 'dark';
+    icon.classList.replace(mode === 'light' ? 'fa-moon' : 'fa-sun', mode === 'light' ? 'fa-sun' : 'fa-moon');
+    localStorage.setItem('avia-theme', mode);
 }
 
 if (localStorage.getItem('avia-theme') === 'light') {
     document.body.classList.add('light-mode');
-    document.getElementById('theme-icon').classList.replace('fa-moon', 'fa-sun');
 }
 
 function setupMXControls(player) {
@@ -364,16 +345,11 @@ function setupMXControls(player) {
             player.volume(newVol);
             showHint(`Volume: ${Math.round(newVol * 100)}%`);
         }
-        e.preventDefault();
+        if (e.cancelable) e.preventDefault();
     }, { passive: false });
 
-    wrapper.addEventListener('touchend', (e) => {
+    wrapper.addEventListener('touchend', () => {
         setTimeout(() => hint.style.display = 'none', 600);
-        if (!isMoving) {
-            if (!e.target.closest('.vjs-control-bar') && !e.target.closest('.vjs-big-play-button')) {
-                if (player.paused()) player.play(); else player.pause();
-            }
-        }
     });
     function showHint(text) { hint.innerText = text; hint.style.display = 'block'; }
 }
@@ -390,10 +366,9 @@ function playStream(url, name, shouldScroll = false) {
   player.play().catch(() => {});
   
   document.querySelectorAll('.channel-card').forEach(card => {
-    card.classList.remove('playing');
-    if (card.getAttribute('data-url') === url) {
-      card.classList.add('playing');
-      if (shouldScroll) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    card.classList.toggle('playing', card.getAttribute('data-url') === url);
+    if (shouldScroll && card.getAttribute('data-url') === url) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   });
 }
@@ -401,9 +376,7 @@ function playStream(url, name, shouldScroll = false) {
 async function init() {
   player = videojs('v-player', { fluid: true });
   setupMXControls(player);
-  player.on('error', function() {
-    document.getElementById("now-playing-ticker").innerText = "⚠️ চ্যানেলটি বর্তমানে ডাউন আছে!";
-  });
+  
   try {
     const res = await fetch(playlistUrl);
     const data = await res.text();
@@ -437,11 +410,12 @@ function renderChannels(list) {
       <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716429.png'">
       <div class="channel-name">${ch.name}</div>
     </div>`).join('');
-    
-  const countEl = document.getElementById("count");
-  countEl.textContent = list.length + " CH";
-  countEl.classList.add('count-animate');
-  setTimeout(() => countEl.classList.remove('count-animate'), 300);
+  document.getElementById("count").textContent = list.length + " CH";
+}
+
+function handleSearch(val) {
+    const filtered = allChannels.filter(ch => ch.name.toLowerCase().includes(val.toLowerCase()));
+    renderChannels(filtered);
 }
 
 function filterCat(cat, btn) {
@@ -450,7 +424,6 @@ function filterCat(cat, btn) {
   if (cat === 'all') renderChannels(allChannels);
   else if (cat === 'fav') renderChannels(allChannels.filter(ch => favorites.includes(ch.id)));
   else renderChannels(allChannels.filter(ch => ch.name.toLowerCase().includes(cat.toLowerCase())));
-  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function toggleFav(event, id) {
@@ -464,12 +437,7 @@ function toggleRotateManual() {
   if (!player.isFullscreen()) player.requestFullscreen();
   else player.exitFullscreen();
 }
-
-document.getElementById("search").addEventListener("input", function() {
-  renderChannels(allChannels.filter(ch => ch.name.toLowerCase().includes(this.value.toLowerCase())));
-});
-
-init();
 </script>
+
 </body>
 </html>
