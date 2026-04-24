@@ -376,6 +376,29 @@ function playStream(url, name, shouldScroll = false) {
 async function init() {
   player = videojs('v-player', { fluid: true });
   setupMXControls(player);
+
+  // --- নতুন পজ/প্লে ফিচার শুরু ---
+  player.on('click', function() {
+    if (player.paused()) {
+      player.play();
+    } else {
+      player.pause();
+    }
+  });
+
+  player.ready(function() {
+    const tech = player.el().querySelector('.vjs-tech');
+    if (tech) {
+      tech.addEventListener('click', function(e) {
+        if (player.paused()) {
+          player.play();
+        } else {
+          player.pause();
+        }
+      });
+    }
+  });
+  // --- নতুন পজ/প্লে ফিচার শেষ ---
   
   try {
     const res = await fetch(playlistUrl);
