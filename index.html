@@ -110,6 +110,9 @@
     .video-container { position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1000px; margin: 0 auto; background: #000; box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5); touch-action: none; overflow: hidden; }
     .video-js { width: 100% !important; height: 100% !important; }
     
+    /* Fullscreen CSS fix */
+    .video-js.vjs-fullscreen { z-index: 99999 !important; }
+
     .vjs-gesture-hint {
         position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
         background: rgba(0, 0, 0, 0.8); color: var(--primary); padding: 12px 25px;
@@ -349,7 +352,6 @@ function setupMXControls(player) {
     }, { passive: false });
 
     wrapper.addEventListener('touchend', (e) => {
-        // যদি ইউজার স্ক্রিন মুভ না করে শুধু টাচ করে, তাহলে পজ/প্লে হবে
         if (!isMoving) {
             if (player.paused()) player.play();
             else player.pause();
@@ -381,8 +383,10 @@ function playStream(url, name, shouldScroll = false) {
 async function init() {
   player = videojs('v-player', { 
     fluid: true,
+    responsive: true,
     userActions: {
-      click: true // ভিডিওর ওপর ক্লিক ইনেবল করা হলো
+      click: true,
+      doubleClick: true
     }
   });
   
@@ -444,9 +448,19 @@ function toggleFav(event, id) {
   event.target.classList.toggle('active');
 }
 
+// সংশোধিত ফুলস্ক্রিন ফাংশন যা সব ব্রাউজারে কাজ করবে
 function toggleRotateManual() {
-  if (!player.isFullscreen()) player.requestFullscreen();
-  else player.exitFullscreen();
+  if (player) {
+    if (!player.isFullscreen()) {
+      player.requestFullscreen();
+      // মোবাইলে ল্যান্ডস্কেপ করার চেষ্টা
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape').catch(() => {});
+      }
+    } else {
+      player.exitFullscreen();
+    }
+  }
 }
 </script>
 
