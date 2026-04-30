@@ -134,6 +134,9 @@
     .btn-rotate { background: var(--primary); border: none; }
     .btn-rotate i, .btn-rotate span { color: #000; font-weight: 800; }
 
+    /* Refresh Animation */
+    .spin { animation: fa-spin 1s linear infinite; }
+
     .search-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; width: 100%; }
     
     #search { 
@@ -232,7 +235,11 @@
 
   <header id="main-header">
     <div class="action-btns">
-      <button onclick="fetchChannels()" class="rect-btn"><i class="fa-solid fa-rotate-right" style="color:var(--refresh)"></i><span>Refresh</span></button>
+      <button id="refresh-btn" onclick="manualRefresh()" class="rect-btn">
+        <i id="refresh-icon" class="fa-solid fa-rotate-right" style="color:var(--refresh)"></i>
+        <span>Refresh</span>
+      </button>
+      
       <a href="https://t.me/techbd_group" target="_blank" class="rect-btn"><i class="fa-brands fa-telegram" style="color:var(--tg)"></i><span>Group</span></a>
       <a href="https://www.mediafire.com/file/mkby3e9skeyfz8n/Avia+Tv+1.0.0.apk/file" target="_blank" class="rect-btn"><i class="fa-solid fa-download" style="color:var(--apk)"></i><span>APK</span></a>
       <button onclick="toggleRotateManual()" class="rect-btn btn-rotate"><i class="fa-solid fa-expand"></i><span>Full</span></button>
@@ -289,15 +296,21 @@ const basePlaylistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Li
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let player, currentUrl = "";
 
+// ম্যানুয়াল রিফ্রেশ ফাংশন (অ্যানিমেশনসহ)
+async function manualRefresh() {
+    const icon = document.getElementById("refresh-icon");
+    icon.classList.add("spin");
+    await fetchChannels();
+    setTimeout(() => icon.classList.remove("spin"), 1000);
+}
+
 async function fetchChannels() {
     try {
-        // Cache Busting: টাইমস্ট্যাম্প যোগ করা হয়েছে
         const finalUrl = basePlaylistUrl + "?t=" + new Date().getTime();
         const res = await fetch(finalUrl, { cache: "no-store" });
         const data = await res.text();
         const newChannels = parseM3U(data);
         
-        // যদি ডাটা পরিবর্তন হয় তবেই রেন্ডার করবে
         if (JSON.stringify(allChannels) !== JSON.stringify(newChannels)) {
             allChannels = newChannels;
             const searchVal = document.getElementById("search").value;
@@ -387,8 +400,7 @@ async function init() {
   setupMXControls(player);
   await fetchChannels();
   setInterval(adjustMargin, 500);
-  
-  // প্রতি ৩০ সেকেন্ড (৩০০০০ মিলিসেকেন্ড) পর পর অটোমেটিক আপডেট চেক করবে
+  // ৩০ সেকেন্ড অটো রিফ্রেশ
   setInterval(fetchChannels, 30000); 
 }
 
