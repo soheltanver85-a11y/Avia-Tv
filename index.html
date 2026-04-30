@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="referrer" content="no-referrer">
-  <title>Avia TV - Live Streaming</title>
+  <title>Avia TV - Premium Live Streaming</title>
   
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
   <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
@@ -110,6 +110,7 @@
     .video-container { position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1000px; margin: 0 auto; background: #000; box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5); touch-action: none; overflow: hidden; }
     .video-js { width: 100% !important; height: 100% !important; }
     
+    /* Fullscreen CSS fix */
     .video-js.vjs-fullscreen { z-index: 99999 !important; }
 
     .vjs-gesture-hint {
@@ -164,6 +165,7 @@
       content: ""; width: 6px; height: 6px; background: var(--primary);
       border-radius: 50%; display: inline-block; box-shadow: 0 0 8px var(--primary);
     }
+    .count-animate { transform: scale(1.1); background: rgba(0, 229, 255, 0.25) !important; }
 
     .tabs { display: flex; gap: 6px; width: 100%; clear: both; }
     .tab-btn { 
@@ -288,8 +290,7 @@
 
 <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
 <script>
-// jsDelivr CDN লিঙ্ক (এটিকে ক্যাশ মুক্ত করা হয়েছে)
-const playlistUrl = "https://fastly.jsdelivr.net/gh/soheltanver85-a11y/Live-tv@main/Live%20tv";
+const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let player, currentUrl = "";
 
@@ -382,28 +383,23 @@ function playStream(url, name, shouldScroll = false) {
 async function init() {
   player = videojs('v-player', { 
     fluid: true,
-    responsive: true
+    responsive: true,
+    userActions: {
+      click: true,
+      doubleClick: true
+    }
   });
   
   setupMXControls(player);
   
   try {
-    // Math.random() ব্যবহার করা হয়েছে যাতে প্রতিবার ফ্রেশ ডেটা আসে
-    const finalUrl = `${playlistUrl}?v=${Math.random()}`;
-    const res = await fetch(finalUrl, { cache: "no-store" });
+    const res = await fetch(playlistUrl);
     const data = await res.text();
-    
     allChannels = parseM3U(data);
     renderChannels(allChannels);
-    
     if(allChannels.length > 0) playStream(allChannels[0].url, allChannels[0].name, false);
-    
-    window.addEventListener('resize', adjustMargin);
-    adjustMargin();
-  } catch(e) { 
-    console.error(e); 
-    document.getElementById("channelList").innerText = "Error loading channels. Please refresh.";
-  }
+    setInterval(adjustMargin, 500);
+  } catch(e) { console.error(e); }
 }
 
 function parseM3U(data) {
@@ -430,7 +426,6 @@ function renderChannels(list) {
       <div class="channel-name">${ch.name}</div>
     </div>`).join('');
   document.getElementById("count").textContent = list.length + " CH";
-  setTimeout(adjustMargin, 100);
 }
 
 function handleSearch(val) {
@@ -453,10 +448,12 @@ function toggleFav(event, id) {
   event.target.classList.toggle('active');
 }
 
+// সংশোধিত ফুলস্ক্রিন ফাংশন যা সব ব্রাউজারে কাজ করবে
 function toggleRotateManual() {
   if (player) {
     if (!player.isFullscreen()) {
       player.requestFullscreen();
+      // মোবাইলে ল্যান্ডস্কেপ করার চেষ্টা
       if (screen.orientation && screen.orientation.lock) {
         screen.orientation.lock('landscape').catch(() => {});
       }
