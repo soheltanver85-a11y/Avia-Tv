@@ -288,8 +288,8 @@
 
 <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
 <script>
-// আপডেট করা ক্যাশ বাস্টারিং ইউআরএল
-const playlistBaseUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
+// jsDelivr CDN লিঙ্ক (এটিকে ক্যাশ মুক্ত করা হয়েছে)
+const playlistUrl = "https://fastly.jsdelivr.net/gh/soheltanver85-a11y/Live-tv@main/Live%20tv";
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let player, currentUrl = "";
 
@@ -361,11 +361,8 @@ function setupMXControls(player) {
 }
 
 function adjustMargin() {
-  const topSection = document.getElementById('top-section');
-  if (topSection) {
-    const h = topSection.offsetHeight;
-    document.getElementById('content-area').style.marginTop = (h + 5) + 'px';
-  }
+  const h = document.getElementById('top-section').offsetHeight;
+  document.getElementById('content-area').style.marginTop = (h + 5) + 'px';
 }
 
 function playStream(url, name, shouldScroll = false) {
@@ -385,32 +382,27 @@ function playStream(url, name, shouldScroll = false) {
 async function init() {
   player = videojs('v-player', { 
     fluid: true,
-    responsive: true,
-    userActions: {
-      click: true,
-      doubleClick: true
-    }
+    responsive: true
   });
   
   setupMXControls(player);
   
   try {
-    // এখানে টাইমস্ট্যাম্প যোগ করা হয়েছে যাতে ব্রাউজার ক্যাশ থেকে লোড না করে
-    const timestamp = new Date().getTime();
-    const finalUrl = `${playlistBaseUrl}?t=${timestamp}`;
-    
+    // Math.random() ব্যবহার করা হয়েছে যাতে প্রতিবার ফ্রেশ ডেটা আসে
+    const finalUrl = `${playlistUrl}?v=${Math.random()}`;
     const res = await fetch(finalUrl, { cache: "no-store" });
     const data = await res.text();
+    
     allChannels = parseM3U(data);
     renderChannels(allChannels);
+    
     if(allChannels.length > 0) playStream(allChannels[0].url, allChannels[0].name, false);
     
-    // মার্জিন ঠিক করার জন্য ইভেন্ট লিসেনার (পারফরম্যান্স ফ্রেন্ডলি)
     window.addEventListener('resize', adjustMargin);
     adjustMargin();
   } catch(e) { 
-    console.error("Fetch Error:", e);
-    document.getElementById("channelList").innerText = "চ্যানেল লোড করা সম্ভব হয়নি।";
+    console.error(e); 
+    document.getElementById("channelList").innerText = "Error loading channels. Please refresh.";
   }
 }
 
