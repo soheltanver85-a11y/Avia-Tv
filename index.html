@@ -488,4 +488,46 @@ function parseM3U(data) {
   return list;
 }
 
-function renderChanne
+function renderChannels(list) {
+  const grid = document.getElementById("channelList");
+  grid.innerHTML = list.map(ch => `
+    <div class="channel-card ${currentUrl === ch.url ? 'playing' : ''}" data-url="${ch.url}" onclick="playStream('${ch.url}', '${ch.name}', true)">
+      <i class="fa-solid fa-star fav-star ${favorites.includes(ch.id) ? 'active' : ''}" onclick="toggleFav(event, '${ch.id}')"></i>
+      <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716429.png'">
+      <div class="channel-name">${ch.name}</div>
+    </div>`).join('');
+  document.getElementById("count").textContent = list.length + " CH";
+}
+
+function handleSearch(val) {
+    const filtered = allChannels.filter(ch => ch.name.toLowerCase().includes(val.toLowerCase()));
+    renderChannels(filtered);
+}
+
+function filterCat(cat, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (cat === 'all') renderChannels(allChannels);
+  else if (cat === 'fav') renderChannels(allChannels.filter(ch => favorites.includes(ch.id)));
+  else renderChannels(allChannels.filter(ch => ch.name.toLowerCase().includes(cat.toLowerCase())));
+}
+
+function toggleFav(event, id) {
+  event.stopPropagation();
+  favorites = favorites.includes(id) ? favorites.filter(f => f !== id) : [...favorites, id];
+  localStorage.setItem('myFavs', JSON.stringify(favorites));
+  event.target.classList.toggle('active');
+}
+
+function toggleRotateManual() {
+  if (player) {
+    if (!player.isFullscreen()) {
+      player.requestFullscreen();
+      if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(() => {});
+    } else { player.exitFullscreen(); }
+  }
+}
+</script>
+
+</body>
+</html>
