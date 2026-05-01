@@ -20,6 +20,7 @@
       --tg: #24A1DE; --apk: #3DDC84; --online: #4CAF50; --refresh: #ffa500; --text: #ffffff;
       --header-bg: rgba(10, 10, 10, 0.8);
       --gold-gradient: linear-gradient(135deg, #ffdb00, #ffa500);
+      --sidebar-width: 280px;
     }
 
     body.light-mode {
@@ -42,6 +43,86 @@
       transition: background 0.3s ease;
     }
 
+    /* --- Side Navigation Styling --- */
+    .sidenav {
+      height: 100%;
+      width: 0;
+      position: fixed;
+      z-index: 2000;
+      top: 0;
+      left: 0;
+      background-color: #111;
+      overflow-x: hidden;
+      transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      padding-top: 60px;
+      box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+      border-right: 1px solid var(--card-border);
+    }
+
+    .sidenav .closebtn {
+      position: absolute;
+      top: 15px;
+      right: 25px;
+      font-size: 30px;
+      color: #818181;
+      text-decoration: none;
+    }
+
+    .menu-section-label {
+        padding: 20px 25px 10px;
+        font-size: 11px;
+        color: #555;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-weight: 900;
+    }
+
+    .sidenav a, .menu-item-div {
+      padding: 12px 25px;
+      text-decoration: none;
+      font-size: 15px;
+      color: #ccc;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      transition: 0.3s;
+    }
+
+    .sidenav a:hover { color: var(--primary); background: rgba(255,255,255,0.05); }
+
+    .sidenav .live-badge {
+        background: #ff4081;
+        color: white;
+        font-size: 9px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: bold;
+        margin-left: auto;
+        animation: pulse-animation 1.5s infinite;
+    }
+
+    /* Overlay for menu */
+    .menu-overlay {
+      display: none;
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0; left: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 1999;
+      backdrop-filter: blur(3px);
+    }
+
+    /* --- Modern Menu Icon --- */
+    .menu-trigger {
+        font-size: 22px;
+        cursor: pointer;
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        padding: 5px;
+    }
+
     #top-section { 
       position: fixed; top: 0; left: 0; width: 100%; 
       background: var(--header-bg); 
@@ -53,30 +134,7 @@
 
     .brand-header { padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; }
     
-    .brand-logo-container { display: flex; align-items: center; gap: 8px; }
-    .modern-tv-logo {
-      width: 30px; height: 26px;
-      background: #111;
-      border: 2px solid #333;
-      border-radius: 6px;
-      position: relative;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: inset 0 0 5px rgba(255,255,255,0.1);
-    }
-    .modern-tv-logo::before {
-      content: '';
-      width: 6px; height: 6px;
-      background: var(--gold-gradient);
-      border-radius: 50%;
-      box-shadow: 0 0 10px #ffdb00, 0 0 5px #ffdb00;
-    }
-    .modern-tv-logo::after {
-      content: '';
-      position: absolute; bottom: -5px; left: 50%;
-      transform: translateX(-50%);
-      width: 12px; height: 3px;
-      background: #333; border-radius: 2px;
-    }
+    .brand-logo-container { display: flex; align-items: center; gap: 12px; }
 
     .brand-title-new { 
       font-size: 19px; font-weight: 900; letter-spacing: 1px; 
@@ -86,19 +144,13 @@
     
     .header-right-side { display: flex; align-items: center; gap: 12px; }
 
-    .theme-switch {
-      position: relative; width: 45px; height: 22px;
-      background: #333; border-radius: 20px; cursor: pointer;
-      display: flex; align-items: center; padding: 0 4px;
-      transition: 0.3s; border: 1px solid var(--card-border);
-    }
-    .theme-switch .dot {
-      width: 16px; height: 16px; background: #fff; border-radius: 50%;
-      transition: 0.3s; display: flex; align-items: center; justify-content: center;
-      font-size: 10px; color: #000;
-    }
-    body.light-mode .theme-switch { background: var(--primary); }
-    body.light-mode .theme-switch .dot { transform: translateX(20px); }
+    /* Switch toggle style */
+    .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 34px; }
+    .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+    input:checked + .slider { background-color: var(--primary); }
+    input:checked + .slider:before { transform: translateX(16px); }
 
     .online-counter-box {
       display: inline-flex; align-items: center; gap: 6px; background: rgba(76, 175, 80, 0.1);
@@ -134,7 +186,6 @@
     .btn-rotate { background: var(--primary); border: none; }
     .btn-rotate i, .btn-rotate span { color: #000; font-weight: 800; }
 
-    /* Refresh Animation */
     .spin { animation: fa-spin 1s linear infinite; }
 
     .search-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; width: 100%; }
@@ -160,10 +211,6 @@
       display: flex; align-items: center; gap: 5px; transition: all 0.3s ease;
       white-space: nowrap; height: 38px;
     }
-    #count::before {
-      content: ""; width: 6px; height: 6px; background: var(--primary);
-      border-radius: 50%; display: inline-block; box-shadow: 0 0 8px var(--primary);
-    }
 
     .tabs { display: flex; gap: 6px; width: 100%; clear: both; }
     .tab-btn { 
@@ -186,7 +233,6 @@
     }
     .channel-card:hover { transform: translateY(-5px); border-color: var(--primary); }
     .channel-card.playing { border-color: var(--primary); background: rgba(0, 229, 255, 0.15); transform: scale(1.05); }
-    .channel-card.playing .channel-name { color: var(--primary); font-weight: 800; }
 
     .fav-star { position: absolute; top: 8px; right: 8px; font-size: 12px; color: rgba(128,128,128,0.3); transition: 0.3s; }
     .fav-star.active { color: var(--star); text-shadow: 0 0 8px var(--star); }
@@ -202,17 +248,42 @@
 </head>
 <body onload="init()">
 
+<div id="mySidenav" class="sidenav">
+  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+  
+  <div class="menu-section-label">Exclusive</div>
+  <a href="#"><i class="fa-solid fa-bolt" style="color: #ff4081;"></i> FanCode Live <span class="live-badge">LIVE</span></a>
+  
+  <div class="menu-section-label">Settings</div>
+  <div class="menu-item-div">
+    <i class="fa-solid fa-clock-rotate-left"></i> Remember Last Ch...
+    <label class="switch">
+        <input type="checkbox">
+        <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="menu-section-label">Communicate</div>
+  <a href="https://t.me/techbd_group" target="_blank"><i class="fa-brands fa-telegram" style="color:#24A1DE"></i> Telegram</a>
+  <a href="#"><i class="fa-solid fa-envelope"></i> Contact</a>
+  <a href="javascript:void(0)" onclick="shareApp()"><i class="fa-solid fa-share-nodes"></i> Share</a>
+  <a href="https://www.mediafire.com/file/mkby3e9skeyfz8n/Avia+Tv+1.0.0.apk/file" target="_blank"><i class="fa-solid fa-download" style="color:#3DDC84"></i> Update App</a>
+  <a href="#"><i class="fa-solid fa-copyright"></i> Copyright</a>
+  <a href="javascript:void(0)" onclick="window.close()"><i class="fa-solid fa-right-from-bracket"></i> Exit</a>
+</div>
+
+<div id="menuOverlay" class="menu-overlay" onclick="closeNav()"></div>
+
 <div id="top-section">
   <div class="brand-header">
     <div class="brand-logo-container">
-        <div class="modern-tv-logo"></div>
+        <div class="menu-trigger" onclick="openNav()">
+            <i class="fa-solid fa-bars-staggered"></i>
+        </div>
         <div class="brand-title-new">AVIA TV</div>
     </div>
     
     <div class="header-right-side">
-      <div class="theme-switch" id="theme-toggle" onclick="toggleTheme()">
-        <div class="dot"><i id="theme-icon" class="fa-solid fa-moon"></i></div>
-      </div>
       <div class="online-counter-box">
         <div class="online-dot-blink"></div>
         <span>ONLINE: <span id="user-count">0</span></span>
@@ -296,7 +367,17 @@ const basePlaylistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Li
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let player, currentUrl = "";
 
-// ম্যানুয়াল রিফ্রেশ ফাংশন (অ্যানিমেশনসহ)
+// Sidebar Control
+function openNav() {
+  document.getElementById("mySidenav").style.width = "var(--sidebar-width)";
+  document.getElementById("menuOverlay").style.display = "block";
+}
+
+function closeNav() {
+  document.getElementById("mySidenav").style.width = "0";
+  document.getElementById("menuOverlay").style.display = "none";
+}
+
 async function manualRefresh() {
     const icon = document.getElementById("refresh-icon");
     icon.classList.add("spin");
@@ -331,17 +412,6 @@ function shareApp() {
         alert('Link copied!');
     }
 }
-
-function toggleTheme() {
-    const body = document.body;
-    const icon = document.getElementById('theme-icon');
-    body.classList.toggle('light-mode');
-    const mode = body.classList.contains('light-mode') ? 'light' : 'dark';
-    icon.classList.replace(mode === 'light' ? 'fa-moon' : 'fa-sun', mode === 'light' ? 'fa-sun' : 'fa-moon');
-    localStorage.setItem('avia-theme', mode);
-}
-
-if (localStorage.getItem('avia-theme') === 'light') document.body.classList.add('light-mode');
 
 function setupMXControls(player) {
     const wrapper = document.getElementById('player-wrapper');
@@ -400,7 +470,6 @@ async function init() {
   setupMXControls(player);
   await fetchChannels();
   setInterval(adjustMargin, 500);
-  // ৩০ সেকেন্ড অটো রিফ্রেশ
   setInterval(fetchChannels, 30000); 
 }
 
@@ -419,46 +488,4 @@ function parseM3U(data) {
   return list;
 }
 
-function renderChannels(list) {
-  const grid = document.getElementById("channelList");
-  grid.innerHTML = list.map(ch => `
-    <div class="channel-card ${currentUrl === ch.url ? 'playing' : ''}" data-url="${ch.url}" onclick="playStream('${ch.url}', '${ch.name}', true)">
-      <i class="fa-solid fa-star fav-star ${favorites.includes(ch.id) ? 'active' : ''}" onclick="toggleFav(event, '${ch.id}')"></i>
-      <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716429.png'">
-      <div class="channel-name">${ch.name}</div>
-    </div>`).join('');
-  document.getElementById("count").textContent = list.length + " CH";
-}
-
-function handleSearch(val) {
-    const filtered = allChannels.filter(ch => ch.name.toLowerCase().includes(val.toLowerCase()));
-    renderChannels(filtered);
-}
-
-function filterCat(cat, btn) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  if (cat === 'all') renderChannels(allChannels);
-  else if (cat === 'fav') renderChannels(allChannels.filter(ch => favorites.includes(ch.id)));
-  else renderChannels(allChannels.filter(ch => ch.name.toLowerCase().includes(cat.toLowerCase())));
-}
-
-function toggleFav(event, id) {
-  event.stopPropagation();
-  favorites = favorites.includes(id) ? favorites.filter(f => f !== id) : [...favorites, id];
-  localStorage.setItem('myFavs', JSON.stringify(favorites));
-  event.target.classList.toggle('active');
-}
-
-function toggleRotateManual() {
-  if (player) {
-    if (!player.isFullscreen()) {
-      player.requestFullscreen();
-      if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(() => {});
-    } else { player.exitFullscreen(); }
-  }
-}
-</script>
-
-</body>
-</html>
+function renderChanne
