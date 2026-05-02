@@ -3,18 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Avia TV - Fixed</title>
+<title>Avia TV</title>
 
 <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
 <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
 
 <style>
-body {margin:0;background:#000;color:#fff;font-family:sans-serif;}
-.video-container {width:100%;aspect-ratio:16/9;}
+body {margin:0;background:#050505;color:#fff;font-family:sans-serif;}
+.video-container {width:100%;aspect-ratio:16/9;background:#000;}
 .video-js {width:100%!important;height:100%!important;}
-#channelList {display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;padding:10px;}
-.card {background:#111;padding:10px;text-align:center;cursor:pointer;border-radius:10px;}
-.card:hover {background:#222;}
+#channelList {display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;padding:10px;}
+.card {background:#111;padding:10px;text-align:center;border-radius:12px;cursor:pointer;}
+.card.playing {border:1px solid cyan;}
+input {width:100%;padding:10px;margin:10px;background:#111;border:none;color:#fff;border-radius:8px;}
+.tabs {display:flex;gap:5px;padding:10px;}
+.tab {flex:1;background:#111;padding:8px;text-align:center;border-radius:8px;cursor:pointer;}
+.tab.active {background:cyan;color:#000;}
 </style>
 </head>
 
@@ -24,29 +28,36 @@ body {margin:0;background:#000;color:#fff;font-family:sans-serif;}
 <video id="v-player" class="video-js" controls autoplay muted></video>
 </div>
 
+<input type="text" placeholder="Search..." oninput="handleSearch(this.value)">
+
+<div class="tabs">
+<div class="tab active" onclick="filterCat('all',this)">ALL</div>
+<div class="tab" onclick="filterCat('sports',this)">SPORTS</div>
+<div class="tab" onclick="filterCat('bangla',this)">BANGLA</div>
+<div class="tab" onclick="filterCat('fav',this)">FAV</div>
+</div>
+
 <div id="channelList"></div>
 
 <script>
-const basePlaylistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
+const basePlaylistUrl="https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 
-let player, allChannels=[], currentUrl="";
+let player,allChannels=[],currentUrl="";
+let favorites=JSON.parse(localStorage.getItem('fav'))||[];
 
 // ---------- INIT ----------
 async function init(){
-player = videojs('v-player',{
+player=videojs('v-player',{
 autoplay:true,
 muted:true,
 controls:true,
 fluid:true,
 liveui:true,
-html5:{
-hls:{overrideNative:true}
-}
+html5:{hls:{overrideNative:true}}
 });
 
-// error auto retry
-player.on('error', ()=>{
-console.log("Error... retry");
+// error fix
+player.on('error',()=>{
 setTimeout(()=>{
 if(currentUrl){
 player.src({src:currentUrl,type:'application/x-mpegURL'});
@@ -56,13 +67,11 @@ player.play().catch(()=>{});
 });
 
 // autoplay fix
-player.ready(()=>{
-player.play().catch(()=>{});
-});
+player.ready(()=>{player.play().catch(()=>{});});
 
 await fetchChannels();
 
-// auto refresh stream
+// auto refresh
 setInterval(()=>{
 if(currentUrl && !player.paused()){
 player.src({src:currentUrl,type:'application/x-mpegURL'});
@@ -73,11 +82,13 @@ player.play().catch(()=>{});
 
 // ---------- FETCH ----------
 async function fetchChannels(){
-const res = await fetch(basePlaylistUrl + "?t=" + Date.now());
-const data = await res.text();
-allChannels = parseM3U(data);
-renderChannels();
-if(allChannels.length>0) playStream(allChannels[0].url);
+const res=await fetch(basePlaylistUrl+"?t="+Date.now());
+const data=await res.text();
+allChannels=parseM3U(data);
+renderChannels(allChannels);
+if(allChannels.length>0 && !currentUrl){
+playStream(allChannels[0].url,allChannels[0].name);
+}
 }
 
 // ---------- PARSE ----------
@@ -87,6 +98,7 @@ let list=[],cur={};
 lines.forEach(l=>{
 if(l.startsWith("#EXTINF")){
 cur.name=l.split(",")[1];
+cur.id=btoa(cur.name||"");
 }
 else if(l.startsWith("http")){
 cur.url=l.trim();
@@ -98,29 +110,51 @@ return list;
 }
 
 // ---------- RENDER ----------
-function renderChannels(){
+function renderChannels(list){
 const el=document.getElementById("channelList");
-el.innerHTML=allChannels.map(ch=>`
-<div class="card" onclick="playStream('${ch.url}')">
+el.innerHTML=list.map(ch=>`
+<div class="card ${currentUrl===ch.url?'playing':''}" onclick="playStream('${ch.url}','${ch.name}')">
+⭐ <span onclick="toggleFav(event,'${ch.id}')">${favorites.includes(ch.id)?'★':'☆'}</span><br>
 ${ch.name}
 </div>
 `).join("");
 }
 
 // ---------- PLAY ----------
-function playStream(url){
+function playStream(url,name){
 currentUrl=url;
 
 player.pause();
-player.src({
-src:url,
-type:'application/x-mpegURL'
-});
+player.src({src:url,type:'application/x-mpegURL'});
 player.load();
 
-player.play().catch(()=>{
-setTimeout(()=>player.play().catch(()=>{}),1000);
-});
+player.play().catch(()=>{setTimeout(()=>player.play(),1000);});
+
+renderChannels(allChannels);
+}
+
+// ---------- SEARCH ----------
+function handleSearch(val){
+const filtered=allChannels.filter(c=>c.name.toLowerCase().includes(val.toLowerCase()));
+renderChannels(filtered);
+}
+
+// ---------- FILTER ----------
+function filterCat(cat,el){
+document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+el.classList.add('active');
+
+if(cat==='all') renderChannels(allChannels);
+else if(cat==='fav') renderChannels(allChannels.filter(c=>favorites.includes(c.id)));
+else renderChannels(allChannels.filter(c=>c.name.toLowerCase().includes(cat)));
+}
+
+// ---------- FAVORITE ----------
+function toggleFav(e,id){
+e.stopPropagation();
+favorites=favorites.includes(id)?favorites.filter(f=>f!==id):[...favorites,id];
+localStorage.setItem('fav',JSON.stringify(favorites));
+renderChannels(allChannels);
 }
 </script>
 
