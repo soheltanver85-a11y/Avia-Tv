@@ -45,23 +45,14 @@
 
     /* Side Navigation */
     .sidenav {
-      height: 100%;
-      width: 0;
-      position: fixed;
-      z-index: 2000;
-      top: 0;
-      left: 0;
-      background-color: #111;
-      overflow-x: hidden;
-      transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-      padding-top: 60px;
-      box-shadow: 5px 0 15px rgba(0,0,0,0.5);
-      border-right: 1px solid var(--card-border);
+      height: 100%; width: 0; position: fixed; z-index: 2000; top: 0; left: 0;
+      background-color: #111; overflow-x: hidden; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      padding-top: 60px; box-shadow: 5px 0 15px rgba(0,0,0,0.5); border-right: 1px solid var(--card-border);
     }
 
     .sidenav .closebtn { position: absolute; top: 15px; right: 25px; font-size: 30px; color: #818181; text-decoration: none; }
     .menu-section-label { padding: 20px 25px 10px; font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 2px; font-weight: 900; }
-    .sidenav a, .menu-item-div { padding: 12px 25px; text-decoration: none; font-size: 15px; color: #ccc; display: flex; align-items: center; gap: 15px; transition: 0.3s; }
+    .sidenav a { padding: 12px 25px; text-decoration: none; font-size: 15px; color: #ccc; display: flex; align-items: center; gap: 15px; transition: 0.3s; }
     .sidenav a:hover { color: var(--primary); background: rgba(255,255,255,0.05); }
     .live-badge { background: #ff4081; color: white; font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: auto; animation: pulse-animation 1.5s infinite; }
     .menu-overlay { display: none; position: fixed; width: 100%; height: 100%; top: 0; left: 0; background: rgba(0,0,0,0.7); z-index: 1999; backdrop-filter: blur(3px); }
@@ -70,10 +61,8 @@
 
     #top-section { 
       position: fixed; top: 0; left: 0; width: 100%; 
-      background: var(--header-bg); 
-      backdrop-filter: blur(25px); 
-      -webkit-backdrop-filter: blur(25px);
-      z-index: 1000; 
+      background: var(--header-bg); backdrop-filter: blur(25px); 
+      -webkit-backdrop-filter: blur(25px); z-index: 1000; 
       border-bottom: 1px solid var(--card-border); 
     }
 
@@ -81,22 +70,26 @@
     .brand-logo-container { display: flex; align-items: center; gap: 12px; }
     .brand-title-new { font-size: 19px; font-weight: 900; letter-spacing: 1px; background: linear-gradient(to right, #fff, #a2f9ff, #fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     
-    .header-right-side { display: flex; align-items: center; gap: 12px; }
-    .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 34px; }
-    .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-    input:checked + .slider { background-color: var(--primary); }
-    input:checked + .slider:before { transform: translateX(16px); }
-
     .online-counter-box { display: inline-flex; align-items: center; gap: 6px; background: rgba(76, 175, 80, 0.1); color: var(--online); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; border: 1px solid rgba(76, 175, 80, 0.2); }
     .online-dot-blink { width: 6px; height: 6px; background-color: var(--online); border-radius: 50%; animation: pulse-animation 1.5s infinite; }
-    @keyframes pulse-animation { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-    /* Video Player Fixes */
-    .video-container { position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1000px; margin: 0 auto; background: #000; box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5); overflow: hidden; }
-    .video-js { width: 100% !important; height: 100% !important; font-family: 'Inter', sans-serif; }
-    
+    /* Unique Slow Ticker Style */
+    #ticker { 
+      background: linear-gradient(90deg, rgba(255,255,255,0.01), rgba(0, 229, 255, 0.05), rgba(255,255,255,0.01));
+      padding: 10px 0; font-size: 13px; border-bottom: 1px solid var(--card-border); overflow: hidden; 
+    }
+    .ticker-content { display: inline-block; white-space: nowrap; animation: marquee 35s linear infinite; color: var(--text); }
+    .ticker-content b { color: var(--primary); text-shadow: 0 0 5px rgba(0, 229, 255, 0.3); }
+    .tg-link-inline { 
+      background: rgba(36, 161, 222, 0.15); color: #24A1DE !important; padding: 2px 12px; 
+      border-radius: 50px; text-decoration: none; font-weight: 900; border: 1px solid rgba(36, 161, 222, 0.3);
+      margin-left: 5px; transition: 0.3s;
+    }
+    .tg-link-inline:hover { background: #24A1DE; color: #fff !important; }
+
+    /* Video Player */
+    .video-container { position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1000px; margin: 0 auto; background: #000; overflow: hidden; }
+    .video-js { width: 100% !important; height: 100% !important; }
     .vjs-gesture-hint {
         position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
         background: rgba(0, 0, 0, 0.8); color: var(--primary); padding: 12px 25px;
@@ -104,29 +97,21 @@
         display: none; pointer-events: none; border: 1px solid var(--primary);
     }
 
-    #ticker { background: rgba(255,255,255,0.02); padding: 6px 0; font-size: 10px; border-bottom: 1px solid var(--card-border); overflow: hidden; }
-    .ticker-content { display: inline-block; animation: marquee 30s linear infinite; white-space: nowrap; color: var(--text); opacity: 0.8; }
-    .ticker-content b { color: var(--primary); }
-
     header { padding: 12px; }
     .action-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
     .rect-btn { height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text); cursor: pointer; text-decoration: none; gap: 6px; transition: 0.3s; }
-    .rect-btn:active { transform: scale(0.95); }
     .rect-btn span { font-size: 9px; font-weight: 600; text-transform: uppercase; }
-    .btn-rotate { background: var(--primary); border: none; }
-    .btn-rotate i, .btn-rotate span { color: #000; font-weight: 800; }
+    .btn-rotate { background: var(--primary); border: none; color: #000; font-weight: 800; }
 
-    .spin { animation: fa-spin 1s linear infinite; }
-    .search-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; width: 100%; }
-    #search { flex: 1; background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text); padding: 10px 15px; border-radius: 12px; font-size: 13px; transition: 0.3s; }
-    .share-btn { width: 38px; height: 38px; border-radius: 12px; background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; }
-    #count { font-size: 11px; color: var(--primary); font-weight: 800; background: rgba(0, 229, 255, 0.1); padding: 8px 12px; border-radius: 10px; border: 1px solid rgba(0, 229, 255, 0.2); height: 38px; display: flex; align-items: center; }
+    .search-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    #search { flex: 1; background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text); padding: 10px 15px; border-radius: 12px; font-size: 13px; }
+    #count { font-size: 11px; color: var(--primary); font-weight: 800; background: rgba(0, 229, 255, 0.1); padding: 8px 12px; border-radius: 10px; border: 1px solid rgba(0, 229, 255, 0.2); }
 
-    .tabs { display: flex; gap: 6px; width: 100%; margin-top: 5px; }
-    .tab-btn { flex: 1; padding: 8px 5px; background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text); opacity: 0.7; border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer; }
+    .tabs { display: flex; gap: 6px; }
+    .tab-btn { flex: 1; padding: 8px 5px; background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text); border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer; opacity: 0.7; }
     .tab-btn.active { background: var(--primary); color: #000; border-color: var(--primary); opacity: 1; }
 
-    #content-area { margin-top: 400px; }
+    #content-area { margin-top: 420px; }
     #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; padding: 15px; }
     
     .channel-card { background: var(--card-bg); border-radius: 18px; padding: 15px 8px; text-align: center; border: 1px solid var(--card-border); transition: 0.3s; position: relative; }
@@ -140,6 +125,7 @@
     .dev-credits { font-size: 9px; color: #888; letter-spacing: 1.5px; text-transform: uppercase; }
 
     @keyframes marquee { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
+    @keyframes pulse-animation { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
   </style>
 </head>
 <body onload="init()">
@@ -152,7 +138,6 @@
   <a href="https://t.me/techbd_group" target="_blank"><i class="fa-brands fa-telegram" style="color:#24A1DE"></i> Telegram</a>
   <a href="javascript:void(0)" onclick="shareApp()"><i class="fa-solid fa-share-nodes"></i> Share</a>
   <a href="https://www.mediafire.com/file/mkby3e9skeyfz8n/Avia+Tv+1.0.0.apk/file" target="_blank"><i class="fa-solid fa-download" style="color:#3DDC84"></i> Update App</a>
-  <a href="javascript:void(0)" onclick="window.close()"><i class="fa-solid fa-right-from-bracket"></i> Exit</a>
 </div>
 
 <div id="menuOverlay" class="menu-overlay" onclick="closeNav()"></div>
@@ -163,11 +148,9 @@
         <div class="menu-trigger" onclick="openNav()"><i class="fa-solid fa-bars-staggered"></i></div>
         <div class="brand-title-new">AVIA TV</div>
     </div>
-    <div class="header-right-side">
-      <div class="online-counter-box">
-        <div class="online-dot-blink"></div>
-        <span>ONLINE: <span id="user-count">0</span></span>
-      </div>
+    <div class="online-counter-box">
+      <div class="online-dot-blink"></div>
+      <span>ONLINE: <span id="user-count">0</span></span>
     </div>
   </div>
 
@@ -178,7 +161,10 @@
 
   <div id="ticker">
     <div class="ticker-content" id="ticker-text">
-      <b>দেখছেন:</b> <span id="now-playing-ticker">চ্যানেল নির্বাচন করুন...</span> | 🚀 <b>Avia TV</b> তে স্বাগতম | 📡 বাফারিং ছাড়াই লাইভ স্ট্রিম উপভোগ করুন
+      <b>এখন দেখছেন:</b> <span id="now-playing-ticker" style="color:#ff4081; font-weight:bold;">চ্যানেল নির্বাচন করুন...</span> 
+      <span style="margin:0 40px">•</span> 🚀 <b>Avia TV</b> তে স্বাগতম! কোনো বাফারিং ছাড়াই লাইভ স্ট্রিম উপভোগ করুন 
+      <span style="margin:0 40px">•</span> লেটেস্ট আপডেট পেতে জয়েন করুন: 
+      <a href="https://t.me/techbd_group" target="_blank" class="tg-link-inline"><i class="fa-brands fa-telegram"></i> TECH BD</a>
     </div>
   </div>
 
@@ -192,7 +178,6 @@
     
     <div class="search-row">
         <input type="text" id="search" placeholder="Search Channels..." oninput="handleSearch(this.value)">
-        <button class="share-btn" onclick="shareApp()"><i class="fa-solid fa-share-nodes"></i></button>
         <span id="count">0 CH</span>
     </div>
 
@@ -236,27 +221,17 @@ const basePlaylistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Li
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let player, currentUrl = "";
 
-// Initialize Player
 async function init() {
   player = videojs('v-player', {
-    autoplay: true,
-    controls: true,
-    responsive: true,
-    fluid: true,
-    liveui: true,
-    userActions: { doubleClick: true },
-    html5: { vhs: { overrideNative: true }, nativeAudioTracks: false, nativeVideoTracks: false }
+    autoplay: true, controls: true, responsive: true, fluid: true, liveui: true,
+    html5: { vhs: { overrideNative: true } }
   });
 
-  // অটোমেটিক থেমে যাওয়া রোধ করতে Error Handler
   player.on('error', function() {
-    const error = player.error();
-    if (error && currentUrl) {
-      console.log("Retrying stream due to error...");
+    if (currentUrl) {
       setTimeout(() => {
           player.src({ src: currentUrl, type: 'application/x-mpegURL' });
-          player.load();
-          player.play().catch(e => console.log("Play failed", e));
+          player.load(); player.play().catch(e => {});
       }, 2000);
     }
   });
@@ -270,31 +245,13 @@ function playStream(url, name, shouldScroll = false) {
   if(!url) return;
   currentUrl = url;
   document.getElementById("now-playing-ticker").innerText = name;
+  player.src({ src: url, type: url.includes('.m3u8') ? 'application/x-mpegURL' : 'video/mp4' });
+  player.play().catch(e => {});
   
-  // ভিডিও সোর্স সেট করার সঠিক নিয়ম
-  player.src({
-    src: url,
-    type: url.includes('.m3u8') ? 'application/x-mpegURL' : 'video/mp4'
-  });
-
-  player.ready(() => {
-    player.play().catch(error => {
-      console.log("Autoplay blocked or stream error:", error);
-    });
-  });
-  
-  // UI Update
   document.querySelectorAll('.channel-card').forEach(card => {
     card.classList.toggle('playing', card.getAttribute('data-url') === url);
-    if (shouldScroll && card.getAttribute('data-url') === url) {
-        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
   });
 }
-
-// Side Navigation
-function openNav() { document.getElementById("mySidenav").style.width = "var(--sidebar-width)"; document.getElementById("menuOverlay").style.display = "block"; }
-function closeNav() { document.getElementById("mySidenav").style.width = "0"; document.getElementById("menuOverlay").style.display = "none"; }
 
 async function fetchChannels() {
     try {
@@ -303,7 +260,7 @@ async function fetchChannels() {
         allChannels = parseM3U(data);
         renderChannels(allChannels);
         if(currentUrl === "" && allChannels.length > 0) playStream(allChannels[0].url, allChannels[0].name);
-    } catch(e) { console.error("Fetch Error:", e); }
+    } catch(e) {}
 }
 
 function parseM3U(data) {
@@ -345,8 +302,7 @@ function setupMXControls(player) {
     wrapper.addEventListener('touchmove', (e) => {
         isMoving = true;
         const deltaY = startY - e.touches[0].clientY;
-        const isLeft = startX < (wrapper.clientWidth / 2);
-        if (isLeft) {
+        if (startX < (wrapper.clientWidth / 2)) {
             brightness = Math.min(200, Math.max(10, startBright + (deltaY / 2)));
             wrapper.style.filter = `brightness(${brightness}%)`;
             showHint(`Brightness: ${Math.round(brightness)}%`);
@@ -401,6 +357,9 @@ async function manualRefresh() {
     await fetchChannels();
     setTimeout(() => icon.classList.remove("spin"), 1000);
 }
+
+function openNav() { document.getElementById("mySidenav").style.width = "var(--sidebar-width)"; document.getElementById("menuOverlay").style.display = "block"; }
+function closeNav() { document.getElementById("mySidenav").style.width = "0"; document.getElementById("menuOverlay").style.display = "none"; }
 
 function shareApp() {
     if (navigator.share) {
