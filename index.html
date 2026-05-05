@@ -126,6 +126,13 @@
 
     @keyframes marquee { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
     @keyframes pulse-animation { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    /* রিফ্রেশ আইকন ঘোরানোর জন্য অ্যানিমেশন */
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .spin { animation: spin 1s linear infinite; }
   </style>
 </head>
 <body onload="init()">
@@ -354,8 +361,13 @@ function toggleRotateManual() {
 async function manualRefresh() {
     const icon = document.getElementById("refresh-icon");
     icon.classList.add("spin");
-    await fetchChannels();
-    setTimeout(() => icon.classList.remove("spin"), 1000);
+    try {
+        await fetchChannels();
+    } catch(e) {
+        console.error(e);
+    } finally {
+        setTimeout(() => icon.classList.remove("spin"), 1000);
+    }
 }
 
 function openNav() { document.getElementById("mySidenav").style.width = "var(--sidebar-width)"; document.getElementById("menuOverlay").style.display = "block"; }
