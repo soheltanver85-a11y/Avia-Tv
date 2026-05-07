@@ -194,7 +194,8 @@
     <i class="fa-solid fa-share-nodes"></i>
     <span>Share App</span>
   </div>
-  <div class="sidebar-menu-item" onclick="location.reload()" style="margin-top:20px; border-top:1px solid var(--card-border); padding-top:20px;">
+  
+  <div class="sidebar-menu-item" onclick="exitApp()" style="margin-top:20px; border-top:1px solid var(--card-border); padding-top:20px;">
     <i class="fa-solid fa-right-from-bracket"></i>
     <span>Exit</span>
   </div>
@@ -270,7 +271,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-  import { getDatabase, ref, onValue, push, set, onDisconnect } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+  import { getDatabase, ref, onValue, push, set, onDisconnect } from "https://www.gstatic.com/firebaseio.com/firebase-database.js";
   const firebaseConfig = { databaseURL: "https://avia-tv-default-rtdb.firebaseio.com/" };
   try {
     const app = initializeApp(firebaseConfig);
@@ -301,13 +302,32 @@ function toggleRemember() {
   document.getElementById('rememberChannel').classList.toggle('toggle-active');
 }
 
+// Updated playFanCode to filter all FanCode channels
 function playFanCode() {
-  const fanCode = allChannels.find(ch => ch.name.toLowerCase().includes('fancode'));
-  if(fanCode) playStream(fanCode.url, fanCode.name, true);
+  const fanCodeChannels = allChannels.filter(ch => ch.name.toLowerCase().includes('fancode'));
+  if(fanCodeChannels.length > 0) {
+    renderChannels(fanCodeChannels);
+    playStream(fanCodeChannels[0].url, fanCodeChannels[0].name, true);
+  } else {
+    alert("FanCode চ্যানেল পাওয়া যায়নি!");
+  }
   toggleSidebar();
 }
 
-// Player Gesture Controls (Volume, Brightness, Play/Pause)
+// Exit App function
+function exitApp() {
+    if (confirm("আপনি কি নিশ্চিতভাবে বের হয়ে যেতে চান?")) {
+        window.close();
+        // Fallback for browsers or specific app interfaces
+        if (typeof JavaScriptInterface !== "undefined" && JavaScriptInterface.closeApp) {
+            JavaScriptInterface.closeApp();
+        } else {
+            window.location.href = "about:blank";
+        }
+    }
+}
+
+// Player Gesture Controls
 function setupMXControls(player) {
     const wrapper = document.getElementById('player-wrapper');
     const hint = document.getElementById('gesture-hint');
@@ -381,7 +401,6 @@ function playStream(url, name, shouldScroll = false) {
   player.src({ src: url, type: 'application/x-mpegURL' });
   player.play().catch(() => {});
   
-  // Update only classes without re-rendering the whole list
   document.querySelectorAll('.channel-card').forEach(card => {
     if (card.getAttribute('data-url') === url) {
       card.classList.add('playing');
