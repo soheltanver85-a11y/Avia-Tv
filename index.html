@@ -73,7 +73,7 @@
     .toggle-active .toggle-btn { background: var(--primary); }
     .toggle-active .toggle-btn::after { left: 22px; }
 
-    /* --- Header & Top Bar --- */
+    /* --- Header & Top Section --- */
     #top-section { 
       position: fixed; top: 0; left: 0; width: 100%; 
       background: var(--header-bg); 
@@ -107,7 +107,7 @@
     .online-dot-blink { width: 6px; height: 6px; background-color: var(--online); border-radius: 50%; animation: pulse-animation 1.5s infinite; }
     @keyframes pulse-animation { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-    /* --- Video Player & Controls --- */
+    /* --- Video Player & Hints --- */
     .video-container { position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1000px; margin: 0 auto; background: #000; box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5); touch-action: none; overflow: hidden; }
     .video-js { width: 100% !important; height: 100% !important; }
     
@@ -138,10 +138,10 @@
     .tab-btn { flex: 1; padding: 8px 5px; background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text); opacity: 0.7; border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer; transition: 0.3s; }
     .tab-btn.active { background: var(--primary); color: #000; border-color: var(--primary); opacity: 1; }
 
-    #content-area { margin-top: 390px; }
+    #content-area { margin-top: 390px; transition: margin-top 0.3s; }
     #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; padding: 15px; }
-    .channel-card { background: var(--card-bg); border-radius: 18px; padding: 15px 8px; text-align: center; border: 1px solid var(--card-border); transition: 0.4s; position: relative; }
-    .channel-card.playing { border-color: var(--primary); background: rgba(0, 229, 255, 0.15); transform: scale(1.05); }
+    .channel-card { background: var(--card-bg); border-radius: 18px; padding: 15px 8px; text-align: center; border: 1px solid var(--card-border); transition: 0.3s; position: relative; }
+    .channel-card.playing { border-color: var(--primary); background: rgba(0, 229, 255, 0.15); transform: scale(1.02); }
     .channel-logo { height: 45px; margin-bottom: 8px; object-fit: contain; }
     .channel-name { font-size: 10px; color: var(--text); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .fav-star { position: absolute; top: 8px; right: 8px; font-size: 12px; color: rgba(128,128,128,0.3); }
@@ -184,25 +184,17 @@
   <div class="sidebar-label">Communicate</div>
   <a href="https://t.me/techbd_group" target="_blank" class="sidebar-menu-item">
     <i class="fa-brands fa-telegram" style="color:var(--tg)"></i>
-    <span>Telegram</span>
+    <span>Telegram Group</span>
   </a>
-  <a href="#" class="sidebar-menu-item">
-    <i class="fa-solid fa-envelope"></i>
-    <span>Contact</span>
+  <a href="https://www.mediafire.com/file/mkby3e9skeyfz8n/Avia+Tv+1.0.0.apk/file" target="_blank" class="sidebar-menu-item">
+    <i class="fa-solid fa-cloud-arrow-down"></i>
+    <span>Update APK</span>
   </a>
   <div class="sidebar-menu-item" onclick="shareApp()">
     <i class="fa-solid fa-share-nodes"></i>
-    <span>Share</span>
+    <span>Share App</span>
   </div>
-  <a href="https://www.mediafire.com/file/mkby3e9skeyfz8n/Avia+Tv+1.0.0.apk/file" target="_blank" class="sidebar-menu-item">
-    <i class="fa-solid fa-cloud-arrow-down"></i>
-    <span>Update App</span>
-  </a>
-  <div class="sidebar-menu-item">
-    <i class="fa-solid fa-shield-halved"></i>
-    <span>Copyright</span>
-  </div>
-  <div class="sidebar-menu-item" onclick="window.close()" style="margin-top:20px; border-top:1px solid var(--card-border); padding-top:20px;">
+  <div class="sidebar-menu-item" onclick="location.reload()" style="margin-top:20px; border-top:1px solid var(--card-border); padding-top:20px;">
     <i class="fa-solid fa-right-from-bracket"></i>
     <span>Exit</span>
   </div>
@@ -315,7 +307,7 @@ function playFanCode() {
   toggleSidebar();
 }
 
-// Player Gestures
+// Player Gesture Controls (Volume, Brightness, Play/Pause)
 function setupMXControls(player) {
     const wrapper = document.getElementById('player-wrapper');
     const hint = document.getElementById('gesture-hint');
@@ -362,7 +354,7 @@ function setupMXControls(player) {
     }
 }
 
-// Global UI functions
+// UI Functions
 function shareApp() {
     if (navigator.share) {
         navigator.share({ title: 'Avia TV', text: 'Watch premium live TV!', url: window.location.href });
@@ -389,14 +381,17 @@ function playStream(url, name, shouldScroll = false) {
   player.src({ src: url, type: 'application/x-mpegURL' });
   player.play().catch(() => {});
   
+  // Update only classes without re-rendering the whole list
   document.querySelectorAll('.channel-card').forEach(card => {
-    card.classList.toggle('playing', card.getAttribute('data-url') === url);
+    if (card.getAttribute('data-url') === url) {
+      card.classList.add('playing');
+      if (shouldScroll) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    } else {
+      card.classList.remove('playing');
+    }
   });
-
-  if(shouldScroll) {
-     const activeCard = document.querySelector(`.channel-card[data-url="${url}"]`);
-     if(activeCard) activeCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
 }
 
 async function init() {
@@ -431,7 +426,7 @@ function parseM3U(data) {
 function renderChannels(list) {
   const grid = document.getElementById("channelList");
   grid.innerHTML = list.map(ch => `
-    <div class="channel-card ${currentUrl === ch.url ? 'playing' : ''}" data-url="${ch.url}" onclick="playStream('${ch.url}', '${ch.name}', true)">
+    <div class="channel-card ${currentUrl === ch.url ? 'playing' : ''}" data-url="${ch.url}" onclick="playStream('${ch.url}', '${ch.name}', false)">
       <i class="fa-solid fa-star fav-star ${favorites.includes(ch.id) ? 'active' : ''}" onclick="toggleFav(event, '${ch.id}')"></i>
       <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716429.png'">
       <div class="channel-name">${ch.name}</div>
