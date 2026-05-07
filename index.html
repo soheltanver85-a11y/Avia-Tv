@@ -44,7 +44,7 @@
       transition: background 0.3s ease;
     }
 
-    /* --- Sidebar CSS --- */
+    /* --- Sidebar --- */
     .sidebar {
       position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
       background: var(--sidebar-bg); z-index: 2000; transition: 0.4s;
@@ -270,7 +270,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-  import { getDatabase, ref, onValue, push, set, onDisconnect } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+  import { getDatabase, ref, onValue, push, set, onDisconnect } from "https://www.gstatic.com/firebaseio.com/firebase-database.js";
   const firebaseConfig = { databaseURL: "https://avia-tv-default-rtdb.firebaseio.com/" };
   try {
     const app = initializeApp(firebaseConfig);
@@ -291,30 +291,27 @@ const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-t
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let player, currentUrl = "";
 
-// 1. FanCode Live filtering function
+// ১. FanCode ফিল্টার করার ফাংশন
 function filterFanCode() {
-  // Playlist থেকে 'fancode' নাম সম্বলিত সব চ্যানেল ফিল্টার করা
   const fanCodeList = allChannels.filter(ch => ch.name.toLowerCase().includes('fancode'));
-  
   if (fanCodeList.length > 0) {
-    renderChannels(fanCodeList); // শুধু ফ্যানকোড চ্যানেলগুলো দেখাবে
-    playStream(fanCodeList[0].url, fanCodeList[0].name, true); // অটোমেটিক প্রথমটা প্লে করবে
+    renderChannels(fanCodeList); // লিস্ট আপডেট হবে
+    playStream(fanCodeList[0].url, fanCodeList[0].name, true); // প্রথমটা প্লে হবে
   } else {
-    alert("চ্যানেল লিস্টে কোনো FanCode চ্যানেল পাওয়া যায়নি!");
+    alert("FanCode চ্যানেল পাওয়া যায়নি!");
   }
-  toggleSidebar(); // সাইডবার বন্ধ করা
+  toggleSidebar();
 }
 
-// 2. Exit App Function
+// ২. Exit করার ফাংশন
 function exitApp() {
-    if (confirm("আপনি কি ওয়েবসাইট থেকে বের হয়ে যেতে চান?")) {
-        window.close();
-        // অ্যান্ড্রয়েড অ্যাপের ভেতর থাকলে বা সাধারণ ব্রাউজারের জন্য ব্ল্যাঙ্ক পেজ
-        window.location.href = "about:blank";
+    if (confirm("আপনি কি ওয়েবসাইট থেকে বের হতে চান?")) {
+        window.close(); // ট্যাব বন্ধ করার চেষ্টা
+        window.location.href = "about:blank"; // ব্যাকআপ হিসেবে ব্ল্যাঙ্ক পেজ
     }
 }
 
-// Sidebar logic
+// Sidebar Functions
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('active');
   document.getElementById('sidebarOverlay').classList.toggle('active');
@@ -371,7 +368,26 @@ function setupMXControls(player) {
     }
 }
 
-// UI & Player functions
+// Player Functions
+function playStream(url, name, shouldScroll = false) {
+  currentUrl = url;
+  document.getElementById("now-playing-ticker").innerText = name;
+  player.src({ src: url, type: 'application/x-mpegURL' });
+  player.play().catch(() => {});
+  
+  document.querySelectorAll('.channel-card').forEach(card => {
+    if (card.getAttribute('data-url') === url) {
+      card.classList.add('playing');
+      if (shouldScroll) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    } else {
+      card.classList.remove('playing');
+    }
+  });
+}
+
+// UI Functions
 function shareApp() {
     if (navigator.share) {
         navigator.share({ title: 'Avia TV', text: 'Watch premium live TV!', url: window.location.href });
@@ -390,24 +406,6 @@ function toggleTheme() {
 function adjustMargin() {
   const h = document.getElementById('top-section').offsetHeight;
   document.getElementById('content-area').style.marginTop = (h + 5) + 'px';
-}
-
-function playStream(url, name, shouldScroll = false) {
-  currentUrl = url;
-  document.getElementById("now-playing-ticker").innerText = name;
-  player.src({ src: url, type: 'application/x-mpegURL' });
-  player.play().catch(() => {});
-  
-  document.querySelectorAll('.channel-card').forEach(card => {
-    if (card.getAttribute('data-url') === url) {
-      card.classList.add('playing');
-      if (shouldScroll) {
-        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
-    } else {
-      card.classList.remove('playing');
-    }
-  });
 }
 
 async function init() {
@@ -447,7 +445,7 @@ function renderChannels(list) {
       <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716429.png'">
       <div class="channel-name">${ch.name}</div>
     </div>`).join('');
-  document.getElementById("count").textContent = list.length + \" CH\";
+  document.getElementById("count").textContent = list.length + " CH";
 }
 
 function handleSearch(val) {
