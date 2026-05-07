@@ -107,7 +107,6 @@
     .online-dot-blink { width: 6px; height: 6px; background-color: var(--online); border-radius: 50%; animation: pulse-animation 1.5s infinite; }
     @keyframes pulse-animation { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-    /* --- Video Player & Hints --- */
     .video-container { position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1000px; margin: 0 auto; background: #000; box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5); touch-action: none; overflow: hidden; }
     .video-js { width: 100% !important; height: 100% !important; }
     
@@ -166,11 +165,11 @@
   </div>
 
   <div class="sidebar-label">Exclusive</div>
-  <a href="javascript:void(0)" class="sidebar-menu-item" onclick="playFanCode()">
+  <div class="sidebar-menu-item" onclick="filterFanCode()">
     <i class="fa-solid fa-bolt" style="color:#ff4081"></i>
     <span>FanCode Live</span>
     <span style="background:red; color:white; font-size:8px; padding:2px 5px; border-radius:4px; margin-left:auto;">LIVE</span>
-  </a>
+  </div>
 
   <div class="sidebar-label">Settings</div>
   <div class="sidebar-menu-item" id="rememberChannel" onclick="toggleRemember()">
@@ -195,7 +194,7 @@
     <span>Share App</span>
   </div>
   
-  <div class="sidebar-menu-item" onclick="exitWebsite()" style="margin-top:20px; border-top:1px solid var(--card-border); padding-top:20px;">
+  <div class="sidebar-menu-item" onclick="exitApp()" style="margin-top:20px; border-top:1px solid var(--card-border); padding-top:20px;">
     <i class="fa-solid fa-right-from-bracket"></i>
     <span>Exit</span>
   </div>
@@ -292,7 +291,30 @@ const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-t
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let player, currentUrl = "";
 
-// Sidebar Functions
+// 1. FanCode Live filtering function
+function filterFanCode() {
+  // Playlist থেকে 'fancode' নাম সম্বলিত সব চ্যানেল ফিল্টার করা
+  const fanCodeList = allChannels.filter(ch => ch.name.toLowerCase().includes('fancode'));
+  
+  if (fanCodeList.length > 0) {
+    renderChannels(fanCodeList); // শুধু ফ্যানকোড চ্যানেলগুলো দেখাবে
+    playStream(fanCodeList[0].url, fanCodeList[0].name, true); // অটোমেটিক প্রথমটা প্লে করবে
+  } else {
+    alert("চ্যানেল লিস্টে কোনো FanCode চ্যানেল পাওয়া যায়নি!");
+  }
+  toggleSidebar(); // সাইডবার বন্ধ করা
+}
+
+// 2. Exit App Function
+function exitApp() {
+    if (confirm("আপনি কি ওয়েবসাইট থেকে বের হয়ে যেতে চান?")) {
+        window.close();
+        // অ্যান্ড্রয়েড অ্যাপের ভেতর থাকলে বা সাধারণ ব্রাউজারের জন্য ব্ল্যাঙ্ক পেজ
+        window.location.href = "about:blank";
+    }
+}
+
+// Sidebar logic
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('active');
   document.getElementById('sidebarOverlay').classList.toggle('active');
@@ -302,27 +324,7 @@ function toggleRemember() {
   document.getElementById('rememberChannel').classList.toggle('toggle-active');
 }
 
-// 1. FanCode Live filtering logic
-function playFanCode() {
-  const fanCodeChannels = allChannels.filter(ch => ch.name.toLowerCase().includes('fancode'));
-  if(fanCodeChannels.length > 0) {
-    renderChannels(fanCodeChannels); // Only show FanCode channels in list
-    playStream(fanCodeChannels[0].url, fanCodeChannels[0].name, true); // Play the first found channel
-  } else {
-    alert("দুঃখিত, কোনো FanCode চ্যানেল পাওয়া যায়নি!");
-  }
-  toggleSidebar();
-}
-
-// 2. Exit function logic
-function exitWebsite() {
-  if (confirm("আপনি কি Avia TV থেকে বের হয়ে যেতে চান?")) {
-    window.close(); // Only works if the tab was opened via script
-    window.location.href = "about:blank"; // Fallback to a blank page
-  }
-}
-
-// Player Gesture Controls (Volume, Brightness, Play/Pause)
+// Player Gestures
 function setupMXControls(player) {
     const wrapper = document.getElementById('player-wrapper');
     const hint = document.getElementById('gesture-hint');
@@ -369,7 +371,7 @@ function setupMXControls(player) {
     }
 }
 
-// UI Functions
+// UI & Player functions
 function shareApp() {
     if (navigator.share) {
         navigator.share({ title: 'Avia TV', text: 'Watch premium live TV!', url: window.location.href });
@@ -409,11 +411,7 @@ function playStream(url, name, shouldScroll = false) {
 }
 
 async function init() {
-  player = videojs('v-player', { 
-    fluid: true,
-    autoplay: false,
-    controls: true
-  });
+  player = videojs('v-player', { fluid: true });
   setupMXControls(player);
 
   try {
@@ -449,7 +447,7 @@ function renderChannels(list) {
       <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716429.png'">
       <div class="channel-name">${ch.name}</div>
     </div>`).join('');
-  document.getElementById("count").textContent = list.length + " CH";
+  document.getElementById("count").textContent = list.length + \" CH\";
 }
 
 function handleSearch(val) {
