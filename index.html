@@ -44,6 +44,7 @@
       transition: background 0.3s ease;
     }
 
+    /* --- Sidebar --- */
     .sidebar {
       position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
       background: var(--sidebar-bg); z-index: 2000; transition: 0.4s;
@@ -72,12 +73,11 @@
     .toggle-active .toggle-btn { background: var(--primary); }
     .toggle-active .toggle-btn::after { left: 22px; }
 
+    /* --- Top Section & Player --- */
     #top-section { 
       position: fixed; top: 0; left: 0; width: 100%; 
       background: var(--header-bg); 
-      backdrop-filter: blur(25px); 
-      -webkit-backdrop-filter: blur(25px);
-      z-index: 1000; 
+      backdrop-filter: blur(25px); z-index: 1000; 
       border-bottom: 1px solid var(--card-border); 
     }
 
@@ -112,7 +112,6 @@
         background: rgba(0, 0, 0, 0.8); color: var(--primary); padding: 12px 25px;
         border-radius: 30px; font-size: 14px; font-weight: bold; z-index: 100;
         display: none; pointer-events: none; border: 1px solid var(--primary);
-        backdrop-filter: blur(5px);
     }
 
     #ticker { background: rgba(255,255,255,0.02); padding: 6px 0; font-size: 10px; border-bottom: 1px solid var(--card-border); overflow: hidden; }
@@ -162,7 +161,7 @@
   </div>
 
   <div class="sidebar-label">Exclusive</div>
-  <div class="sidebar-menu-item" onclick="playFanCode()">
+  <div class="sidebar-menu-item" onclick="filterFanCode()">
     <i class="fa-solid fa-bolt" style="color:#ff4081"></i>
     <span>FanCode Live</span>
     <span style="background:red; color:white; font-size:8px; padding:2px 5px; border-radius:4px; margin-left:auto;">LIVE</span>
@@ -180,17 +179,26 @@
   <div class="sidebar-label">Communicate</div>
   <a href="https://t.me/techbd_group" target="_blank" class="sidebar-menu-item">
     <i class="fa-brands fa-telegram" style="color:var(--tg)"></i>
-    <span>Telegram Group</span>
+    <span>Telegram</span>
   </a>
-  <a href="https://www.mediafire.com/file/mkby3e9skeyfz8n/Avia+Tv+1.0.0.apk/file" target="_blank" class="sidebar-menu-item">
-    <i class="fa-solid fa-cloud-arrow-down"></i>
-    <span>Update APK</span>
-  </a>
+  <div class="sidebar-menu-item">
+    <i class="fa-solid fa-envelope"></i>
+    <span>Contact</span>
+  </div>
   <div class="sidebar-menu-item" onclick="shareApp()">
     <i class="fa-solid fa-share-nodes"></i>
-    <span>Share App</span>
+    <span>Share</span>
   </div>
-  <div class="sidebar-menu-item" onclick="exitApp()" style="margin-top:20px; border-top:1px solid var(--card-border); padding-top:20px;">
+  <a href="https://www.mediafire.com/file/mkby3e9skeyfz8n/Avia+Tv+1.0.0.apk/file" target="_blank" class="sidebar-menu-item">
+    <i class="fa-solid fa-cloud-arrow-down" style="color:#3DDC84"></i>
+    <span>Update App</span>
+  </a>
+  <div class="sidebar-menu-item">
+    <i class="fa-solid fa-copyright"></i>
+    <span>Copyright</span>
+  </div>
+  
+  <div class="sidebar-menu-item" onclick="exitApp()" style="margin-top:20px; border-top:1px solid var(--card-border); padding-top:20px; background: rgba(0, 229, 255, 0.05);">
     <i class="fa-solid fa-right-from-bracket" style="color:var(--primary)"></i>
     <span>Exit</span>
   </div>
@@ -207,7 +215,7 @@
     </div>
     
     <div class="header-right-side">
-      <div class="theme-switch" id="theme-toggle" onclick="toggleTheme()">
+      <div class="theme-switch" onclick="toggleTheme()">
         <div class="dot"><i id="theme-icon" class="fa-solid fa-moon"></i></div>
       </div>
       <div class="online-counter-box">
@@ -223,14 +231,12 @@
   </div>
 
   <div id="ticker">
-    <div class="ticker-content" id="ticker-text">
-      <b>দেখছেন:</b> <span id="now-playing-ticker">চ্যানেল নির্বাচন করুন...</span> | 
-      🚀 <b>Avia TV</b> তে আপনাকে স্বাগতম | 📡 বাফারিং ছাড়াই সব চ্যানেল উপভোগ করুন | 
-      📢 টেলিগ্রাম গ্রুপ: <a href="https://t.me/techbd_group" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 800;">TECH BD GROUP</a>
+    <div class="ticker-content">
+      <b>দেখছেন:</b> <span id="now-playing-ticker">চ্যানেল নির্বাচন করুন...</span> | 🚀 <b>Avia TV</b> তে স্বাগতম | 📡 বাফারিং ছাড়াই সব চ্যানেল উপভোগ করুন
     </div>
   </div>
 
-  <header id="main-header">
+  <header>
     <div class="action-btns">
       <button onclick="window.location.reload()" class="rect-btn"><i class="fa-solid fa-rotate-right" style="color:var(--refresh)"></i><span>Refresh</span></button>
       <a href="https://t.me/techbd_group" target="_blank" class="rect-btn"><i class="fa-brands fa-telegram" style="color:var(--tg)"></i><span>Group</span></a>
@@ -240,9 +246,7 @@
     
     <div class="search-row">
         <input type="text" id="search" placeholder="Search Channels..." oninput="handleSearch(this.value)">
-        <button class="share-btn" onclick="shareApp()">
-            <i class="fa-solid fa-share-nodes"></i>
-        </button>
+        <button class="share-btn" onclick="shareApp()"><i class="fa-solid fa-share-nodes"></i></button>
         <span id="count">0 CH</span>
     </div>
 
@@ -266,7 +270,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-  import { getDatabase, ref, onValue, push, set, onDisconnect } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+  import { getDatabase, ref, onValue, push, set, onDisconnect } from "https://www.gstatic.com/firebaseio.com/firebase-database.js";
   const firebaseConfig = { databaseURL: "https://avia-tv-default-rtdb.firebaseio.com/" };
   try {
     const app = initializeApp(firebaseConfig);
@@ -287,7 +291,7 @@ const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-t
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let player, currentUrl = "";
 
-// Sidebar
+// Sidebar Functions
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('active');
   document.getElementById('sidebarOverlay').classList.toggle('active');
@@ -297,48 +301,42 @@ function toggleRemember() {
   document.getElementById('rememberChannel').classList.toggle('toggle-active');
 }
 
-// 1. FanCode Live Filtering
-function playFanCode() {
+// ১. FanCode ফিল্টার করার কার্যকর ফাংশন
+function filterFanCode() {
   const fanCodeList = allChannels.filter(ch => ch.name.toLowerCase().includes('fancode'));
   if (fanCodeList.length > 0) {
-    renderChannels(fanCodeList);
-    playStream(fanCodeList[0].url, fanCodeList[0].name, true);
+    renderChannels(fanCodeList); // শুধু ফ্যানকোড লিস্ট দেখাবে
+    playStream(fanCodeList[0].url, fanCodeList[0].name, true); // প্রথমটি প্লে হবে
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   } else {
-    alert("FanCode চ্যানেল পাওয়া যায়নি!");
+    alert("দুঃখিত, FanCode চ্যানেল পাওয়া যায়নি!");
   }
   toggleSidebar();
 }
 
-// 2. App/Tab Exit Function
+// ২. Exit ফাংশন (নিশ্চিত হয়ে বন্ধ করবে)
 function exitApp() {
-    if (confirm("আপনি কি নিশ্চিতভাবে বের হতে চান?")) {
+    if (confirm("আপনি কি ওয়েবসাইট থেকে বের হতে চান?")) {
         window.close();
-        window.location.href = "about:blank";
+        window.location.href = "about:blank"; // ব্যাকআপ হিসেবে
     }
 }
 
-// Player Gesture Controls
+// Player Gestures
 function setupMXControls(player) {
     const wrapper = document.getElementById('player-wrapper');
     const hint = document.getElementById('gesture-hint');
-    let startX, startY, startVol, startBright;
-    let brightness = 100;
-    let isMoving = false;
+    let startX, startY, startVol, startBright, brightness = 100, isMoving = false;
 
     wrapper.addEventListener('touchstart', (e) => {
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
-        startVol = player.volume();
-        startBright = brightness;
-        isMoving = false;
+        startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+        startVol = player.volume(); startBright = brightness; isMoving = false;
     });
 
     wrapper.addEventListener('touchmove', (e) => {
         isMoving = true;
         const deltaY = startY - e.touches[0].clientY;
         const isLeft = startX < (wrapper.clientWidth / 2);
-        
         if (isLeft) {
             brightness = Math.min(200, Math.max(10, startBright + (deltaY / 2)));
             wrapper.style.filter = `brightness(${brightness}%)`;
@@ -351,41 +349,14 @@ function setupMXControls(player) {
         if (e.cancelable) e.preventDefault();
     }, { passive: false });
 
-    wrapper.addEventListener('touchend', (e) => {
-        if (!isMoving) {
-            if (player.paused()) player.play();
-            else player.pause();
-        }
+    wrapper.addEventListener('touchend', () => {
+        if (!isMoving) { if (player.paused()) player.play(); else player.pause(); }
         setTimeout(() => hint.style.display = 'none', 600);
     });
-
-    function showHint(text) { 
-        hint.innerText = text; 
-        hint.style.display = 'block'; 
-    }
+    function showHint(text) { hint.innerText = text; hint.style.display = 'block'; }
 }
 
-// UI & Logic Functions
-function shareApp() {
-    if (navigator.share) {
-        navigator.share({ title: 'Avia TV', text: 'Watch premium live TV!', url: window.location.href });
-    } else {
-        navigator.clipboard.writeText(window.location.href);
-        alert('Link copied!');
-    }
-}
-
-function toggleTheme() {
-    const body = document.body;
-    body.classList.toggle('light-mode');
-    localStorage.setItem('avia-theme', body.classList.contains('light-mode') ? 'light' : 'dark');
-}
-
-function adjustMargin() {
-  const h = document.getElementById('top-section').offsetHeight;
-  document.getElementById('content-area').style.marginTop = (h + 5) + 'px';
-}
-
+// Core Functions
 function playStream(url, name, shouldScroll = false) {
   currentUrl = url;
   document.getElementById("now-playing-ticker").innerText = name;
@@ -395,19 +366,14 @@ function playStream(url, name, shouldScroll = false) {
   document.querySelectorAll('.channel-card').forEach(card => {
     if (card.getAttribute('data-url') === url) {
       card.classList.add('playing');
-      if (shouldScroll) {
-        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
-    } else {
-      card.classList.remove('playing');
-    }
+      if (shouldScroll) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else card.classList.remove('playing');
   });
 }
 
 async function init() {
   player = videojs('v-player', { fluid: true });
   setupMXControls(player);
-
   try {
     const res = await fetch(playlistUrl);
     const data = await res.text();
@@ -464,9 +430,22 @@ function toggleFav(event, id) {
   event.target.classList.toggle('active');
 }
 
+function toggleTheme() {
+    document.body.classList.toggle('light-mode');
+}
+
+function shareApp() {
+    if (navigator.share) navigator.share({ title: 'Avia TV', url: window.location.href });
+    else alert('Link: ' + window.location.href);
+}
+
+function adjustMargin() {
+  const h = document.getElementById('top-section').offsetHeight;
+  document.getElementById('content-area').style.marginTop = (h + 5) + 'px';
+}
+
 function toggleRotateManual() {
-  if (!player.isFullscreen()) { player.requestFullscreen(); } 
-  else { player.exitFullscreen(); }
+  if (!player.isFullscreen()) player.requestFullscreen(); else player.exitFullscreen();
 }
 </script>
 
