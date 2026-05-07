@@ -166,7 +166,7 @@
   </div>
 
   <div class="sidebar-label">Exclusive</div>
-  <a href="#" class="sidebar-menu-item" onclick="playFanCode()">
+  <a href="javascript:void(0)" class="sidebar-menu-item" onclick="playFanCode()">
     <i class="fa-solid fa-bolt" style="color:#ff4081"></i>
     <span>FanCode Live</span>
     <span style="background:red; color:white; font-size:8px; padding:2px 5px; border-radius:4px; margin-left:auto;">LIVE</span>
@@ -195,7 +195,7 @@
     <span>Share App</span>
   </div>
   
-  <div class="sidebar-menu-item" onclick="exitApp()" style="margin-top:20px; border-top:1px solid var(--card-border); padding-top:20px;">
+  <div class="sidebar-menu-item" onclick="exitWebsite()" style="margin-top:20px; border-top:1px solid var(--card-border); padding-top:20px;">
     <i class="fa-solid fa-right-from-bracket"></i>
     <span>Exit</span>
   </div>
@@ -271,7 +271,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-  import { getDatabase, ref, onValue, push, set, onDisconnect } from "https://www.gstatic.com/firebaseio.com/firebase-database.js";
+  import { getDatabase, ref, onValue, push, set, onDisconnect } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
   const firebaseConfig = { databaseURL: "https://avia-tv-default-rtdb.firebaseio.com/" };
   try {
     const app = initializeApp(firebaseConfig);
@@ -292,7 +292,7 @@ const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-t
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let player, currentUrl = "";
 
-// Sidebar
+// Sidebar Functions
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('active');
   document.getElementById('sidebarOverlay').classList.toggle('active');
@@ -302,32 +302,27 @@ function toggleRemember() {
   document.getElementById('rememberChannel').classList.toggle('toggle-active');
 }
 
-// Updated playFanCode to filter all FanCode channels
+// 1. FanCode Live filtering logic
 function playFanCode() {
   const fanCodeChannels = allChannels.filter(ch => ch.name.toLowerCase().includes('fancode'));
   if(fanCodeChannels.length > 0) {
-    renderChannels(fanCodeChannels);
-    playStream(fanCodeChannels[0].url, fanCodeChannels[0].name, true);
+    renderChannels(fanCodeChannels); // Only show FanCode channels in list
+    playStream(fanCodeChannels[0].url, fanCodeChannels[0].name, true); // Play the first found channel
   } else {
-    alert("FanCode চ্যানেল পাওয়া যায়নি!");
+    alert("দুঃখিত, কোনো FanCode চ্যানেল পাওয়া যায়নি!");
   }
   toggleSidebar();
 }
 
-// Exit App function
-function exitApp() {
-    if (confirm("আপনি কি নিশ্চিতভাবে বের হয়ে যেতে চান?")) {
-        window.close();
-        // Fallback for browsers or specific app interfaces
-        if (typeof JavaScriptInterface !== "undefined" && JavaScriptInterface.closeApp) {
-            JavaScriptInterface.closeApp();
-        } else {
-            window.location.href = "about:blank";
-        }
-    }
+// 2. Exit function logic
+function exitWebsite() {
+  if (confirm("আপনি কি Avia TV থেকে বের হয়ে যেতে চান?")) {
+    window.close(); // Only works if the tab was opened via script
+    window.location.href = "about:blank"; // Fallback to a blank page
+  }
 }
 
-// Player Gesture Controls
+// Player Gesture Controls (Volume, Brightness, Play/Pause)
 function setupMXControls(player) {
     const wrapper = document.getElementById('player-wrapper');
     const hint = document.getElementById('gesture-hint');
@@ -414,7 +409,11 @@ function playStream(url, name, shouldScroll = false) {
 }
 
 async function init() {
-  player = videojs('v-player', { fluid: true });
+  player = videojs('v-player', { 
+    fluid: true,
+    autoplay: false,
+    controls: true
+  });
   setupMXControls(player);
 
   try {
