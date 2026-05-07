@@ -44,7 +44,6 @@
       transition: background 0.3s ease;
     }
 
-    /* --- Sidebar --- */
     .sidebar {
       position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
       background: var(--sidebar-bg); z-index: 2000; transition: 0.4s;
@@ -73,7 +72,6 @@
     .toggle-active .toggle-btn { background: var(--primary); }
     .toggle-active .toggle-btn::after { left: 22px; }
 
-    /* --- Header & Top Section --- */
     #top-section { 
       position: fixed; top: 0; left: 0; width: 100%; 
       background: var(--header-bg); 
@@ -94,7 +92,6 @@
       position: relative; display: flex; align-items: center; justify-content: center;
     }
     .modern-tv-logo::before { content: ''; width: 5px; height: 5px; background: var(--gold-gradient); border-radius: 50%; }
-
     .brand-title-new { font-size: 18px; font-weight: 900; letter-spacing: 1px; background: linear-gradient(to right, #fff, #a2f9ff, #fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     
     .header-right-side { display: flex; align-items: center; gap: 12px; }
@@ -165,7 +162,7 @@
   </div>
 
   <div class="sidebar-label">Exclusive</div>
-  <div class="sidebar-menu-item" onclick="filterFanCode()">
+  <div class="sidebar-menu-item" onclick="playFanCode()">
     <i class="fa-solid fa-bolt" style="color:#ff4081"></i>
     <span>FanCode Live</span>
     <span style="background:red; color:white; font-size:8px; padding:2px 5px; border-radius:4px; margin-left:auto;">LIVE</span>
@@ -193,9 +190,8 @@
     <i class="fa-solid fa-share-nodes"></i>
     <span>Share App</span>
   </div>
-  
   <div class="sidebar-menu-item" onclick="exitApp()" style="margin-top:20px; border-top:1px solid var(--card-border); padding-top:20px;">
-    <i class="fa-solid fa-right-from-bracket"></i>
+    <i class="fa-solid fa-right-from-bracket" style="color:var(--primary)"></i>
     <span>Exit</span>
   </div>
 </div>
@@ -270,7 +266,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-  import { getDatabase, ref, onValue, push, set, onDisconnect } from "https://www.gstatic.com/firebaseio.com/firebase-database.js";
+  import { getDatabase, ref, onValue, push, set, onDisconnect } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
   const firebaseConfig = { databaseURL: "https://avia-tv-default-rtdb.firebaseio.com/" };
   try {
     const app = initializeApp(firebaseConfig);
@@ -291,27 +287,7 @@ const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-t
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let player, currentUrl = "";
 
-// ১. FanCode ফিল্টার করার ফাংশন
-function filterFanCode() {
-  const fanCodeList = allChannels.filter(ch => ch.name.toLowerCase().includes('fancode'));
-  if (fanCodeList.length > 0) {
-    renderChannels(fanCodeList); // লিস্ট আপডেট হবে
-    playStream(fanCodeList[0].url, fanCodeList[0].name, true); // প্রথমটা প্লে হবে
-  } else {
-    alert("FanCode চ্যানেল পাওয়া যায়নি!");
-  }
-  toggleSidebar();
-}
-
-// ২. Exit করার ফাংশন
-function exitApp() {
-    if (confirm("আপনি কি ওয়েবসাইট থেকে বের হতে চান?")) {
-        window.close(); // ট্যাব বন্ধ করার চেষ্টা
-        window.location.href = "about:blank"; // ব্যাকআপ হিসেবে ব্ল্যাঙ্ক পেজ
-    }
-}
-
-// Sidebar Functions
+// Sidebar
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('active');
   document.getElementById('sidebarOverlay').classList.toggle('active');
@@ -321,7 +297,28 @@ function toggleRemember() {
   document.getElementById('rememberChannel').classList.toggle('toggle-active');
 }
 
-// Player Gestures
+// 1. FanCode Live Filtering
+function playFanCode() {
+  const fanCodeList = allChannels.filter(ch => ch.name.toLowerCase().includes('fancode'));
+  if (fanCodeList.length > 0) {
+    renderChannels(fanCodeList);
+    playStream(fanCodeList[0].url, fanCodeList[0].name, true);
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  } else {
+    alert("FanCode চ্যানেল পাওয়া যায়নি!");
+  }
+  toggleSidebar();
+}
+
+// 2. App/Tab Exit Function
+function exitApp() {
+    if (confirm("আপনি কি নিশ্চিতভাবে বের হতে চান?")) {
+        window.close();
+        window.location.href = "about:blank";
+    }
+}
+
+// Player Gesture Controls
 function setupMXControls(player) {
     const wrapper = document.getElementById('player-wrapper');
     const hint = document.getElementById('gesture-hint');
@@ -368,26 +365,7 @@ function setupMXControls(player) {
     }
 }
 
-// Player Functions
-function playStream(url, name, shouldScroll = false) {
-  currentUrl = url;
-  document.getElementById("now-playing-ticker").innerText = name;
-  player.src({ src: url, type: 'application/x-mpegURL' });
-  player.play().catch(() => {});
-  
-  document.querySelectorAll('.channel-card').forEach(card => {
-    if (card.getAttribute('data-url') === url) {
-      card.classList.add('playing');
-      if (shouldScroll) {
-        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
-    } else {
-      card.classList.remove('playing');
-    }
-  });
-}
-
-// UI Functions
+// UI & Logic Functions
 function shareApp() {
     if (navigator.share) {
         navigator.share({ title: 'Avia TV', text: 'Watch premium live TV!', url: window.location.href });
@@ -406,6 +384,24 @@ function toggleTheme() {
 function adjustMargin() {
   const h = document.getElementById('top-section').offsetHeight;
   document.getElementById('content-area').style.marginTop = (h + 5) + 'px';
+}
+
+function playStream(url, name, shouldScroll = false) {
+  currentUrl = url;
+  document.getElementById("now-playing-ticker").innerText = name;
+  player.src({ src: url, type: 'application/x-mpegURL' });
+  player.play().catch(() => {});
+  
+  document.querySelectorAll('.channel-card').forEach(card => {
+    if (card.getAttribute('data-url') === url) {
+      card.classList.add('playing');
+      if (shouldScroll) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    } else {
+      card.classList.remove('playing');
+    }
+  });
 }
 
 async function init() {
