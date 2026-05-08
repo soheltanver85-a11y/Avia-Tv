@@ -12,139 +12,56 @@
 
   <style>
     :root { 
-      --primary: #00e5ff; 
-      --bg: #050505; 
-      --card-bg: rgba(255, 255, 255, 0.05); 
-      --card-border: rgba(255, 255, 255, 0.1); 
-      --accent: #ff4081; --star: #ffd700; 
+      --primary: #00e5ff; --bg: #050505; --card-bg: rgba(255, 255, 255, 0.05); 
+      --card-border: rgba(255, 255, 255, 0.1); --accent: #ff4081; --star: #ffd700; 
       --tg: #24A1DE; --apk: #3DDC84; --online: #4CAF50; --refresh: #ffa500; --text: #ffffff;
-      --header-bg: rgba(10, 10, 10, 0.8);
-      --gold-gradient: linear-gradient(135deg, #ffdb00, #ffa500);
+      --header-bg: rgba(10, 10, 10, 0.8); --gold-gradient: linear-gradient(135deg, #ffdb00, #ffa500);
       --sidebar-bg: #121212;
     }
-
     body.light-mode {
-      --bg: #f0f2f5;
-      --card-bg: #ffffff;
-      --text: #1a1a1a;
-      --header-bg: rgba(240, 242, 245, 0.9);
-      --card-border: rgba(0, 0, 0, 0.1);
-      --sidebar-bg: #ffffff;
+      --bg: #f0f2f5; --card-bg: #ffffff; --text: #1a1a1a;
+      --header-bg: rgba(240, 242, 245, 0.9); --card-border: rgba(0, 0, 0, 0.1); --sidebar-bg: #ffffff;
     }
-
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-    
-    body { 
-      margin: 0; padding: 0; 
-      background: var(--bg); 
-      color: var(--text); 
-      font-family: 'Inter', sans-serif; 
-      overflow-x: hidden; 
-      min-height: 100vh;
-      transition: background 0.3s ease;
-    }
+    body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow-x: hidden; min-height: 100vh; transition: background 0.3s ease; }
 
-    /* --- Sidebar --- */
-    .sidebar {
-      position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
-      background: var(--sidebar-bg); z-index: 2000; transition: 0.4s;
-      box-shadow: 5px 0 15px rgba(0,0,0,0.5); padding: 20px;
-    }
+    /* Sidebar */
+    .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--sidebar-bg); z-index: 2000; transition: 0.4s; box-shadow: 5px 0 15px rgba(0,0,0,0.5); padding: 20px; overflow-y: auto; }
     .sidebar.active { left: 0; }
-    .sidebar-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7); z-index: 1999; display: none;
-    }
+    .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1999; display: none; }
     .sidebar-overlay.active { display: block; }
-    
     .sidebar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; border-bottom: 1px solid var(--card-border); padding-bottom: 15px; }
-    .sidebar-menu-item { 
-      display: flex; align-items: center; gap: 15px; padding: 12px; 
-      color: var(--text); text-decoration: none; font-size: 14px; 
-      border-radius: 8px; transition: 0.3s; margin-bottom: 5px;
-      cursor: pointer;
-    }
+    .sidebar-menu-item { display: flex; align-items: center; gap: 15px; padding: 12px; color: var(--text); text-decoration: none; font-size: 14px; border-radius: 8px; transition: 0.3s; margin-bottom: 5px; cursor: pointer; }
     .sidebar-menu-item:hover { background: var(--card-bg); color: var(--primary); }
     .sidebar-label { font-size: 11px; color: #888; text-transform: uppercase; margin: 15px 0 10px 10px; letter-spacing: 1px; }
 
-    .menu-switch { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-    .toggle-btn { width: 40px; height: 20px; background: #333; border-radius: 20px; position: relative; }
-    .toggle-btn::after { content: ''; position: absolute; width: 16px; height: 16px; background: #fff; border-radius: 50%; top: 2px; left: 2px; transition: 0.3s; }
-    .toggle-active .toggle-btn { background: var(--primary); }
-    .toggle-active .toggle-btn::after { left: 22px; }
-
-    /* --- Top Section & Player --- */
-    #top-section { 
-      position: fixed; top: 0; left: 0; width: 100%; 
-      background: var(--header-bg); 
-      backdrop-filter: blur(25px); z-index: 1000; 
-      border-bottom: 1px solid var(--card-border); 
-    }
-
+    /* UI Components */
+    #top-section { position: fixed; top: 0; left: 0; width: 100%; background: var(--header-bg); backdrop-filter: blur(25px); z-index: 1000; border-bottom: 1px solid var(--card-border); }
     .brand-header { padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; }
-    .left-side { display: flex; align-items: center; gap: 12px; }
-    .menu-trigger { font-size: 20px; cursor: pointer; color: var(--text); }
-    
-    .brand-logo-container { display: flex; align-items: center; gap: 8px; }
-    .modern-tv-logo {
-      width: 25px; height: 22px;
-      background: #111; border: 2px solid #333; border-radius: 6px;
-      position: relative; display: flex; align-items: center; justify-content: center;
-    }
-    .modern-tv-logo::before { content: ''; width: 5px; height: 5px; background: var(--gold-gradient); border-radius: 50%; }
-    .brand-title-new { font-size: 18px; font-weight: 900; letter-spacing: 1px; background: linear-gradient(to right, #fff, #a2f9ff, #fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    
-    .header-right-side { display: flex; align-items: center; gap: 12px; }
-    .theme-switch { position: relative; width: 45px; height: 22px; background: #333; border-radius: 20px; cursor: pointer; display: flex; align-items: center; padding: 0 4px; transition: 0.3s; border: 1px solid var(--card-border); }
-    .theme-switch .dot { width: 16px; height: 16px; background: #fff; border-radius: 50%; transition: 0.3s; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #000; }
-    body.light-mode .theme-switch { background: var(--primary); }
-    body.light-mode .theme-switch .dot { transform: translateX(20px); }
-
-    .online-counter-box { display: inline-flex; align-items: center; gap: 6px; background: rgba(76, 175, 80, 0.1); color: var(--online); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; border: 1px solid rgba(76, 175, 80, 0.2); }
-    .online-dot-blink { width: 6px; height: 6px; background-color: var(--online); border-radius: 50%; animation: pulse-animation 1.5s infinite; }
-    @keyframes pulse-animation { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-
-    .video-container { position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1000px; margin: 0 auto; background: #000; box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5); touch-action: none; overflow: hidden; }
+    .video-container { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; }
     .video-js { width: 100% !important; height: 100% !important; }
     
-    .vjs-gesture-hint {
-        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-        background: rgba(0, 0, 0, 0.8); color: var(--primary); padding: 12px 25px;
-        border-radius: 30px; font-size: 14px; font-weight: bold; z-index: 100;
-        display: none; pointer-events: none; border: 1px solid var(--primary);
-    }
-
     #ticker { background: rgba(255,255,255,0.02); padding: 6px 0; font-size: 10px; border-bottom: 1px solid var(--card-border); overflow: hidden; }
-    .ticker-content { display: inline-block; animation: marquee 30s linear infinite; white-space: nowrap; color: var(--text); opacity: 0.8; }
-    
+    .ticker-content { display: inline-block; animation: marquee 30s linear infinite; white-space: nowrap; color: var(--text); }
+    @keyframes marquee { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
+
     header { padding: 12px; }
     .action-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
-    .rect-btn { height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text); cursor: pointer; text-decoration: none; gap: 6px; transition: 0.3s; }
-    .rect-btn span { font-size: 9px; font-weight: 600; text-transform: uppercase; }
-    .btn-rotate { background: var(--primary); border: none; }
-    .btn-rotate i, .btn-rotate span { color: #000; font-weight: 800; }
+    .rect-btn { height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text); cursor: pointer; font-size: 9px; font-weight: 600; text-transform: uppercase; }
+    
+    .search-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    #search { flex: 1; background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text); padding: 10px; border-radius: 12px; }
+    
+    .tabs { display: flex; gap: 6px; }
+    .tab-btn { flex: 1; padding: 8px; background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text); border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer; }
+    .tab-btn.active { background: var(--primary); color: #000; }
 
-    .search-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; width: 100%; }
-    #search { flex: 1; background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text); padding: 10px 15px; border-radius: 12px; font-size: 13px; }
-    .share-btn { width: 38px; height: 38px; border-radius: 12px; background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; }
-    #count { font-size: 11px; color: var(--primary); font-weight: 800; background: rgba(0, 229, 255, 0.1); padding: 8px 12px; border-radius: 10px; border: 1px solid rgba(0, 229, 255, 0.2); display: flex; align-items: center; gap: 5px; height: 38px; }
-
-    .tabs { display: flex; gap: 6px; width: 100%; }
-    .tab-btn { flex: 1; padding: 8px 5px; background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text); opacity: 0.7; border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer; transition: 0.3s; }
-    .tab-btn.active { background: var(--primary); color: #000; border-color: var(--primary); opacity: 1; }
-
-    #content-area { margin-top: 390px; transition: margin-top 0.3s; }
+    #content-area { margin-top: 390px; }
     #channelList { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; padding: 15px; }
     .channel-card { background: var(--card-bg); border-radius: 18px; padding: 15px 8px; text-align: center; border: 1px solid var(--card-border); transition: 0.3s; position: relative; }
-    .channel-card.playing { border-color: var(--primary); background: rgba(0, 229, 255, 0.15); transform: scale(1.02); }
+    .channel-card.playing { border-color: var(--primary); background: rgba(0, 229, 255, 0.1); }
     .channel-logo { height: 45px; margin-bottom: 8px; object-fit: contain; }
-    .channel-name { font-size: 10px; color: var(--text); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .fav-star { position: absolute; top: 8px; right: 8px; font-size: 12px; color: rgba(128,128,128,0.3); }
-    .fav-star.active { color: var(--star); }
-
-    .footer-area { padding: 30px 0 100px 0; text-align: center; border-top: 1px solid var(--card-border); margin-top: 20px; }
-    .dev-credits { font-size: 9px; color: #888; letter-spacing: 1.5px; text-transform: uppercase; }
-    @keyframes marquee { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
+    .channel-name { font-size: 10px; color: var(--text); font-weight: 600; }
   </style>
 </head>
 <body onload="init()">
@@ -153,103 +70,75 @@
 
 <div class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <div class="brand-logo-container">
-      <div class="modern-tv-logo"></div>
-      <div class="brand-title-new">AVIA TV</div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <div style="width:25px; height:22px; background:#111; border:2px solid #333; border-radius:6px;"></div>
+      <b style="color:var(--primary)">AVIA TV</b>
     </div>
-    <i class="fa-solid fa-xmark" onclick="toggleSidebar()" style="cursor:pointer; font-size:20px;"></i>
+    <i class="fa-solid fa-xmark" onclick="toggleSidebar()"></i>
   </div>
 
   <div class="sidebar-label">Exclusive</div>
   <div class="sidebar-menu-item" onclick="filterFanCode()">
-    <i class="fa-solid fa-bolt" style="color:#ff4081"></i>
+    <i class="fa-solid fa-bolt" style="color:var(--accent)"></i>
     <span>FanCode Live</span>
     <span style="background:red; color:white; font-size:8px; padding:2px 5px; border-radius:4px; margin-left:auto;">LIVE</span>
   </div>
 
   <div class="sidebar-label">Settings</div>
-  <div class="sidebar-menu-item" id="rememberChannel" onclick="toggleRemember()">
-    <i class="fa-solid fa-clock-rotate-left"></i>
-    <div class="menu-switch">
-      <span>Remember Last Channel</span>
-      <div class="toggle-btn"></div>
-    </div>
+  <div class="sidebar-menu-item" onclick="toggleTheme()">
+    <i class="fa-solid fa-moon"></i>
+    <span>Dark/Light Mode</span>
   </div>
 
   <div class="sidebar-label">Communicate</div>
   <a href="https://t.me/techbd_group" target="_blank" class="sidebar-menu-item">
     <i class="fa-brands fa-telegram" style="color:var(--tg)"></i>
-    <span>Telegram</span>
+    <span>Telegram Group</span>
   </a>
-  <div class="sidebar-menu-item">
-    <i class="fa-solid fa-envelope"></i>
-    <span>Contact</span>
-  </div>
-  <div class="sidebar-menu-item" onclick="shareApp()">
-    <i class="fa-solid fa-share-nodes"></i>
-    <span>Share</span>
-  </div>
   <a href="https://www.mediafire.com/file/mkby3e9skeyfz8n/Avia+Tv+1.0.0.apk/file" target="_blank" class="sidebar-menu-item">
-    <i class="fa-solid fa-cloud-arrow-down" style="color:#3DDC84"></i>
+    <i class="fa-solid fa-cloud-arrow-down" style="color:var(--apk)"></i>
     <span>Update App</span>
   </a>
-  <div class="sidebar-menu-item">
-    <i class="fa-solid fa-copyright"></i>
-    <span>Copyright</span>
+  <div class="sidebar-menu-item" onclick="shareApp()">
+    <i class="fa-solid fa-share-nodes"></i>
+    <span>Share App</span>
   </div>
-  
-  <div class="sidebar-menu-item" onclick="exitApp()" style="margin-top:20px; border-top:1px solid var(--card-border); padding-top:20px; background: rgba(0, 229, 255, 0.05);">
+
+  <div class="sidebar-menu-item" onclick="exitApp()" style="margin-top:20px; border-top:1px solid var(--card-border); padding-top:20px;">
     <i class="fa-solid fa-right-from-bracket" style="color:var(--primary)"></i>
     <span>Exit</span>
   </div>
 </div>
-
 <div id="top-section">
   <div class="brand-header">
-    <div class="left-side">
-      <i class="fa-solid fa-bars menu-trigger" onclick="toggleSidebar()"></i>
-      <div class="brand-logo-container">
-          <div class="modern-tv-logo"></div>
-          <div class="brand-title-new">AVIA TV</div>
-      </div>
+    <div class="left-side" style="display:flex; align-items:center; gap:12px;">
+      <i class="fa-solid fa-bars" onclick="toggleSidebar()" style="cursor:pointer"></i>
+      <b style="font-size:18px;">AVIA TV</b>
     </div>
-    
-    <div class="header-right-side">
-      <div class="theme-switch" onclick="toggleTheme()">
-        <div class="dot"><i id="theme-icon" class="fa-solid fa-moon"></i></div>
-      </div>
-      <div class="online-counter-box">
-        <div class="online-dot-blink"></div>
-        <span>ONLINE: <span id="user-count">0</span></span>
-      </div>
+    <div class="online-counter-box" style="color:var(--online); font-size:11px;">
+      ONLINE: <span id="user-count">0</span>
     </div>
   </div>
 
-  <div class="video-container" id="player-wrapper">
+  <div class="video-container">
     <video id="v-player" class="video-js vjs-big-play-centered" controls preload="auto" playsinline></video>
-    <div id="gesture-hint" class="vjs-gesture-hint"></div>
   </div>
 
   <div id="ticker">
-    <div class="ticker-content">
-      <b>দেখছেন:</b> <span id="now-playing-ticker">চ্যানেল নির্বাচন করুন...</span> | 🚀 <b>Avia TV</b> তে স্বাগতম | 📡 বাফারিং ছাড়াই সব চ্যানেল উপভোগ করুন
-    </div>
+    <div class="ticker-content" id="ticker-text">🚀 Avia TV তে আপনাকে স্বাগতম | 📡 বাফারিং ছাড়াই সব চ্যানেল উপভোগ করুন | 📢 টেলিগ্রাম গ্রুপ: TECH BD GROUP</div>
   </div>
 
   <header>
     <div class="action-btns">
-      <button onclick="window.location.reload()" class="rect-btn"><i class="fa-solid fa-rotate-right" style="color:var(--refresh)"></i><span>Refresh</span></button>
-      <a href="https://t.me/techbd_group" target="_blank" class="rect-btn"><i class="fa-brands fa-telegram" style="color:var(--tg)"></i><span>Group</span></a>
-      <a href="https://www.mediafire.com/file/mkby3e9skeyfz8n/Avia+Tv+1.0.0.apk/file" target="_blank" class="rect-btn"><i class="fa-solid fa-download" style="color:var(--apk)"></i><span>APK</span></a>
-      <button onclick="toggleRotateManual()" class="rect-btn btn-rotate"><i class="fa-solid fa-expand"></i><span>Full</span></button>
+      <div class="rect-btn" onclick="window.location.reload()"><i class="fa-solid fa-rotate-right"></i> REFRESH</div>
+      <a href="https://t.me/techbd_group" target="_blank" class="rect-btn" style="text-decoration:none;"><i class="fa-brands fa-telegram"></i> GROUP</a>
+      <a href="https://www.mediafire.com/file/mkby3e9skeyfz8n/Avia+Tv+1.0.0.apk/file" target="_blank" class="rect-btn" style="text-decoration:none;"><i class="fa-solid fa-download"></i> APK</a>
+      <div class="rect-btn" onclick="toggleFull()"><i class="fa-solid fa-expand"></i> FULL</div>
     </div>
-    
     <div class="search-row">
-        <input type="text" id="search" placeholder="Search Channels..." oninput="handleSearch(this.value)">
-        <button class="share-btn" onclick="shareApp()"><i class="fa-solid fa-share-nodes"></i></button>
-        <span id="count">0 CH</span>
+      <input type="text" id="search" placeholder="Search Channels..." oninput="handleSearch(this.value)">
+      <span id="count" style="font-size:11px; font-weight:800; color:var(--primary);">0 CH</span>
     </div>
-
     <div class="tabs">
       <button class="tab-btn active" onclick="filterCat('all', this)">ALL</button>
       <button class="tab-btn" onclick="filterCat('sports', this)">SPORTS</button>
@@ -261,126 +150,65 @@
 
 <div id="content-area">
   <div id="channelList">লোডিং...</div>
-  <div class="footer-area">
-    <div class="dev-credits">Developed by <span style="color:var(--primary); font-weight:900">Sohel Tanver</span></div>
-  </div>
+  <div style="text-align:center; padding:20px; font-size:9px; color:#888;">Developed by Sohel Tanver</div>
 </div>
 
 <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-  import { getDatabase, ref, onValue, push, set, onDisconnect } from "https://www.gstatic.com/firebaseio.com/firebase-database.js";
-  const firebaseConfig = { databaseURL: "https://avia-tv-default-rtdb.firebaseio.com/" };
-  try {
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const onlineRef = ref(db, 'online_users'); 
-    const myRef = push(onlineRef);
-    set(myRef, true);
-    onDisconnect(myRef).remove();
-    onValue(onlineRef, (snapshot) => {
-      const count = snapshot.val() ? Object.keys(snapshot.val()).length : 0;
-      document.getElementById("user-count").innerText = count;
-    });
-  } catch (e) {}
-</script>
 
 <script>
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let player, currentUrl = "";
 
-// Sidebar Functions
+// ১. FanCode ফিল্টার ফাংশন (উন্নত সংস্করণ)
+function filterFanCode() {
+  const fanCodeList = allChannels.filter(ch => 
+    ch.name.toLowerCase().includes('fancode') || 
+    ch.name.toLowerCase().includes('fan code')
+  );
+  
+  if (fanCodeList.length > 0) {
+    renderChannels(fanCodeList);
+    playStream(fanCodeList[0].url, fanCodeList[0].name, true);
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  } else {
+    alert("FanCode চ্যানেল খুঁজে পাওয়া যায়নি!");
+  }
+  toggleSidebar();
+}
+
+// ২. Exit ফাংশন
+function exitApp() {
+  if (confirm("আপনি কি নিশ্চিতভাবে বের হতে চান?")) {
+    window.close();
+    setTimeout(() => { window.location.href = "about:blank"; }, 100);
+  }
+}
+
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('active');
   document.getElementById('sidebarOverlay').classList.toggle('active');
 }
 
-function toggleRemember() {
-  document.getElementById('rememberChannel').classList.toggle('toggle-active');
-}
-
-// ১. FanCode ফিল্টার করার কার্যকর ফাংশন
-function filterFanCode() {
-  const fanCodeList = allChannels.filter(ch => ch.name.toLowerCase().includes('fancode'));
-  if (fanCodeList.length > 0) {
-    renderChannels(fanCodeList); // শুধু ফ্যানকোড লিস্ট দেখাবে
-    playStream(fanCodeList[0].url, fanCodeList[0].name, true); // প্রথমটি প্লে হবে
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  } else {
-    alert("দুঃখিত, FanCode চ্যানেল পাওয়া যায়নি!");
-  }
-  toggleSidebar();
-}
-
-// ২. Exit ফাংশন (নিশ্চিত হয়ে বন্ধ করবে)
-function exitApp() {
-    if (confirm("আপনি কি ওয়েবসাইট থেকে বের হতে চান?")) {
-        window.close();
-        window.location.href = "about:blank"; // ব্যাকআপ হিসেবে
-    }
-}
-
-// Player Gestures
-function setupMXControls(player) {
-    const wrapper = document.getElementById('player-wrapper');
-    const hint = document.getElementById('gesture-hint');
-    let startX, startY, startVol, startBright, brightness = 100, isMoving = false;
-
-    wrapper.addEventListener('touchstart', (e) => {
-        startX = e.touches[0].clientX; startY = e.touches[0].clientY;
-        startVol = player.volume(); startBright = brightness; isMoving = false;
-    });
-
-    wrapper.addEventListener('touchmove', (e) => {
-        isMoving = true;
-        const deltaY = startY - e.touches[0].clientY;
-        const isLeft = startX < (wrapper.clientWidth / 2);
-        if (isLeft) {
-            brightness = Math.min(200, Math.max(10, startBright + (deltaY / 2)));
-            wrapper.style.filter = `brightness(${brightness}%)`;
-            showHint(`Brightness: ${Math.round(brightness)}%`);
-        } else {
-            let newVol = Math.min(1, Math.max(0, startVol + (deltaY / 200)));
-            player.volume(newVol);
-            showHint(`Volume: ${Math.round(newVol * 100)}%`);
-        }
-        if (e.cancelable) e.preventDefault();
-    }, { passive: false });
-
-    wrapper.addEventListener('touchend', () => {
-        if (!isMoving) { if (player.paused()) player.play(); else player.pause(); }
-        setTimeout(() => hint.style.display = 'none', 600);
-    });
-    function showHint(text) { hint.innerText = text; hint.style.display = 'block'; }
-}
-
-// Core Functions
 function playStream(url, name, shouldScroll = false) {
   currentUrl = url;
-  document.getElementById("now-playing-ticker").innerText = name;
   player.src({ src: url, type: 'application/x-mpegURL' });
   player.play().catch(() => {});
-  
-  document.querySelectorAll('.channel-card').forEach(card => {
-    if (card.getAttribute('data-url') === url) {
-      card.classList.add('playing');
-      if (shouldScroll) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    } else card.classList.remove('playing');
-  });
+  renderChannels(allChannels); // Refresh UI for highlight
 }
 
 async function init() {
   player = videojs('v-player', { fluid: true });
-  setupMXControls(player);
   try {
     const res = await fetch(playlistUrl);
     const data = await res.text();
     allChannels = parseM3U(data);
     renderChannels(allChannels);
-    if(allChannels.length > 0) playStream(allChannels[0].url, allChannels[0].name, false);
-    setInterval(adjustMargin, 500);
+    if(allChannels.length > 0) playStream(allChannels[0].url, allChannels[0].name);
+    setInterval(() => {
+      const h = document.getElementById('top-section').offsetHeight;
+      document.getElementById('content-area').style.marginTop = (h + 5) + 'px';
+    }, 500);
   } catch(e) {}
 }
 
@@ -390,8 +218,7 @@ function parseM3U(data) {
   lines.forEach(l => {
     if (l.startsWith("#EXTINF")) {
       cur.name = l.split(",")[1]?.trim();
-      cur.logo = l.match(/tvg-logo="([^"]+)"/)?.[1] || "https://cdn-icons-png.flaticon.com/512/716/716429.png";
-      cur.id = btoa(unescape(encodeURIComponent(cur.name || "")));
+      cur.logo = l.match(/tvg-logo="([^"]+)"/)?.[1] || "";
     } else if (l.startsWith("http")) { 
       cur.url = l.trim(); if(cur.name) list.push({...cur}); cur = {}; 
     }
@@ -402,8 +229,7 @@ function parseM3U(data) {
 function renderChannels(list) {
   const grid = document.getElementById("channelList");
   grid.innerHTML = list.map(ch => `
-    <div class="channel-card ${currentUrl === ch.url ? 'playing' : ''}" data-url="${ch.url}" onclick="playStream('${ch.url}', '${ch.name}', false)">
-      <i class="fa-solid fa-star fav-star ${favorites.includes(ch.id) ? 'active' : ''}" onclick="toggleFav(event, '${ch.id}')"></i>
+    <div class="channel-card ${currentUrl === ch.url ? 'playing' : ''}" onclick="playStream('${ch.url}', '${ch.name}')">
       <img src="${ch.logo}" class="channel-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716429.png'">
       <div class="channel-name">${ch.name}</div>
     </div>`).join('');
@@ -411,43 +237,20 @@ function renderChannels(list) {
 }
 
 function handleSearch(val) {
-    const filtered = allChannels.filter(ch => ch.name.toLowerCase().includes(val.toLowerCase()));
-    renderChannels(filtered);
+  const filtered = allChannels.filter(ch => ch.name.toLowerCase().includes(val.toLowerCase()));
+  renderChannels(filtered);
 }
 
 function filterCat(cat, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   if (cat === 'all') renderChannels(allChannels);
-  else if (cat === 'fav') renderChannels(allChannels.filter(ch => favorites.includes(ch.id)));
   else renderChannels(allChannels.filter(ch => ch.name.toLowerCase().includes(cat.toLowerCase())));
 }
 
-function toggleFav(event, id) {
-  event.stopPropagation();
-  favorites = favorites.includes(id) ? favorites.filter(f => f !== id) : [...favorites, id];
-  localStorage.setItem('myFavs', JSON.stringify(favorites));
-  event.target.classList.toggle('active');
-}
-
-function toggleTheme() {
-    document.body.classList.toggle('light-mode');
-}
-
-function shareApp() {
-    if (navigator.share) navigator.share({ title: 'Avia TV', url: window.location.href });
-    else alert('Link: ' + window.location.href);
-}
-
-function adjustMargin() {
-  const h = document.getElementById('top-section').offsetHeight;
-  document.getElementById('content-area').style.marginTop = (h + 5) + 'px';
-}
-
-function toggleRotateManual() {
-  if (!player.isFullscreen()) player.requestFullscreen(); else player.exitFullscreen();
-}
+function toggleTheme() { document.body.classList.toggle('light-mode'); }
+function toggleFull() { if (!player.isFullscreen()) player.requestFullscreen(); else player.exitFullscreen(); }
+function shareApp() { if (navigator.share) navigator.share({ title: 'Avia TV', url: window.location.href }); }
 </script>
-
 </body>
 </html>
