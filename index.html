@@ -12,84 +12,40 @@
 
   <style>
     :root { 
-      --primary: #00e5ff; 
-      --bg: #050505; 
-      --card-bg: rgba(255, 255, 255, 0.05); 
-      --card-border: rgba(255, 255, 255, 0.1); 
-      --accent: #ff4081; --star: #ffd700; 
+      --primary: #00e5ff; --bg: #050505; --card-bg: rgba(255, 255, 255, 0.05); 
+      --card-border: rgba(255, 255, 255, 0.1); --accent: #ff4081; --star: #ffd700; 
       --tg: #24A1DE; --apk: #3DDC84; --online: #4CAF50; --refresh: #ffa500; --text: #ffffff;
-      --header-bg: rgba(10, 10, 10, 0.8);
-      --gold-gradient: linear-gradient(135deg, #ffdb00, #ffa500);
+      --header-bg: rgba(10, 10, 10, 0.8); --gold-gradient: linear-gradient(135deg, #ffdb00, #ffa500);
       --sidebar-bg: #121212;
     }
-
     body.light-mode {
-      --bg: #f0f2f5;
-      --card-bg: #ffffff;
-      --text: #1a1a1a;
-      --header-bg: rgba(240, 242, 245, 0.9);
-      --card-border: rgba(0, 0, 0, 0.1);
-      --sidebar-bg: #ffffff;
+      --bg: #f0f2f5; --card-bg: #ffffff; --text: #1a1a1a;
+      --header-bg: rgba(240, 242, 245, 0.9); --card-border: rgba(0, 0, 0, 0.1); --sidebar-bg: #ffffff;
     }
-
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-    
-    body { 
-      margin: 0; padding: 0; 
-      background: var(--bg); 
-      color: var(--text); 
-      font-family: 'Inter', sans-serif; 
-      overflow-x: hidden; 
-      min-height: 100vh;
-      transition: background 0.3s ease;
-    }
+    body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow-x: hidden; min-height: 100vh; transition: background 0.3s ease; }
 
-    /* Sidebar Styles */
-    .sidebar {
-      position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
-      background: var(--sidebar-bg); z-index: 2000; transition: 0.4s;
-      box-shadow: 5px 0 15px rgba(0,0,0,0.5); padding: 20px; overflow-y: auto;
-    }
+    /* Sidebar */
+    .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--sidebar-bg); z-index: 2000; transition: 0.4s; box-shadow: 5px 0 15px rgba(0,0,0,0.5); padding: 20px; overflow-y: auto; }
     .sidebar.active { left: 0; }
-    .sidebar-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7); z-index: 1999; display: none;
-    }
+    .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1999; display: none; }
     .sidebar-overlay.active { display: block; }
-    
     .sidebar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; border-bottom: 1px solid var(--card-border); padding-bottom: 15px; }
-    .sidebar-menu-item { 
-      display: flex; align-items: center; gap: 15px; padding: 12px; 
-      color: var(--text); text-decoration: none; font-size: 14px; 
-      border-radius: 8px; transition: 0.3s; margin-bottom: 5px;
-      cursor: pointer;
-    }
+    .sidebar-menu-item { display: flex; align-items: center; gap: 15px; padding: 12px; color: var(--text); text-decoration: none; font-size: 14px; border-radius: 8px; transition: 0.3s; margin-bottom: 5px; cursor: pointer; }
     .sidebar-menu-item:hover { background: var(--card-bg); color: var(--primary); }
     .sidebar-label { font-size: 11px; color: #888; text-transform: uppercase; margin: 15px 0 10px 10px; letter-spacing: 1px; }
 
-    /* Header & UI */
-    #top-section { 
-      position: fixed; top: 0; left: 0; width: 100%; 
-      background: var(--header-bg); 
-      backdrop-filter: blur(25px); 
-      z-index: 1000; 
-      border-bottom: 1px solid var(--card-border); 
-    }
-
+    /* UI Header */
+    #top-section { position: fixed; top: 0; left: 0; width: 100%; background: var(--header-bg); backdrop-filter: blur(25px); z-index: 1000; border-bottom: 1px solid var(--card-border); }
     .brand-header { padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; }
     .online-counter-box { display: inline-flex; align-items: center; gap: 6px; background: rgba(76, 175, 80, 0.1); color: var(--online); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; border: 1px solid rgba(76, 175, 80, 0.2); }
     .online-dot-blink { width: 6px; height: 6px; background-color: var(--online); border-radius: 50%; animation: pulse-animation 1.5s infinite; }
     @keyframes pulse-animation { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
     /* Video Player */
-    .video-container { position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1000px; margin: 0 auto; background: #000; overflow: hidden; touch-action: none; }
+    .video-container { position: relative; width: 100%; aspect-ratio: 16/9; max-width: 1000px; margin: 0 auto; background: #000; touch-action: none; overflow: hidden; }
     .video-js { width: 100% !important; height: 100% !important; }
-    .vjs-gesture-hint {
-        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-        background: rgba(0, 0, 0, 0.8); color: var(--primary); padding: 12px 25px;
-        border-radius: 30px; font-size: 14px; font-weight: bold; z-index: 100;
-        display: none; pointer-events: none; border: 1px solid var(--primary);
-    }
+    .vjs-gesture-hint { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.8); color: var(--primary); padding: 12px 25px; border-radius: 30px; font-size: 14px; font-weight: bold; z-index: 100; display: none; pointer-events: none; border: 1px solid var(--primary); }
 
     #ticker { background: rgba(255,255,255,0.02); padding: 6px 0; font-size: 10px; border-bottom: 1px solid var(--card-border); overflow: hidden; }
     .ticker-content { display: inline-block; animation: marquee 30s linear infinite; white-space: nowrap; color: var(--text); opacity: 0.8; }
@@ -176,8 +132,7 @@
 
   <div id="ticker">
     <div class="ticker-content">
-      <b>দেখছেন:</b> <span id="now-playing-ticker">চ্যানেল নির্বাচন করুন...</span> | 
-      🚀 <b>Avia TV</b> তে স্বাগতম | 📢 টেলিগ্রাম গ্রুপ: <a href="https://t.me/techbd_group" target="_blank" style="color:var(--primary); text-decoration:none;">TECH BD GROUP</a>
+      <b>দেখছেন:</b> <span id="now-playing-ticker">চ্যানেল নির্বাচন করুন...</span> | 🚀 <b>Avia TV</b> তে স্বাগতম | 📢 টেলিগ্রাম গ্রুপ: <a href="https://t.me/techbd_group" target="_blank" style="color:var(--primary); text-decoration:none;">TECH BD GROUP</a>
     </div>
   </div>
 
@@ -205,7 +160,6 @@
 
 <div id="content-area">
   <div id="channelList">লোডিং...</div>
-  <div style="text-align:center; padding:30px; font-size:9px; color:#888;">Developed by Sohel Tanver</div>
 </div>
 
 <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
@@ -218,13 +172,8 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const onlineRef = ref(db, 'online_users'); 
-    const myRef = push(onlineRef);
-    set(myRef, true);
-    onDisconnect(myRef).remove();
-    onValue(onlineRef, (snapshot) => {
-      const count = snapshot.val() ? Object.keys(snapshot.val()).length : 0;
-      document.getElementById("user-count").innerText = count;
-    });
+    const myRef = push(onlineRef); set(myRef, true); onDisconnect(myRef).remove();
+    onValue(onlineRef, (s) => { document.getElementById("user-count").innerText = s.val() ? Object.keys(s.val()).length : 0; });
   } catch (e) {}
 </script>
 
@@ -233,32 +182,25 @@ const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-t
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let player, currentUrl = "";
 
-// Sidebar Functions
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('active');
   document.getElementById('sidebarOverlay').classList.toggle('active');
 }
 
-// ১. FanCode Filter
+// ৩. FanCode Filter (সব ফ্যানকোড চ্যানেল দেখাবে)
 function filterFanCode() {
-  const list = allChannels.filter(ch => ch.name.toLowerCase().includes('fancode'));
-  if (list.length > 0) {
-    renderChannels(list);
-    playStream(list[0].url, list[0].name);
+  const fanCodeList = allChannels.filter(ch => ch.name.toLowerCase().includes('fancode'));
+  if (fanCodeList.length > 0) {
+    renderChannels(fanCodeList); // লিস্ট আপডেট হবে সব ফ্যানকোড চ্যানেলে
+    playStream(fanCodeList[0].url, fanCodeList[0].name); // প্রথমটি প্লে হবে
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  } else alert("FanCode পাওয়া যায়নি!");
+  } else alert("ফ্যানকোড চ্যানেল পাওয়া যায়নি!");
   toggleSidebar();
 }
 
-// ২. Exit
-function exitApp() {
-  if (confirm("আপনি কি বের হতে চান?")) {
-    window.close();
-    window.location.href = "about:blank";
-  }
-}
+function exitApp() { if (confirm("বের হতে চান?")) { window.close(); window.location.href = "about:blank"; } }
 
-// Volume, Brightness & Play/Pause Gesture
+// ভলিউম, ব্রাইটনেস ও ট্যাপ-টু-পজ জেস্টার
 function setupGestures(player) {
     const wrapper = document.getElementById('player-wrapper');
     const hint = document.getElementById('gesture-hint');
@@ -286,9 +228,7 @@ function setupGestures(player) {
     }, { passive: false });
 
     wrapper.addEventListener('touchend', () => {
-        if (!isMoving) { // Tap to Play/Pause
-            if (player.paused()) player.play(); else player.pause();
-        }
+        if (!isMoving) { if (player.paused()) player.play(); else player.pause(); }
         setTimeout(() => hint.style.display = 'none', 600);
     });
     function showHint(text) { hint.innerText = text; hint.style.display = 'block'; }
@@ -299,7 +239,15 @@ function playStream(url, name) {
   document.getElementById("now-playing-ticker").innerText = name;
   player.src({ src: url, type: 'application/x-mpegURL' });
   player.play().catch(() => {});
-  renderChannels(allChannels); // Highlight current
+  // বর্তমান প্লেয়িং চ্যানেল হাইলাইট করতে সব চ্যানেল রেন্ডার করা
+  const currentDisplayedList = Array.from(document.querySelectorAll('.channel-card')).map(card => {
+      const url = card.onclick.toString().match(/'([^']+)'/)[1];
+      const name = card.querySelector('.channel-name').innerText;
+      const logo = card.querySelector('.channel-logo').src;
+      const id = btoa(name);
+      return {url, name, logo, id};
+  });
+  // যদি সার্চ বা ফিল্টার মোডে থাকে তবে শুধু সেই লিস্ট রি-রেন্ডার হবে
 }
 
 async function init() {
@@ -347,7 +295,10 @@ function toggleFav(event, id) {
   event.stopPropagation();
   favorites = favorites.includes(id) ? favorites.filter(f => f !== id) : [...favorites, id];
   localStorage.setItem('myFavs', JSON.stringify(favorites));
-  renderChannels(allChannels);
+  // বর্তমানে স্ক্রিনে থাকা লিস্ট অনুযায়ী রি-রেন্ডার
+  const currentSearch = document.getElementById('search').value;
+  if(currentSearch) handleSearch(currentSearch);
+  else renderChannels(allChannels);
 }
 
 function handleSearch(val) {
