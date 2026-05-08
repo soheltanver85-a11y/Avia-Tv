@@ -132,7 +132,7 @@
     <div class="action-btns">
       <div class="rect-btn" onclick="window.location.reload()"><i class="fa-solid fa-rotate-right" style="color:var(--refresh)"></i><span>Refresh</span></div>
       <a href="https://t.me/techbd_group" target="_blank" class="rect-btn"><i class="fa-brands fa-telegram" style="color:var(--tg)"></i><span>Group</span></a>
-      <a href="https://www.mediafire.com/file/mkby3e9skeyfz8n/Avia+Tv+1.0.0.apk/file" target="_blank" class="rect-btn"><i class="fa-solid fa-download" style="color:var(--apk)"></i><span>APK</span></a>
+      <a href="https://www.mediafire.com/file/v1s3j7rd4q3fglg/Avia_Tv_.apk/file" target="_blank" class="rect-btn"><i class="fa-solid fa-download" style="color:var(--apk)"></i><span>APK</span></a>
       <div class="rect-btn" onclick="toggleFull()"><i class="fa-solid fa-expand"></i><span>Full</span></div>
     </div>
     <div class="search-row">
@@ -181,12 +181,11 @@ function toggleSidebar() {
   document.getElementById('sidebarOverlay').classList.toggle('active');
 }
 
-// ফ্যানকোড ফিল্টার - ফিক্সড ভার্সন
 function filterFanCode() {
   const fanCodeList = allChannels.filter(ch => ch.name.toLowerCase().includes('fancode'));
   if (fanCodeList.length > 0) {
     renderChannels(fanCodeList); 
-    playStream(fanCodeList[0].url, fanCodeList[0].name, false); // false মানে রেন্ডার কল করবে না
+    playStream(fanCodeList[0].url, fanCodeList[0].name, false);
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   } else alert("ফ্যানকোড চ্যানেল পাওয়া যায়নি!");
   toggleSidebar();
@@ -194,7 +193,6 @@ function filterFanCode() {
 
 function exitApp() { if (confirm("বের হতে চান?")) { window.close(); window.location.href = "about:blank"; } }
 
-// জেস্টার কন্ট্রোল
 function setupGestures(player) {
     const wrapper = document.getElementById('player-wrapper');
     const hint = document.getElementById('gesture-hint');
@@ -234,7 +232,6 @@ function playStream(url, name, shouldRefreshList = true) {
   if(shouldRefreshList) {
       renderChannels(allChannels); 
   } else {
-      // শুধু বর্তমানে স্ক্রিনে থাকা কার্ডগুলোর হাইলাইট আপডেট করবে
       document.querySelectorAll('.channel-card').forEach(card => {
           card.classList.toggle('playing', card.getAttribute('data-url') === url);
       });
