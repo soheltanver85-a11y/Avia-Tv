@@ -131,7 +131,7 @@
   <header>
     <div class="action-btns">
       <div class="rect-btn" onclick="window.location.reload()"><i class="fa-solid fa-rotate-right" style="color:var(--refresh)"></i><span>Refresh</span></div>
-      <div class="rect-btn" onclick="shareApp()"><i class="fa-solid fa-share-nodes" style="color:var(--tg)"></i><span>Share</span></div>
+      <a href="https://t.me/techbd_group" target="_blank" class="rect-btn"><i class="fa-brands fa-telegram" style="color:var(--tg)"></i><span>Group</span></a>
       <a href="https://www.mediafire.com/file/v1s3j7rd4q3fglg/Avia_Tv_.apk/file" target="_blank" class="rect-btn"><i class="fa-solid fa-download" style="color:var(--apk)"></i><span>APK</span></a>
       <div class="rect-btn" onclick="toggleFull()"><i class="fa-solid fa-expand"></i><span>Full</span></div>
     </div>
@@ -179,23 +179,6 @@ let player, currentUrl = "", currentDisplayedChannels = [];
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('active');
   document.getElementById('sidebarOverlay').classList.toggle('active');
-}
-
-// Modern Share Functionality
-async function shareApp() {
-  const shareData = {
-    title: 'Avia TV - Premium Live Streaming',
-    text: 'সবগুলো লাইভ টিভি চ্যানেল একদম ফ্রিতে বাফারিং ছাড়াই দেখুন Avia TV তে!',
-    url: 'https://avia-tv.vercel.app/'
-  };
-  try {
-    if (navigator.share) {
-      await navigator.share(shareData);
-    } else {
-      await navigator.clipboard.writeText(shareData.url);
-      alert('লিংকটি কপি করা হয়েছে! এখন শেয়ার করুন।');
-    }
-  } catch (err) { console.log('Share failed'); }
 }
 
 function filterFanCode() {
