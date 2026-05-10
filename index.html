@@ -102,6 +102,12 @@
     <i class="fa-brands fa-telegram" style="color:var(--tg)"></i>
     <span>Telegram Group</span>
   </a>
+
+  <div class="sidebar-menu-item" onclick="shareApp()">
+    <i class="fa-solid fa-share-nodes" style="color:var(--primary)"></i>
+    <span>Share App</span>
+  </div>
+
   <div class="sidebar-menu-item" onclick="exitApp()" style="margin-top:20px; border-top:1px solid var(--card-border); padding-top:20px;">
     <i class="fa-solid fa-right-from-bracket" style="color:var(--primary)"></i>
     <span>Exit</span>
@@ -189,6 +195,23 @@ function filterFanCode() {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   } else alert("ফ্যানকোড চ্যানেল পাওয়া যায়নি!");
   toggleSidebar();
+}
+
+function shareApp() {
+  const shareData = {
+    title: 'Avia TV - Premium Live Streaming',
+    text: 'সবগুলো প্রিমিয়াম লাইভ টিভি চ্যানেল ফ্রিতে দেখতে এখনই ভিজিট করুন Avia TV!',
+    url: 'https://avia-tv.vercel.app/'
+  };
+
+  if (navigator.share) {
+    navigator.share(shareData)
+      .then(() => console.log('Shared successfully'))
+      .catch((err) => console.log('Error sharing:', err));
+  } else {
+    navigator.clipboard.writeText(shareData.url);
+    alert("Link Copied to Clipboard! Share it manually.");
+  }
 }
 
 function exitApp() { if (confirm("বের হতে চান?")) { window.close(); window.location.href = "about:blank"; } }
