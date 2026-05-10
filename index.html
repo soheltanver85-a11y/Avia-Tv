@@ -103,9 +103,15 @@
     <span>Telegram Group</span>
   </a>
 
-  <div class="sidebar-menu-item" onclick="shareApp()">
-    <i class="fa-solid fa-share-nodes" style="color:var(--primary)"></i>
-    <span>Share App</span>
+  <div class="sidebar-label">Share App</div>
+  <div style="display: flex; gap: 8px; padding: 0 10px; margin-bottom: 10px;">
+    <div class="rect-btn" onclick="shareTo('whatsapp')" style="flex:1; background:#25D366; color:white; border:none; font-size:14px;"><i class="fa-brands fa-whatsapp"></i></div>
+    <div class="rect-btn" onclick="shareTo('facebook')" style="flex:1; background:#1877F2; color:white; border:none; font-size:14px;"><i class="fa-brands fa-facebook-f"></i></div>
+    <div class="rect-btn" onclick="shareTo('telegram')" style="flex:1; background:#24A1DE; color:white; border:none; font-size:14px;"><i class="fa-brands fa-telegram"></i></div>
+  </div>
+  <div class="sidebar-menu-item" onclick="copyLink()">
+    <i class="fa-solid fa-copy" style="color:var(--primary)"></i>
+    <span>Copy App Link</span>
   </div>
 
   <div class="sidebar-menu-item" onclick="exitApp()" style="margin-top:20px; border-top:1px solid var(--card-border); padding-top:20px;">
@@ -179,8 +185,25 @@
 
 <script>
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
+const appUrl = "https://avia-tv.vercel.app/";
 let allChannels = [], favorites = JSON.parse(localStorage.getItem('myFavs')) || [];
 let player, currentUrl = "", currentDisplayedChannels = [];
+
+// Share & Copy Functions
+function shareTo(platform) {
+  const text = "Avia TV - সব প্রিমিয়াম চ্যানেল লাইভ দেখুন ফ্রিতে! এখনই ভিজিট করুন: ";
+  let url = "";
+  if(platform === 'whatsapp') url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text + appUrl)}`;
+  if(platform === 'facebook') url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(appUrl)}`;
+  if(platform === 'telegram') url = `https://t.me/share/url?url=${encodeURIComponent(appUrl)}&text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+}
+
+function copyLink() {
+  navigator.clipboard.writeText(appUrl).then(() => {
+    alert("লিঙ্কটি কপি করা হয়েছে!");
+  });
+}
 
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('active');
@@ -195,23 +218,6 @@ function filterFanCode() {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   } else alert("ফ্যানকোড চ্যানেল পাওয়া যায়নি!");
   toggleSidebar();
-}
-
-function shareApp() {
-  const shareData = {
-    title: 'Avia TV - Premium Live Streaming',
-    text: 'সবগুলো প্রিমিয়াম লাইভ টিভি চ্যানেল ফ্রিতে দেখতে এখনই ভিজিট করুন Avia TV!',
-    url: 'https://avia-tv.vercel.app/'
-  };
-
-  if (navigator.share) {
-    navigator.share(shareData)
-      .then(() => console.log('Shared successfully'))
-      .catch((err) => console.log('Error sharing:', err));
-  } else {
-    navigator.clipboard.writeText(shareData.url);
-    alert("Link Copied to Clipboard! Share it manually.");
-  }
 }
 
 function exitApp() { if (confirm("বের হতে চান?")) { window.close(); window.location.href = "about:blank"; } }
@@ -251,14 +257,8 @@ function playStream(url, name, shouldRefreshList = true) {
   document.getElementById("now-playing-ticker").innerText = name;
   player.src({ src: url, type: 'application/x-mpegURL' });
   player.play().catch(() => {});
-  
-  if(shouldRefreshList) {
-      renderChannels(allChannels); 
-  } else {
-      document.querySelectorAll('.channel-card').forEach(card => {
-          card.classList.toggle('playing', card.getAttribute('data-url') === url);
-      });
-  }
+  if(shouldRefreshList) renderChannels(allChannels);
+  else document.querySelectorAll('.channel-card').forEach(card => card.classList.toggle('playing', card.getAttribute('data-url') === url));
 }
 
 async function init() {
@@ -270,9 +270,7 @@ async function init() {
     allChannels = parseM3U(data);
     renderChannels(allChannels);
     if(allChannels.length > 0) playStream(allChannels[0].url, allChannels[0].name);
-    setInterval(() => {
-      document.getElementById('content-area').style.marginTop = (document.getElementById('top-section').offsetHeight + 5) + 'px';
-    }, 500);
+    setInterval(() => { document.getElementById('content-area').style.marginTop = (document.getElementById('top-section').offsetHeight + 5) + 'px'; }, 500);
   } catch(e) {}
 }
 
