@@ -6,6 +6,8 @@
   <meta name="referrer" content="no-referrer">
   <title>Avia TV - Premium Live Streaming</title>
   
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/Zn8HDZnK/Gallery-1775924838631.png">
+  
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
   <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -23,6 +25,19 @@
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
     body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow-x: hidden; min-height: 100vh; transition: background 0.3s ease; }
+
+    /* লোগো স্টাইল */
+    .brand-logo {
+      height: 35px; /* হেডারের লোগো সাইজ */
+      width: auto;
+      object-fit: contain;
+      display: block;
+    }
+    .sidebar-logo {
+      height: 50px; /* সাইডবারের লোগো সাইজ */
+      width: auto;
+      object-fit: contain;
+    }
 
     /* Sidebar */
     .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--sidebar-bg); z-index: 2000; transition: 0.4s; box-shadow: 5px 0 15px rgba(0,0,0,0.5); padding: 20px; overflow-y: auto; }
@@ -83,7 +98,7 @@
 
 <div class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <b style="color:var(--primary); font-size:20px;">AVIA TV</b>
+    <img src="https://i.postimg.cc/Zn8HDZnK/Gallery-1775924838631.png" alt="Avia TV" class="sidebar-logo">
     <i class="fa-solid fa-xmark" onclick="toggleSidebar()" style="cursor:pointer;"></i>
   </div>
   <div class="sidebar-label">Exclusive</div>
@@ -124,7 +139,7 @@
   <div class="brand-header">
     <div style="display:flex; align-items:center; gap:12px;">
       <i class="fa-solid fa-bars" onclick="toggleSidebar()" style="cursor:pointer; font-size:20px;"></i>
-      <b style="font-size:18px;">AVIA TV</b>
+      <img src="https://i.postimg.cc/Zn8HDZnK/Gallery-1775924838631.png" alt="Avia TV" class="brand-logo">
     </div>
     <div class="online-counter-box"><div class="online-dot-blink"></div>ONLINE: <span id="user-count">0</span></div>
   </div>
