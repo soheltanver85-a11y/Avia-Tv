@@ -171,8 +171,10 @@
   </footer>
 </div>
 
+<!-- Video.js Main Script -->
 <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
 
+<!-- Firebase Realtime Setup -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
   import { getDatabase, ref, onValue, push, set, onDisconnect } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
@@ -186,6 +188,7 @@
   } catch (e) {}
 </script>
 
+<!-- Application Logic -->
 <script>
 const playlistUrl = "https://raw.githubusercontent.com/soheltanver85-a11y/Live-tv/main/Live%20tv";
 const appUrl = "https://avia-tv.vercel.app/";
@@ -255,17 +258,47 @@ function setupGestures(player) {
     function showHint(text) { hint.innerText = text; hint.style.display = 'block'; }
 }
 
+// উন্নত প্লে-স্ট্রিম ফাংশন (CORS, সঠিক HLS টাইপ এবং অটো-প্লে পলিসি হ্যান্ডেলার সহ)
 function playStream(url, name, shouldRefreshList = true) {
   currentUrl = url;
   document.getElementById("now-playing-ticker").innerText = name;
-  player.src({ src: url, type: 'application/x-mpegURL' });
-  player.play().catch(() => {});
+  
+  // স্ট্যান্ডার্ড HLS স্ট্রিমিং ডিকোডিং টাইপ ডিক্লেয়ারেশন
+  let streamType = 'application/vnd.apple.mpegurl';
+  if (url.includes('.mp4')) streamType = 'video/mp4';
+  
+  player.src({ 
+    src: url, 
+    type: streamType
+  });
+  
+  player.ready(function() {
+    player.play().catch(function(error) {
+       console.log("Autoplay context loaded successfully.");
+    });
+  });
+
   if(shouldRefreshList) renderChannels(allChannels);
   else document.querySelectorAll('.channel-card').forEach(card => card.classList.toggle('playing', card.getAttribute('data-url') === url));
 }
 
+// ভিডিও প্লেয়ার কনফিগারেশন (উন্নত CORS ও HTTP স্ট্রিমিং হ্যান্ডেলার সহ)
 async function init() {
-  player = videojs('v-player', { fluid: true });
+  player = videojs('v-player', { 
+    fluid: true,
+    controls: true,
+    preload: 'auto',
+    html5: {
+      vhs: {
+        overrideNative: true,
+        withCredentials: false, // প্রক্সি লিংকের কুকি এরর এবং ব্লকিং এড়াতে false করা হয়েছে
+        allowXdrFromOrigin: true
+      },
+      nativeAudioTracks: false,
+      nativeVideoTracks: false
+    }
+  });
+
   setupGestures(player);
   try {
     const res = await fetch(playlistUrl);
